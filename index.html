@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Hello Bulma!</title>
+    <title>Nep's Portfolio</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.0/css/bulma.min.css" />
     <link rel="stylesheet" href="./styles/style.css" />
     <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
@@ -13,14 +13,14 @@
   <body>
     <div style="width: 100%; display: flex; flex-direction: row; justify-content: center;">
       <div style="width: 39rem; max-width: 400px; display: flex; flex-direction: row; justify-content: space-between;">
-        <a href="/">Home</a><a aria-current="page" class="" href="/portfolio">Portfolio</a><a
-          href="https://github.com/neporshiso" target="_new">Github</a><a href="/contact">Contact</a><a
+        <a href="/">Home</a><a aria-current="page" class="" href="#portfolio">Portfolio</a><a
+          href="https://github.com/neporshiso" target="_new">Github</a><a href="#contact">Contact</a><a
           href="/blog">Blog</a>
       </div>
     </div>
     <!-- About Me -->
     <section class="section">
-      <div class="container">
+      <div class="container about">
         <div class="content">
           <h2 class="title">About Me</h2>
           <p>
@@ -46,178 +46,158 @@
 
           <p>Technologies I'm currently learning: React.js, Redux</p>
         </div>
-        <img src="/images/main_image.jpg" </div> </section> <!-- Skills -->
-        <section>
-          <div class="container">
-            <h2 class="title">Skills</h2>
-          </div>
-        </section>
-
-        <!-- Resume -->
-        <section class="section" id="resume">
+        <img src="/images/main_image.jpg" </div> 
+    </section> 
+      <!-- Skills -->
+    <section>
+      <div class="container">
           <div class="section-heading">
-            <h3 class="title is-2">Resume</h3>
-            <h4 class="subtitle is-5">More about my past</h4>
-            <a href="#" class="button is-link is-medium">
-              <span class="icon">
-                <i class="fas fa-file-alt"></i>
-              </span>
-              <span>Download My Resume</span>
-            </a>
+              <h3 class="title is-2">Skills</h3>
           </div>
-        </section>
+      </div>
+    </section>
 
-        <!-- Portfolio -->
-        <section class="section" id="portfolio">
-          <div class="container">
-            <div class="section-heading">
-              <h3 class="title is-2">Portfolio</h3>
-              <h4 class="subtitle is-5">My latest works</h4>
+    <!-- Resume -->
+    <section class="section" id="resume">
+      <div class="section-heading">
+        <h3 class="title is-2">Resume</h3>
+        <h4 class="subtitle is-5">More about my past</h4>
+        <a href="#" class="button is-link is-medium">
+          <span class="icon">
+            <i class="fas fa-file-alt"></i>
+          </span>
+          <span>Download My Resume</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- Portfolio -->
+    <section class="section" id="portfolio">
+      <div class="container">
+        <div class="section-heading">
+          <h3 class="title is-2">Portfolio</h3>
+          <h4 class="subtitle is-5">My latest works</h4>
+        </div>
+
+        <div class="container portfolio-container">
+          <!-- ice -->
+          <div class="card">
+            <header class="card-header">
+              <p class="card-header-title">
+                <span>Initial Calculus Essentials</span>
+              </p>
+            </header>
+            <div class="card-content">
+              <figure class="image">
+                <img src="./images/ice_demo_trim.mp4.gif" alt="Cheatsheet template screenshot" />
+              </figure>
             </div>
-
-            <div class="container portfolio-container">
-                  <!-- ice -->
-                  <div class="card">
-                    <header class="card-header">
-                      <p class="card-header-title">
-                        <span>Initial Calculus Essentials</span>
-                      </p>
-                    </header>
-                    <div class="card-content">
-                      <figure class="image">
-                        <img src="./images/ice_demo_trim.mp4.gif" alt="Cheatsheet template screenshot" />
-                      </figure>
-                    </div>
-                    <footer class="card-footer">
-                      <a href="ice.neporshiso.com" class="card-footer-item">Preview</a>
-                      <a href="https://git.io/JegLd"
-                        class="card-footer-item">Source Code</a>
-                    </footer>
-                  </div>
-                  <div class="card">
-                    <header class="card-header">
-                      <p class="card-header-title">
-                        <span>Portfolio Rebalancer</span>
-                      </p>
-                    </header>
-                    <div class="card-content">
-                      <figure class="image">
-                        <img src="./images/rebalancer.gif" alt="Animated Gif of Portfolio Rebalancer" />
-                      </figure>
-                    </div>
-                    <footer class="card-footer">
-                      <a href="https://github.com/neporshiso/etf-rebalancer" class="card-footer-item">Preview</a>
-                      <a href="https://github.com/neporshiso/etf-rebalancer"
-                        class="card-footer-item">Source Code</a>
-                    </footer>
-                  </div>
-                  <div class="card">
-                    <header class="card-header">
-                      <p class="card-header-title">
-                        <span>WhetherFit</span>
-                      </p>
-                    </header>
-                    <div class="card-content">
-                      <figure class="image">
-                        <img src="./images/whetherfit.png" alt="" />
-                      </figure>
-                    </div>
-                    <footer class="card-footer">
-                      <a href="https://whetherfit.neporshiso.com" class="card-footer-item">Preview</a>
-                      <a href="https://git.io/JegtI"
-                        class="card-footer-item">Source Code</a>
-                    </footer>
-                  </div>
-                  <div class="card">
-                    <header class="card-header">
-                      <p class="card-header-title">
-                        <span>MoonSet</span>
-                      </p>
-                    </header>
-                    <div class="card-content">
-                      <figure class="image">
-                        <img src="./images/pygame.gif" alt="Player ships fly through space dodging enemy bullets" />
-                      </figure>
-                    </div>
-                    <footer class="card-footer">
-                      <a href="https://git.io/Jegtt" class="card-footer-item">Preview</a>
-                      <a href="https://git.io/Jegtt"
-                        class="card-footer-item">Source Code</a>
-                    </footer>
-                  </div>
-
-            </div>
+            <footer class="card-footer">
+              <a href="ice.neporshiso.com" class="card-footer-item">Preview</a>
+              <a href="https://git.io/JegLd" class="card-footer-item">Source Code</a>
+            </footer>
           </div>
-        </section>
+          <div class="card">
+            <header class="card-header">
+              <p class="card-header-title">
+                <span>Portfolio Rebalancer</span>
+              </p>
+            </header>
+            <div class="card-content">
+              <figure class="image">
+                <img src="./images/rebalancer.gif" alt="Animated Gif of Portfolio Rebalancer" />
+              </figure>
+            </div>
+            <footer class="card-footer">
+              <a href="https://github.com/neporshiso/etf-rebalancer" class="card-footer-item">Preview</a>
+              <a href="https://github.com/neporshiso/etf-rebalancer" class="card-footer-item">Source Code</a>
+            </footer>
+          </div>
+          <div class="card">
+            <header class="card-header">
+              <p class="card-header-title">
+                <span>WhetherFit</span>
+              </p>
+            </header>
+            <div class="card-content">
+              <figure class="image">
+                <img src="./images/whetherfit.png" alt="" />
+              </figure>
+            </div>
+            <footer class="card-footer">
+              <a href="https://whetherfit.neporshiso.com" class="card-footer-item">Preview</a>
+              <a href="https://git.io/JegtI" class="card-footer-item">Source Code</a>
+            </footer>
+          </div>
+          <div class="card">
+            <header class="card-header">
+              <p class="card-header-title">
+                <span>MoonSet</span>
+              </p>
+            </header>
+            <div class="card-content">
+              <figure class="image">
+                <img src="./images/pygame.gif" alt="Player ships fly through space dodging enemy bullets" />
+              </figure>
+            </div>
+            <footer class="card-footer">
+              <a href="https://git.io/Jegtt" class="card-footer-item">Preview</a>
+              <a href="https://git.io/Jegtt" class="card-footer-item">Source Code</a>
+            </footer>
+          </div>
 
-        <!-- Contact -->
-        <div class="section-light contact" id="contact">
-            <div class="container">
-              <div
-                class="columns is-multiline"
-                data-aos="fade-in-up"
-                data-aos-easing="linear"
-              >
-                <div class="column is-12 about-me">
-                  <h1 class="title has-text-centered section-title">
-                    Get in touch
-                  </h1>
-                </div>
-                <div class="column is-8 is-offset-2">
-                  <form
-                    action="https://formspree.io/myygvkjg" method="POST"
-                  >
-                    <div class="field">
-                      <label class="label">Name</label>
-                      <div class="control has-icons-left">
-                        <input
-                          class="input"
-                          type="text"
-                          placeholder="Ex. Jane Smith"
-                          name="Name"
-                        />
-                        <span class="icon is-small is-left">
-                          <i class="fas fa-user"></i>
-                        </span>
-                      </div>
-                    </div>
-                    <div class="field">
-                      <label class="label">Email</label>
-                      <div class="control has-icons-left">
-                        <input
-                          class="input"
-                          type="email"
-                          placeholder="Ex. hello@arctheme.com"
-                          name="Email"
-                        />
-                        <span class="icon is-small is-left">
-                          <i class="fas fa-envelope"></i>
-                        </span>
-                      </div>
-                    </div>
-                    <div class="field">
-                      <label class="label">Message</label>
-                      <div class="control">
-                        <textarea
-                          class="textarea"
-                          placeholder="Textarea"
-                          name="Message"
-                        ></textarea>
-                      </div>
-                    </div>
-                    <div class="field">
-                      <div class="control ">
-                        <button class="button submit-button">
-                          Submit&nbsp;&nbsp;
-                          <i class="fas fa-paper-plane"></i>
-                        </button>
-                      </div>
-                    </div>
-                  </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- Contact -->
+    <div class="section-light contact" id="contact">
+      <div class="container">
+        <div class="columns is-multiline" data-aos="fade-in-up" data-aos-easing="linear">
+          <div class="column is-12 about-me">
+            <h1 class="title has-text-centered section-title">
+              Get in touch
+            </h1>
+          </div>
+          <div class="column is-8 is-offset-2">
+            <form action="https://formspree.io/myygvkjg" method="POST">
+              <div class="field">
+                <label class="label">Name</label>
+                <div class="control has-icons-left">
+                  <input class="input" type="text" placeholder="Ex. Jane Smith" name="Name" />
+                  <span class="icon is-small is-left">
+                    <i class="fas fa-user"></i>
+                  </span>
                 </div>
               </div>
-            </div>
+              <div class="field">
+                <label class="label">Email</label>
+                <div class="control has-icons-left">
+                  <input class="input" type="email" placeholder="Ex. hello@arctheme.com" name="Email" />
+                  <span class="icon is-small is-left">
+                    <i class="fas fa-envelope"></i>
+                  </span>
+                </div>
+              </div>
+              <div class="field">
+                <label class="label">Message</label>
+                <div class="control">
+                  <textarea class="textarea" placeholder="Textarea" name="Message"></textarea>
+                </div>
+              </div>
+              <div class="field">
+                <div class="control ">
+                  <button class="button submit-button">
+                    Submit&nbsp;&nbsp;
+                    <i class="fas fa-paper-plane"></i>
+                  </button>
+                </div>
+              </div>
+            </form>
           </div>
+        </div>
+      </div>
+    </div>
   </body>
 
 </html>

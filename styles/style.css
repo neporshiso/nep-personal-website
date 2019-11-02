@@ -52,3 +52,9 @@ th {
     justify-content: space-around;
     flex-wrap: wrap;
 }
+
+.section .container.about {
+    max-width: 700px;
+    line-height: 1.8;
+    font-size: 18px;
+}
