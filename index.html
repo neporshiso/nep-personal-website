@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -10,13 +11,25 @@
   </head>
 
   <body>
-    <div style="width: 100%; display: flex; flex-direction: row; justify-content: center;">
-      <div style="width: 39rem; max-width: 400px; display: flex; flex-direction: row; justify-content: space-between;">
-        <a href="/">Home</a><a aria-current="page" class="" href="#portfolio">Portfolio</a><a
-          href="https://github.com/neporshiso" target="_new">Github</a><a href="#contact">Contact</a><a
-          href="/blog">Blog</a>
+    <!-- Nav Bar -->
+    <nav class="navbar" role="navigation" aria-label="main navigation">
+      <div class="navbar-brand">
+        <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+        </a>
       </div>
-    </div>
+      <div class="navbar-menu">
+        <div class="navbar-start" ">
+          <a class="navbar-item" href="index.html">Home</a>
+          <a class="navbar-item" href="#resume">Resume</a>
+          <a class="navbar-item" href="#portfolio">Portfolio</a>
+          <a class="navbar-item" href="#contact">Contact</a>
+          <a class="navbar-item" href="https://blog.neporshiso.com">Blog</a>
+        </div>
+      </div>
+    </nav>
 
     <!-- About Me -->
     <section class="section">
@@ -37,146 +50,132 @@
             worked at a large retirement services provider as a
             junior manager in their call center.
           </p>
-
-          <p>
-            Technologies I've worked with: Python, PostgreSQL,
-            JavaScript, Node.js, npm, Express.js, HTML5, CSS3, AWS,
-            Git, jQuery
-          </p>
-
-          <p>Technologies I'm currently learning: React.js, Redux</p>
         </div>
-        <img src="/images/main_image.jpg" </div> 
-    </section> 
-
-      <!-- Skills -->
-    <section>
-      <div class="container skills">
-          <div class="content">
-            <h3 class="title is-2">Skills</h3>
-            <div class="tags are-large">
-              <span class="tag">React.js</span>
-              <span class="tag">Redux</span>
-              <span class="tag">Python</span>
-              <span class="tag">PostgreSQL</span>
-              <span class="tag">JavaScript</span>
-              <span class="tag">Node.js</span>
-              <span class="tag">Express.js</span>
-              <span class="tag">HTML5</span>
-              <span class="tag">CSS3</span>
-              <span class="tag">AWS</span>
-              <span class="tag">MySQL</span>
-              <span class="tag">Git</span>
-              <span class="tag">jQuery</span>
-              <span class="tag">Terminal</span>
+        <img src="/images/main_image.jpg" </div> </section> <!-- Skills -->
+        <section>
+          <div class="container skills">
+            <div class="content">
+              <h3 class="title is-2">Skills</h3>
+              <div class="tags are-large">
+                <span class="tag">React.js</span>
+                <span class="tag">Redux</span>
+                <span class="tag">Python</span>
+                <span class="tag">PostgreSQL</span>
+                <span class="tag">JavaScript</span>
+                <span class="tag">Node.js</span>
+                <span class="tag">Express.js</span>
+                <span class="tag">HTML5</span>
+                <span class="tag">CSS3</span>
+                <span class="tag">AWS</span>
+                <span class="tag">MySQL</span>
+                <span class="tag">Git</span>
+                <span class="tag">jQuery</span>
+                <span class="tag">Terminal</span>
+              </div>
             </div>
           </div>
-      </div>
-    </section>
+        </section>
 
-    <!-- Resume -->
-    <section class="section" id="resume">
-      <div class="section-heading">
-        <h3 class="title is-2">Resume</h3>
-        <h4 class="subtitle is-5">More about my past</h4>
-        <a href="https://drive.google.com/file/d/1Lp5hmr0dcUQK0a0wJb_B3HtWavdzQZoR/view?usp=sharing" class="button is-link is-medium">
-          <span class="icon">
-            <i class="fas fa-file-alt"></i>
-          </span>
-          <span>Download My Resume</span>
-        </a>
-      </div>
-    </section>
+        <!-- Resume -->
+        <section class="section" id="resume">
+          <div class="section-heading">
+            <h3 class="title is-2">Resume</h3>
+            <h4 class="subtitle is-5">More about my past</h4>
+            <a href="https://drive.google.com/file/d/1Lp5hmr0dcUQK0a0wJb_B3HtWavdzQZoR/view?usp=sharing"
+              class="button is-link is-medium">
+              <span class="icon">
+                <i class="fas fa-file-alt"></i>
+              </span>
+              <span>Download My Resume</span>
+            </a>
+          </div>
+        </section>
 
-    <!-- Portfolio -->
-    <section class="section" id="portfolio">
-      <div class="container">
-        <div class="section-heading">
-          <h3 class="title is-2">Portfolio</h3>
-          <h4 class="subtitle is-5">My latest works</h4>
-        </div>
-
-        <div class="container portfolio-container">
-          <!-- ice -->
-          <div class="card">
-            <header class="card-header">
-              <p class="card-header-title">
-                <span>Initial Calculus Essentials</span>
-              </p>
-            </header>
-            <div class="card-content">
-              <figure class="image">
-                <img src="./images/ice_demo_trim.mp4.gif" alt="Cheatsheet template screenshot" />
-              </figure>
+        <!-- Portfolio -->
+        <section class="section" id="portfolio">
+          <div class="container">
+            <div class="section-heading">
+              <h3 class="title is-2">Portfolio</h3>
+              <h4 class="subtitle is-5">My latest works</h4>
             </div>
-            <footer class="card-footer">
-              <a href="ice.neporshiso.com" class="card-footer-item">Preview</a>
-              <a href="https://git.io/JegLd" class="card-footer-item">Source Code</a>
-            </footer>
-          </div>
-          <div class="card">
-            <header class="card-header">
-              <p class="card-header-title">
-                <span>Portfolio Rebalancer</span>
-              </p>
-            </header>
-            <div class="card-content">
-              <figure class="image">
-                <img src="./images/rebalancer.gif" alt="Animated Gif of Portfolio Rebalancer" />
-              </figure>
-            </div>
-            <footer class="card-footer">
-              <a href="https://github.com/neporshiso/etf-rebalancer" class="card-footer-item">Preview</a>
-              <a href="https://github.com/neporshiso/etf-rebalancer" class="card-footer-item">Source Code</a>
-            </footer>
-          </div>
-          <div class="card">
-            <header class="card-header">
-              <p class="card-header-title">
-                <span>WhetherFit</span>
-              </p>
-            </header>
-            <div class="card-content">
-              <figure class="image">
-                <img src="./images/whetherfit.png" alt="" />
-              </figure>
-            </div>
-            <footer class="card-footer">
-              <a href="https://whetherfit.neporshiso.com" class="card-footer-item">Preview</a>
-              <a href="https://git.io/JegtI" class="card-footer-item">Source Code</a>
-            </footer>
-          </div>
-          <div class="card">
-            <header class="card-header">
-              <p class="card-header-title">
-                <span>MoonSet</span>
-              </p>
-            </header>
-            <div class="card-content">
-              <figure class="image">
-                <img src="./images/pygame.gif" alt="Player ships fly through space dodging enemy bullets" />
-              </figure>
-            </div>
-            <footer class="card-footer">
-              <a href="https://git.io/Jegtt" class="card-footer-item">Preview</a>
-              <a href="https://git.io/Jegtt" class="card-footer-item">Source Code</a>
-            </footer>
-          </div>
 
-        </div>
-      </div>
-    </section>
+            <div class="container portfolio-container">
+              <!-- ice -->
+              <div class="card">
+                <header class="card-header">
+                  <p class="card-header-title">
+                    <span>Initial Calculus Essentials</span>
+                  </p>
+                </header>
+                <div class="card-content">
+                  <figure class="image">
+                    <img src="./images/ice_demo_trim.mp4.gif" alt="Cheatsheet template screenshot" />
+                  </figure>
+                </div>
+                <footer class="card-footer">
+                  <a href="ice.neporshiso.com" class="card-footer-item">Preview</a>
+                  <a href="https://git.io/JegLd" class="card-footer-item">Source Code</a>
+                </footer>
+              </div>
+              <div class="card">
+                <header class="card-header">
+                  <p class="card-header-title">
+                    <span>Portfolio Rebalancer</span>
+                  </p>
+                </header>
+                <div class="card-content">
+                  <figure class="image">
+                    <img src="./images/rebalancer.gif" alt="Animated Gif of Portfolio Rebalancer" />
+                  </figure>
+                </div>
+                <footer class="card-footer">
+                  <a href="https://github.com/neporshiso/etf-rebalancer" class="card-footer-item">Preview</a>
+                  <a href="https://github.com/neporshiso/etf-rebalancer" class="card-footer-item">Source Code</a>
+                </footer>
+              </div>
+              <div class="card">
+                <header class="card-header">
+                  <p class="card-header-title">
+                    <span>WhetherFit</span>
+                  </p>
+                </header>
+                <div class="card-content">
+                  <figure class="image">
+                    <img src="./images/whetherfit.png" alt="" />
+                  </figure>
+                </div>
+                <footer class="card-footer">
+                  <a href="https://whetherfit.neporshiso.com" class="card-footer-item">Preview</a>
+                  <a href="https://git.io/JegtI" class="card-footer-item">Source Code</a>
+                </footer>
+              </div>
+              <div class="card">
+                <header class="card-header">
+                  <p class="card-header-title">
+                    <span>MoonSet</span>
+                  </p>
+                </header>
+                <div class="card-content">
+                  <figure class="image">
+                    <img src="./images/pygame.gif" alt="Player ships fly through space dodging enemy bullets" />
+                  </figure>
+                </div>
+                <footer class="card-footer">
+                  <a href="https://git.io/Jegtt" class="card-footer-item">Preview</a>
+                  <a href="https://git.io/Jegtt" class="card-footer-item">Source Code</a>
+                </footer>
+              </div>
 
-    <!-- Contact -->
-    <div class="section-light contact" id="contact">
-      <div class="container">
-        <div class="columns is-multiline" data-aos="fade-in-up" data-aos-easing="linear">
-          <div class="column is-12 about-me">
-            <h1 class="title has-text-centered section-title">
-              Get in touch
-            </h1>
+            </div>
           </div>
-          <div class="column is-8 is-offset-2">
+        </section>
+
+        <!-- Contact -->
+        <section class="section-light contact" id="contact">
+          <div class="section-heading">
+            <h3 class="title is-2">Email Me</h3>
+          </div>
+          <div class="content form-container">
             <form action="https://formspree.io/myygvkjg" method="POST">
               <div class="field">
                 <label class="label">Name</label>
@@ -190,7 +189,7 @@
               <div class="field">
                 <label class="label">Email</label>
                 <div class="control has-icons-left">
-                  <input class="input" type="email" placeholder="Ex. hello@arctheme.com" name="Email" />
+                  <input class="input" type="email" placeholder="Ex. YourName@yourcompany.com" name="Email" />
                   <span class="icon is-small is-left">
                     <i class="fas fa-envelope"></i>
                   </span>
@@ -204,7 +203,7 @@
               </div>
               <div class="field">
                 <div class="control ">
-                  <button class="button submit-button">
+                  <button class="button submit-button is-primary">
                     Submit&nbsp;&nbsp;
                     <i class="fas fa-paper-plane"></i>
                   </button>
@@ -212,9 +211,8 @@
               </div>
             </form>
           </div>
-        </div>
-      </div>
-    </div>
+          <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+          <script src="scripts/index.js"></script>
   </body>
 
 </html>

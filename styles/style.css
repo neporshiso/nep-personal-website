@@ -69,3 +69,23 @@ span.tag:hover {
     background-color: blue;
     color: white;
 }
+
+form {
+    width: 500px;
+    padding: 20px;
+}
+
+.form-container {
+    display: flex;
+    align-content: center;
+    justify-content: center;
+}
+
+.section-light.content {
+    margin-bottom: 500px;
+}
+
+.navbar-menu .navbar-start {
+    flex-grow: 1; 
+    justify-content: center;
+}
