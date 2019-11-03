@@ -58,3 +58,14 @@ th {
     line-height: 1.8;
     font-size: 18px;
 }
+
+.container.skills {
+    max-width: 700px;
+    line-height: 1.8;
+    font-size: 18px;
+}
+
+span.tag:hover {
+    background-color: blue;
+    color: white;
+}
