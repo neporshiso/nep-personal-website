@@ -1,50 +1,69 @@
-.has-same-height .card {
-    height: 320px;
-    overflow: hidden;
+html {
+    background-color: whitesmoke;
 }
 
-.card-content h3 {
+.title {
+    font-weight: lighter;
+    font-size: 2.5rem;
+}
+
+.content .title {
     text-align: center;
+    font-weight: lighter;
+    font-size: 1.75rem;
 }
 
-.table-profile td,
-th {
-    border: none !important;
+/* ****************************** */
+
+/* navbar styling */
+
+.navbar {
+    background-color: whitesmoke;
 }
 
-.table-profile td:first-of-type {
-    font-weight: bold;
+.navbar-item {
+    text-decoration: underline;
 }
 
-.skills-content .media {
-    margin: 0 !important;
-    padding: 4px !important;
-    border: 0 !important;
+.navbar-menu .navbar-start {
+    flex-grow: 1; 
+    justify-content: center;
+    font-size: 1.5rem;
 }
+/* ****************************** */
 
-.skills-content .progress {
-    height: 4px !important;
-}
-
-.custom-tags {
-    text-align: center !important;
-    display: block;
-}
-
-.portfolio-container .card {
-    margin-bottom: 2em;
-    width: 500px;
-}
+/* resume and portfolio titles */
 
 .section-heading {
     text-align: center;
     margin-top: 1em;
     margin-bottom: 6em;
 }
+/* ****************************** */
 
-.card-content .image {
-    height: 250px;
-    overflow: hidden;
+/* About Me styles */
+.section .container.about {
+    max-width: 700px;
+    line-height: 1.8;
+    font-size: 18px;
+}
+
+ul li{
+    display: inline;
+    font-weight: 600;
+    margin: 0 20px;
+}
+
+.content.social {
+    text-align: center;
+}
+/* ****************************** */
+
+/* Portfolio styles */
+
+.portfolio-container .card {
+    margin-bottom: 2em;
+    width: 500px;
 }
 
 .container .portfolio-container {
@@ -53,11 +72,33 @@ th {
     flex-wrap: wrap;
 }
 
-.section .container.about {
-    max-width: 700px;
-    line-height: 1.8;
-    font-size: 18px;
+.card {
+    height: 550px;
 }
+
+.card-content {
+    display: flex;
+}
+
+.card-description {
+    margin: 0 30px;
+}
+
+.card-footer {
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    position: absolute;
+}
+
+video {
+    height: 250px;
+    margin: 0 auto;
+}
+
+/* ****************************** */
+
+/* Skills Styles */
 
 .container.skills {
     max-width: 700px;
@@ -65,27 +106,26 @@ th {
     font-size: 18px;
 }
 
-span.tag:hover {
-    background-color: blue;
-    color: white;
-}
-
-form {
-    width: 500px;
-    padding: 20px;
-}
-
-.form-container {
+.skills.content {
     display: flex;
-    align-content: center;
-    justify-content: center;
+    justify-content: space-evenly;
+    flex-flow: wrap row;
 }
 
-.section-light.content {
-    margin-bottom: 500px;
+.skills.content .skill {
+    margin: 20px 20px;
 }
 
-.navbar-menu .navbar-start {
-    flex-grow: 1; 
-    justify-content: center;
+.skill i {
+    font-size: 5rem;
 }
+
+.iconify {
+    color: purple;
+    font-size: 5rem;
+}
+
+.skill p {
+    text-align: center;
+}
+/* ****************************** */

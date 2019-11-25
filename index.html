@@ -2,12 +2,29 @@
 <html>
 
   <head>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-146861978-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag('js', new Date());
+
+      gtag('config', 'UA-146861978-1');
+    </script>
+
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Nep's Portfolio</title>
+    <title>Nep's Portfolio | Nep Orshiso</title>
+    <link rel="stylesheet"
+      href="https://cdn.rawgit.com/konpa/devicon/df6431e323547add1b4cf45992913f15286456d3/devicon.min.css">
+
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.0/css/bulma.min.css" />
     <link rel="stylesheet" href="./styles/style.css" />
-    <link rel='icon' href='favicon.ico' type='image/x-icon'/>
+    <link rel='icon' href='favicon.ico' type='image/x-icon' />
+    <script defer src="https://code.iconify.design/1/1.0.3/iconify.min.js"></script>
     <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
   </head>
 
@@ -22,12 +39,11 @@
         </a>
       </div>
       <div class="navbar-menu">
-        <div class="navbar-start" ">
+        <div class="navbar-start">
           <a class="navbar-item" href="index.html">Home</a>
           <a class="navbar-item" href="#resume">Resume</a>
           <a class="navbar-item" href="#portfolio">Portfolio</a>
-          <a class="navbar-item" href="#contact">Contact</a>
-          <a class="navbar-item" href="https://blog.neporshiso.com">Blog</a>
+          <a class="navbar-item" href="https://blog.neporshiso.com" target="_blank">Blog</a>
         </div>
       </div>
     </nav>
@@ -35,8 +51,8 @@
     <!-- About Me -->
     <section class="section">
       <div class="container about">
+        <h2 class="title">About Me</h2>
         <div class="content">
-          <h2 class="title">About Me</h2>
           <p>
             My name is Nep Orshiso and I’m from Kansas City, MO. I’m
             an Ethiopian-American and I’ve lived in the Midwest most
@@ -51,169 +67,223 @@
             worked at a large retirement services provider as a
             junior manager in their call center.
           </p>
+
+          <h4 class="title">Contact Me</h4>
+          <div class="content social">
+            <ul>
+              <li><a href="https://github.com/neporshiso" target="_blank">Github</a></li>
+              <li><a href="https://www.linkedin.com/in/neporshiso/" target="_blank">LinkedIn</a></li>
+              <li><a href="https://twitter.com/NepOrshiso" target="_blank">Twitter</a></li>
+              <li><a href="mailto:nep.orshiso@gmail.com">Email Me</a></li>
+            </ul>
+          </div>
         </div>
-        <img src="/images/main_image.jpg" </div> </section> <!-- Skills -->
-        <section>
-          <div class="container skills">
-            <div class="content">
-              <h3 class="title is-2">Skills</h3>
-              <div class="tags are-large">
-                <span class="tag">React.js</span>
-                <span class="tag">Redux</span>
-                <span class="tag">Python</span>
-                <span class="tag">PostgreSQL</span>
-                <span class="tag">JavaScript</span>
-                <span class="tag">Node.js</span>
-                <span class="tag">Express.js</span>
-                <span class="tag">HTML5</span>
-                <span class="tag">CSS3</span>
-                <span class="tag">AWS</span>
-                <span class="tag">MySQL</span>
-                <span class="tag">Git</span>
-                <span class="tag">jQuery</span>
-                <span class="tag">Terminal</span>
-              </div>
+        <img src="https://nep-portfolio-assets.s3.us-east-2.amazonaws.com/main_picture.jpeg" />
+      </div>
+    </section>
+
+    <!-- Skills -->
+    <section class="section">
+      <div class="container skills">
+        <h2 class="title">Skills</h2>
+        <div class="skills content">
+          <div class="skill">
+            <i class="devicon-amazonwebservices-original colored"></i>
+            <p>AWS</p>
+          </div>
+
+          <div class="skill">
+            <i class="devicon-css3-plain colored"></i>
+            <p>CSS3</p>
+          </div>
+
+          <div class="skill">
+            <i class="devicon-express-original colored"></i>
+            <p>Express</p>
+          </div>
+
+          <div class="skill">
+            <i class="devicon-javascript-plain colored"></i>
+            <p>JavaScript</p>
+          </div>
+
+          <div class="skill">
+            <i class="devicon-jquery-plain colored"></i>
+            <p>jQuery</p>
+          </div>
+
+          <div class="skill">
+            <i class="devicon-git-plain colored"></i>
+            <p>Git</p>
+          </div>
+
+          <div class="skill">
+            <i class="devicon-github-plain colored"></i>
+            <p>Github</p>
+          </div>
+
+          <div class="skill">
+            <i class="devicon-html5-plain colored"></i>
+            <p>HTML5</p>
+          </div>
+
+          <div class="skill">
+            <i class="devicon-nginx-original colored"></i>
+            <p>NGINX</p>
+          </div>
+
+          <div class="skill">
+            <i class="devicon-nodejs-plain colored"></i>
+            <p>Node.js</p>
+          </div>
+
+          <div class="skill">
+            <i class="devicon-postgresql-plain colored"></i>
+            <p>PostgreSQL</p>
+          </div>
+
+          <div class="skill">
+            <i class="devicon-python-plain colored"></i>
+            <p>Python</p>
+          </div>
+
+
+          <div class="skill">
+            <i class="devicon-react-original colored"></i>
+            <p>React</p>
+          </div>
+
+          <div class="skill">
+            <span class="iconify" data-icon="simple-icons:redux" data-inline="false"></span>
+            <p>Redux</p>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- Resume -->
+    <section class="section" id="resume">
+      <div class="section-heading">
+        <h2 class="title">Resume</h2>
+        <a href="https://nep-portfolio-assets.s3.us-east-2.amazonaws.com/Nep_Orshiso_Resume.pdf" target="_blank"
+          class="button is-link is-medium">
+          <span class="icon">
+            <i class="fas fa-file-alt"></i>
+          </span>
+          <span>View My Resume</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- Portfolio -->
+    <section class="section" id="portfolio">
+      <div class="container">
+        <div class="section-heading">
+          <h2 class="title">Portfolio</h2>
+        </div>
+
+        <div class="container portfolio-container">
+          <div class="card">
+            <header class="card-header">
+              <p class="card-header-title">
+                <span>Initial Calculus Essentials</span>
+              </p>
+            </header>
+            <div class="card-content">
+              <video controls loop>
+                <source src="https://nep-portfolio-assets.s3.us-east-2.amazonaws.com/Ice+(1).mp4" type="video/mp4">
+              </video>
             </div>
-          </div>
-        </section>
-
-        <!-- Resume -->
-        <section class="section" id="resume">
-          <div class="section-heading">
-            <h3 class="title is-2">Resume</h3>
-            <h4 class="subtitle is-5">More about my past</h4>
-            <a href="https://drive.google.com/file/d/1Lp5hmr0dcUQK0a0wJb_B3HtWavdzQZoR/view?usp=sharing"
-              class="button is-link is-medium">
-              <span class="icon">
-                <i class="fas fa-file-alt"></i>
-              </span>
-              <span>Download My Resume</span>
-            </a>
-          </div>
-        </section>
-
-        <!-- Portfolio -->
-        <section class="section" id="portfolio">
-          <div class="container">
-            <div class="section-heading">
-              <h3 class="title is-2">Portfolio</h3>
-              <h4 class="subtitle is-5">My latest works</h4>
+            <div class="card-description">
+              <p>Initial Calculus Essentials was built to help anyone learning calculus for the first time.</p>
+              <br>
+              <p>Built with HTML, CSS, Bulma, JavaScript, jQuery, Node.js, Express, and PostgreSQL.</p>
             </div>
+            <footer class="card-footer">
+              <a href="https://ice.neporshiso.com" class="card-footer-item" target="_blank">Preview</a>
+              <a href="https://git.io/JegLd" class="card-footer-item" target="_blank">Source Code</a>
+            </footer>
+          </div>
 
-            <div class="container portfolio-container">
-              <!-- ice -->
-              <div class="card">
-                <header class="card-header">
-                  <p class="card-header-title">
-                    <span>Initial Calculus Essentials</span>
-                  </p>
-                </header>
-                <div class="card-content">
-                  <figure class="image">
-                    <img src="./images/ice_demo_trim.mp4.gif" alt="Cheatsheet template screenshot" />
-                  </figure>
-                </div>
-                <footer class="card-footer">
-                  <a href="https://ice.neporshiso.com" class="card-footer-item">Preview</a>
-                  <a href="https://git.io/JegLd" class="card-footer-item">Source Code</a>
-                </footer>
-              </div>
-              <div class="card">
-                <header class="card-header">
-                  <p class="card-header-title">
-                    <span>Portfolio Rebalancer</span>
-                  </p>
-                </header>
-                <div class="card-content">
-                  <figure class="image">
-                    <img src="./images/rebalancer.gif" alt="Animated Gif of Portfolio Rebalancer" />
-                  </figure>
-                </div>
-                <footer class="card-footer">
-                  <a href="https://github.com/neporshiso/etf-rebalancer" class="card-footer-item">Preview</a>
-                  <a href="https://github.com/neporshiso/etf-rebalancer" class="card-footer-item">Source Code</a>
-                </footer>
-              </div>
-              <div class="card">
-                <header class="card-header">
-                  <p class="card-header-title">
-                    <span>WhetherFit</span>
-                  </p>
-                </header>
-                <div class="card-content">
-                  <figure class="image">
-                    <img src="./images/whetherfit.png" alt="" />
-                  </figure>
-                </div>
-                <footer class="card-footer">
-                  <a href="https://whetherfit.neporshiso.com" class="card-footer-item">Preview</a>
-                  <a href="https://git.io/JegtI" class="card-footer-item">Source Code</a>
-                </footer>
-              </div>
-              <div class="card">
-                <header class="card-header">
-                  <p class="card-header-title">
-                    <span>MoonSet</span>
-                  </p>
-                </header>
-                <div class="card-content">
-                  <figure class="image">
-                    <img src="./images/pygame.gif" alt="Player ships fly through space dodging enemy bullets" />
-                  </figure>
-                </div>
-                <footer class="card-footer">
-                  <a href="https://git.io/Jegtt" class="card-footer-item">Preview</a>
-                  <a href="https://git.io/Jegtt" class="card-footer-item">Source Code</a>
-                </footer>
-              </div>
-
+          <div class="card">
+            <header class="card-header">
+              <p class="card-header-title">
+                <span>Portfolio Rebalancer</span>
+              </p>
+            </header>
+            <div class="card-content">
+              <video controls loop>
+                <source src="https://nep-portfolio-assets.s3.us-east-2.amazonaws.com/rebalancer.mp4" type="video/mp4">
+              </video>
             </div>
+            <div class="card-description">
+              <p>This python script can help you rebalance your portfolio. It was born out of my frustration with an
+                investment account that didn't have a tool for this purpose.</p>
+              <br>
+              <p>I wrote this after reading through "Learn Python The Hard Way" as a pre-requisite to the DigitalCrafts
+                Bootcamp.</p>
+            </div>
+            <footer class="card-footer">
+              <a href="https://github.com/neporshiso/etf-rebalancer" class="card-footer-item"
+                target="_blank">Preview</a>
+              <a href="https://github.com/neporshiso/etf-rebalancer" class="card-footer-item" target="_blank">Source
+                Code</a>
+            </footer>
           </div>
-        </section>
 
-        <!-- Contact -->
-        <section class="section-light contact" id="contact">
-          <div class="section-heading">
-            <h3 class="title is-2">Email Me</h3>
+          <div class="card">
+            <header class="card-header">
+              <p class="card-header-title">
+                <span>WhetherFit</span>
+              </p>
+            </header>
+            <div class="card-content">
+              <video controls loop>
+                <source src="https://nep-portfolio-assets.s3.us-east-2.amazonaws.com/whetherfit+(1).mp4"
+                  type="video/mp4">
+              </video>
+            </div>
+            <div class="card-description">
+              <p>WhetherFit is an interactive application that helps you pick out appropriate clothing to keep you
+                comfortable based on the weather forecast.</p>
+              <br>
+              <p>Built with HTML, CSS (Bulma Framework), JavaScript, and the DarkSky API.</p>
+            </div>
+            <footer class="card-footer">
+              <a href="https://whetherfit.neporshiso.com" class="card-footer-item" target="_blank">Preview</a>
+              <a href="https://git.io/JegtI" class="card-footer-item" target="_blank">Source Code</a>
+            </footer>
           </div>
-          <div class="content form-container">
-            <form action="https://formspree.io/myygvkjg" method="POST">
-              <div class="field">
-                <label class="label">Name</label>
-                <div class="control has-icons-left">
-                  <input class="input" type="text" placeholder="Ex. Jane Smith" name="Name" />
-                  <span class="icon is-small is-left">
-                    <i class="fas fa-user"></i>
-                  </span>
-                </div>
-              </div>
-              <div class="field">
-                <label class="label">Email</label>
-                <div class="control has-icons-left">
-                  <input class="input" type="email" placeholder="Ex. YourName@yourcompany.com" name="Email" />
-                  <span class="icon is-small is-left">
-                    <i class="fas fa-envelope"></i>
-                  </span>
-                </div>
-              </div>
-              <div class="field">
-                <label class="label">Message</label>
-                <div class="control">
-                  <textarea class="textarea" placeholder="Textarea" name="Message"></textarea>
-                </div>
-              </div>
-              <div class="field">
-                <div class="control ">
-                  <button class="button submit-button is-primary">
-                    Submit&nbsp;&nbsp;
-                    <i class="fas fa-paper-plane"></i>
-                  </button>
-                </div>
-              </div>
-            </form>
+
+          <div class="card">
+            <header class="card-header">
+              <p class="card-header-title">
+                <span>MoonSet</span>
+              </p>
+            </header>
+            <div class="card-content">
+              <video controls loop muted>
+                <source src="https://nep-portfolio-assets.s3.us-east-2.amazonaws.com/pygame+(1).mp4" type="video/mp4">
+              </video>
+            </div>
+            <div class="card-description">
+              <p>MoonSet is the first project I helped build as part of the DigitalCrafts curriculum.</p>
+              <br>
+              <p>Built with pygame which is a library for making games in Python.</p>
+            </div>
+            <footer class="card-footer">
+              <a href="https://git.io/Jegtt" class="card-footer-item" target="_blank">Preview</a>
+              <a href="https://git.io/Jegtt" class="card-footer-item" target="_blank">Source Code</a>
+            </footer>
           </div>
-          <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-          <script src="scripts/index.js"></script>
+
+        </div>
+      </div>
+    </section>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="scripts/index.js"></script>
   </body>
 
 </html>
