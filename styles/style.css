@@ -26,7 +26,7 @@ html {
 }
 
 .navbar-menu .navbar-start {
-    flex-grow: 1; 
+    flex-grow: 1;
     justify-content: center;
     font-size: 1.5rem;
 }
@@ -48,7 +48,7 @@ html {
     font-size: 18px;
 }
 
-ul li{
+ul li {
     display: inline;
     font-weight: 600;
     margin: 0 20px;
@@ -129,3 +129,22 @@ video {
     text-align: center;
 }
 /* ****************************** */
+
+/* Media Queries to adjust Portfolio Cards on small screens */
+@media (width < 550px) {
+    .card {
+        height: 600px;
+    }
+}
+
+@media (width < 420px) {
+    .card {
+        height: 650px;
+    }
+}
+
+@media (width < 360px) {
+    .card {
+        height: 710px;
+    }
+}

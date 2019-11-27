@@ -10,4 +10,4 @@ $(document).ready(function () {
     });
   });
 
-  console.log("Shout out to Puja Fitz https://github.com/pujafitz for taking the time out of her day to take pictures of me at the Atlanta Tech Village. Those pictures are on all of my social media and on my portfolio. Thanks Puja!")
+  console.log("Shout out to Puja Fitzpatrick https://github.com/pujafitz for taking the time out of her day to take pictures of me at the Atlanta Tech Village. Those pictures are on all of my social media and on my portfolio. Thanks Puja!")
