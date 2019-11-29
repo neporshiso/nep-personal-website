@@ -131,19 +131,19 @@ video {
 /* ****************************** */
 
 /* Media Queries to adjust Portfolio Cards on small screens */
-@media (width < 550px) {
+@media screen and (max-width: 550px) {
     .card {
         height: 600px;
     }
 }
 
-@media (width < 420px) {
+@media screen and (max-width: 420px) {
     .card {
         height: 650px;
     }
 }
 
-@media (width < 360px) {
+@media screen and (max-width: 360px) {
     .card {
         height: 710px;
     }
