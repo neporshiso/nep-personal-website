@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
   <head>
     <!-- Global site tag (gtag.js) - Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-146861978-1"></script>
+    <script defer src="https://www.googletagmanager.com/gtag/js?id=UA-146861978-1"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
 
@@ -17,6 +17,9 @@
 
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Nep Orshiso's Portfolio. Come check it out!">
+    <meta name="keywords" content="HTML, CSS, JavaScript, React, AWS, Node, Express, Python">
+    <meta name="author" content="Nep Orshiso">
     <title>Nep's Portfolio | Nep Orshiso</title>
     <link rel="stylesheet"
       href="https://cdn.rawgit.com/konpa/devicon/df6431e323547add1b4cf45992913f15286456d3/devicon.min.css">
@@ -30,7 +33,7 @@
 
   <body>
     <!-- Nav Bar -->
-    <nav class="navbar" role="navigation" aria-label="main navigation">
+    <nav class="navbar" role="navigation" aria-label="Main">
       <div class="navbar-brand">
         <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
           <span aria-hidden="true"></span>
@@ -43,7 +46,7 @@
           <a class="navbar-item" href="index.html">Home</a>
           <a class="navbar-item" href="#resume">Resume</a>
           <a class="navbar-item" href="#portfolio">Portfolio</a>
-          <a class="navbar-item" href="https://blog.neporshiso.com" target="_blank">Blog</a>
+          <a class="navbar-item" href="https://blog.neporshiso.com" target="_blank" rel="noopener">Blog</a>
         </div>
       </div>
     </nav>
@@ -51,7 +54,7 @@
     <!-- About Me -->
     <section class="section">
       <div class="container about">
-        <h2 class="title">About Me</h2>
+        <h1 class="title">About Me</h1>
         <div class="content">
           <p>
             My name is Nep Orshiso and I’m from Kansas City, MO. I’m
@@ -68,17 +71,18 @@
             junior manager in their call center.
           </p>
 
-          <h4 class="title">Contact Me</h4>
+          <h2 class="title">Contact Me</h2>
           <div class="content social">
             <ul>
-              <li><a href="https://github.com/neporshiso" target="_blank">Github</a></li>
-              <li><a href="https://www.linkedin.com/in/neporshiso/" target="_blank">LinkedIn</a></li>
-              <li><a href="https://twitter.com/NepOrshiso" target="_blank">Twitter</a></li>
+              <li><a href="https://github.com/neporshiso" target="_blank" rel="noopener">Github</a></li>
+              <li><a href="https://www.linkedin.com/in/neporshiso/" target="_blank" rel="noopener">LinkedIn</a></li>
+              <li><a href="https://twitter.com/NepOrshiso" target="_blank" rel="noopener">Twitter</a></li>
               <li><a href="mailto:nep.orshiso@gmail.com">Email Me</a></li>
             </ul>
           </div>
         </div>
-        <img src="https://nep-portfolio-assets.s3.us-east-2.amazonaws.com/main_picture.jpeg" />
+        <img src="https://nep-portfolio-assets.s3.us-east-2.amazonaws.com/main_picture.jpeg"
+          alt="Nep Orshiso smiling from the roof of the Atlanta Tech Village" />
       </div>
     </section>
 
@@ -163,16 +167,17 @@
     </section>
 
     <!-- Resume -->
-    <section class="section" id="resume">
+    <section class="resume section">
       <div class="section-heading">
         <h2 class="title">Resume</h2>
-        <a href="https://nep-portfolio-assets.s3.us-east-2.amazonaws.com/Nep_Orshiso_Resume.pdf" target="_blank"
-          class="button is-link is-medium">
+        <button class="button is-link is-medium" role="button">
+          <a href="https://nep-portfolio-assets.s3.us-east-2.amazonaws.com/Nep_Orshiso_Resume.pdf" target="_blank"
+            rel="noopener"></a>
           <span class="icon">
             <i class="fas fa-file-alt"></i>
           </span>
-          <span>View My Resume</span>
-        </a>
+          View My Resume
+        </button>
       </div>
     </section>
 
@@ -201,8 +206,8 @@
               <p>Built with HTML, CSS, Bulma, JavaScript, jQuery, Node.js, Express, and PostgreSQL.</p>
             </div>
             <footer class="card-footer">
-              <a href="https://ice.neporshiso.com" class="card-footer-item" target="_blank">Preview</a>
-              <a href="https://git.io/JegLd" class="card-footer-item" target="_blank">Source Code</a>
+              <a href="https://ice.neporshiso.com" class="card-footer-item" target="_blank" rel="noopener">Preview</a>
+              <a href="https://git.io/JegLd" class="card-footer-item" target="_blank" rel="noopener">Source Code</a>
             </footer>
           </div>
 
@@ -224,12 +229,12 @@
               <p>I wrote this after reading through "Learn Python The Hard Way" as a pre-requisite to the DigitalCrafts
                 Bootcamp.</p>
             </div>
-            <footer class="card-footer">
-              <a href="https://github.com/neporshiso/etf-rebalancer" class="card-footer-item"
-                target="_blank">Preview</a>
-              <a href="https://github.com/neporshiso/etf-rebalancer" class="card-footer-item" target="_blank">Source
-                Code</a>
-            </footer>
+            <a href="https://github.com/neporshiso/etf-rebalancer" class="card-footer-item" target="_blank">
+              <footer class="card-footer">
+                <span class="card-footer-item">Preview</span>
+                <span class="card-footer-item">Source Code</span>
+              </footer>
+            </a>
           </div>
 
           <div class="card">
@@ -251,8 +256,9 @@
               <p>Built with HTML, CSS (Bulma Framework), JavaScript, and the DarkSky API.</p>
             </div>
             <footer class="card-footer">
-              <a href="https://whetherfit.neporshiso.com" class="card-footer-item" target="_blank">Preview</a>
-              <a href="https://git.io/JegtI" class="card-footer-item" target="_blank">Source Code</a>
+              <a href="https://whetherfit.neporshiso.com" class="card-footer-item" target="_blank"
+                rel="noopener">Preview</a>
+              <a href="https://git.io/JegtI" class="card-footer-item" target="_blank" rel="noopener">Source Code</a>
             </footer>
           </div>
 
@@ -272,10 +278,12 @@
               <br>
               <p>Built with pygame which is a library for making games in Python.</p>
             </div>
-            <footer class="card-footer">
-              <a href="https://git.io/Jegtt" class="card-footer-item" target="_blank">Preview</a>
-              <a href="https://git.io/Jegtt" class="card-footer-item" target="_blank">Source Code</a>
-            </footer>
+            <a href="https://git.io/Jegtt" class="card-footer-item" target="_blank" rel="noopener">
+              <footer class="card-footer">
+                <span class="card-footer-item">Preview</span>
+                <span class="card-footer-item">Source Code</span>
+              </footer>
+            </a>
           </div>
 
         </div>

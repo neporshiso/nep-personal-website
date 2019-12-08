@@ -2,6 +2,21 @@ html {
     background-color: whitesmoke;
 }
 
+@font-face {
+    font-family: Yo;
+    font-display: auto;
+    src: local("BlinkMacSystemFont"), local(-apple-system), local("Segoe UI"),
+        local("Roboto"), local("Oxygen"), local("Ubuntu"), local("Cantarell"),
+        local("Fira Sans"), local("Droid Sans"), local("Helvetica Neue"),
+        local("Helvetica"), local("Arial"), local(sans-serif);
+}
+
+body {
+    font-family: BlinkMacSystemFont, -apple-system, "Segoe UI", Roboto, Oxygen,
+        Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue",
+        Helvetica, Arial, sans-serif;
+}
+
 .title {
     font-weight: lighter;
     font-size: 2.5rem;
@@ -32,15 +47,6 @@ html {
 }
 /* ****************************** */
 
-/* resume and portfolio titles */
-
-.section-heading {
-    text-align: center;
-    margin-top: 1em;
-    margin-bottom: 6em;
-}
-/* ****************************** */
-
 /* About Me styles */
 .section .container.about {
     max-width: 700px;
@@ -57,6 +63,53 @@ ul li {
 .content.social {
     text-align: center;
 }
+
+/* ****************************** */
+
+/* Skills Styles */
+
+.container.skills {
+    max-width: 700px;
+    line-height: 1.8;
+    font-size: 18px;
+}
+
+.skills.content {
+    display: flex;
+    justify-content: space-evenly;
+    flex-flow: wrap row;
+}
+
+.skills.content .skill {
+    margin: 20px 20px;
+}
+
+.skill i {
+    font-size: 5rem;
+}
+
+.iconify {
+    color: purple;
+    font-size: 5rem;
+}
+
+.skill p {
+    text-align: center;
+}
+/* ****************************** */
+
+/* resume and portfolio titles */
+
+.section-heading {
+    text-align: center;
+    margin-top: 1em;
+    margin-bottom: 6em;
+}
+
+.resume.section .icon {
+    padding-right: 30px;
+}
+
 /* ****************************** */
 
 /* Portfolio styles */
@@ -96,38 +149,6 @@ video {
     margin: 0 auto;
 }
 
-/* ****************************** */
-
-/* Skills Styles */
-
-.container.skills {
-    max-width: 700px;
-    line-height: 1.8;
-    font-size: 18px;
-}
-
-.skills.content {
-    display: flex;
-    justify-content: space-evenly;
-    flex-flow: wrap row;
-}
-
-.skills.content .skill {
-    margin: 20px 20px;
-}
-
-.skill i {
-    font-size: 5rem;
-}
-
-.iconify {
-    color: purple;
-    font-size: 5rem;
-}
-
-.skill p {
-    text-align: center;
-}
 /* ****************************** */
 
 /* Media Queries to adjust Portfolio Cards on small screens */
