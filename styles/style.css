@@ -151,7 +151,14 @@ video {
 
 /* ****************************** */
 
-/* Media Queries to adjust Portfolio Cards on small screens */
+/* Media Queries */
+
+@media screen and (max-width: 1023px) {
+    .navbar-menu.is-active {
+        background-color: whitesmoke;
+    }
+}
+
 @media screen and (max-width: 550px) {
     .card {
         height: 600px;
