@@ -108,9 +108,11 @@ ul li {
 
 .resume.section .icon {
     padding-right: 30px;
-    margin-left: 10px
 }
 
+.resume.section .icon svg {
+    margin-left: 15px;
+}
 /* ****************************** */
 
 /* Portfolio styles */
