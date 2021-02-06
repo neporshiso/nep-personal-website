@@ -1,31 +1,30 @@
 html {
-    background-color: whitesmoke;
+  background-color: whitesmoke;
 }
 
 @font-face {
-    font-family: Yo;
-    font-display: auto;
-    src: local("BlinkMacSystemFont"), local(-apple-system), local("Segoe UI"),
-        local("Roboto"), local("Oxygen"), local("Ubuntu"), local("Cantarell"),
-        local("Fira Sans"), local("Droid Sans"), local("Helvetica Neue"),
-        local("Helvetica"), local("Arial"), local(sans-serif);
+  font-family: Yo;
+  font-display: auto;
+  src: local("BlinkMacSystemFont"), local(-apple-system), local("Segoe UI"),
+    local("Roboto"), local("Oxygen"), local("Ubuntu"), local("Cantarell"),
+    local("Fira Sans"), local("Droid Sans"), local("Helvetica Neue"),
+    local("Helvetica"), local("Arial"), local(sans-serif);
 }
 
 body {
-    font-family: BlinkMacSystemFont, -apple-system, "Segoe UI", Roboto, Oxygen,
-        Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue",
-        Helvetica, Arial, sans-serif;
+  font-family: BlinkMacSystemFont, -apple-system, "Segoe UI", Roboto, Oxygen,
+    Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", Helvetica,
+    Arial, sans-serif;
 }
 
 .title {
-    font-weight: lighter;
-    font-size: 2.5rem;
+  font-size: 2.5rem;
 }
 
 .content .title {
-    text-align: center;
-    font-weight: lighter;
-    font-size: 1.75rem;
+  text-align: center;
+  font-weight: 300;
+  font-size: 1.75rem;
 }
 
 /* ****************************** */
@@ -33,35 +32,36 @@ body {
 /* navbar styling */
 
 .navbar {
-    background-color: whitesmoke;
+  background-color: whitesmoke;
 }
 
-.navbar-item {
-    text-decoration: underline;
+.navbar-item:hover {
+  color: #2b4ff1;
+  background-color: unset !important;
 }
 
 .navbar-menu .navbar-start {
-    flex-grow: 1;
-    justify-content: center;
-    font-size: 1.5rem;
+  flex-grow: 1;
+  justify-content: center;
+  font-size: 1.5rem;
 }
 /* ****************************** */
 
 /* About Me styles */
 .section .container.about {
-    max-width: 700px;
-    line-height: 1.8;
-    font-size: 18px;
+  max-width: 700px;
+  line-height: 1.8;
+  font-size: 18px;
 }
 
 ul li {
-    display: inline;
-    font-weight: 600;
-    margin: 0 20px;
+  display: inline;
+  font-weight: 600;
+  margin: 0 20px;
 }
 
 .content.social {
-    text-align: center;
+  text-align: center;
 }
 
 /* ****************************** */
@@ -69,87 +69,87 @@ ul li {
 /* Skills Styles */
 
 .container.skills {
-    max-width: 700px;
-    line-height: 1.8;
-    font-size: 18px;
+  max-width: 700px;
+  line-height: 1.8;
+  font-size: 18px;
 }
 
 .skills.content {
-    display: flex;
-    justify-content: space-evenly;
-    flex-flow: wrap row;
+  display: flex;
+  justify-content: space-evenly;
+  flex-flow: wrap row;
 }
 
 .skills.content .skill {
-    margin: 20px 20px;
+  margin: 20px 20px;
 }
 
 .skill i {
-    font-size: 5rem;
+  font-size: 5rem;
 }
 
 .iconify {
-    color: purple;
-    font-size: 5rem;
+  color: purple;
+  font-size: 5rem;
 }
 
 .skill p {
-    text-align: center;
+  text-align: center;
 }
 /* ****************************** */
 
 /* resume and portfolio titles */
 
 .section-heading {
-    text-align: center;
-    margin-top: 1em;
-    margin-bottom: 6em;
+  text-align: center;
+  margin-top: 1em;
+  margin-bottom: 6em;
 }
 
 .resume.section .icon {
-    padding-right: 30px;
+  padding-right: 30px;
 }
 
 .resume.section .icon svg {
-    margin-left: 15px;
+  margin-left: 15px;
 }
 /* ****************************** */
 
 /* Portfolio styles */
 
 .portfolio-container .card {
-    margin-bottom: 2em;
-    width: 500px;
+  margin-bottom: 2em;
+  width: 500px;
 }
 
 .container .portfolio-container {
-    display: flex;
-    justify-content: space-around;
-    flex-wrap: wrap;
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
 }
 
 .card {
-    height: 550px;
+  height: 550px;
 }
 
 .card-content {
-    display: flex;
+  display: flex;
 }
 
 .card-description {
-    margin: 0 30px;
+  margin: 0 30px;
 }
 
 .card-footer {
-    left: 0;
-    bottom: 0;
-    width: 100%;
-    position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  position: absolute;
 }
 
 video {
-    height: 250px;
-    margin: 0 auto;
+  height: 250px;
+  margin: 0 auto;
 }
 
 /* ****************************** */
@@ -157,25 +157,25 @@ video {
 /* Media Queries */
 
 @media screen and (max-width: 1023px) {
-    .navbar-menu.is-active {
-        background-color: whitesmoke;
-    }
+  .navbar-menu.is-active {
+    background-color: whitesmoke;
+  }
 }
 
 @media screen and (max-width: 550px) {
-    .card {
-        height: 600px;
-    }
+  .card {
+    height: 600px;
+  }
 }
 
 @media screen and (max-width: 420px) {
-    .card {
-        height: 650px;
-    }
+  .card {
+    height: 650px;
+  }
 }
 
 @media screen and (max-width: 360px) {
-    .card {
-        height: 710px;
-    }
+  .card {
+    height: 710px;
+  }
 }
