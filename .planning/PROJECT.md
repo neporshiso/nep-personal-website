@@ -21,17 +21,20 @@ All site content is editable through a CMS so the site stays current without tou
 
 ### Active
 
-- [ ] Rebuild with modern framework (lightweight, minimal dependencies)
-- [ ] CMS-managed about/bio content
 - [ ] CMS-managed portfolio projects
 - [ ] CMS-managed resume/work experience
 - [ ] CMS-managed skills
 - [ ] Blog with CMS-managed posts
-- [ ] Minimal developer aesthetic (clean typography, whitespace, content-first)
-- [ ] Dark/light mode toggle
-- [ ] Responsive design (mobile-first)
 - [ ] Deploy to Vercel or Netlify
 - [ ] Feature parity with current site before going live
+
+### Validated in Phase 1: Foundation
+
+- ✓ Rebuild with modern framework — Astro 6 + Tailwind v4 + Keystatic CMS
+- ✓ CMS-managed about/bio content — Bio singleton with getCollection pipeline verified
+- ✓ Minimal developer aesthetic — Gruvbox warm neutral palette, system fonts, balanced density
+- ✓ Dark/light mode toggle — System preference detection, localStorage persistence, no FOUC
+- ✓ Responsive design (mobile-first) — Hamburger nav at 375px, max-w-3xl content
 
 ### Out of Scope
 
@@ -61,10 +64,10 @@ All site content is editable through a CMS so the site stays current without tou
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| Full rebuild vs incremental | User wants modern stack + simpler codebase; incremental would carry legacy debt | — Pending |
-| CMS approach | TBD — research will determine headless vs file-based vs hybrid | — Pending |
-| Framework choice | TBD — research will recommend based on simplicity + CMS integration | — Pending |
-| Hosting platform | Vercel or Netlify — user familiar with both, no strong preference | — Pending |
+| Full rebuild vs incremental | User wants modern stack + simpler codebase; incremental would carry legacy debt | Full rebuild — Astro 6 |
+| CMS approach | File-based CMS with git storage, local admin UI | Keystatic (verified active, last published 2026-02-25) |
+| Framework choice | Astro 6 — lightweight, content-focused, excellent Keystatic integration | Astro 6.0.8 + Tailwind v4 |
+| Hosting platform | Vercel or Netlify — user familiar with both, no strong preference | Vercel (decided during project setup) |
 
 ---
-*Last updated: 2026-03-20 after initialization*
+*Last updated: 2026-03-21 after Phase 1 completion*
