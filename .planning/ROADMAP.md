@@ -29,7 +29,10 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. Color contrast is acceptable in both light and dark modes (verified by eye and contrast checker before any content is entered)
   4. The CMS admin UI is accessible at `/keystatic` locally and at least one sample content entry is readable by an Astro page via `getCollection()`
   5. All content type schemas (Project, Post, Bio, Podcast, Book) are defined with Zod validation and reject malformed entries at build time
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [ ] 01-01-PLAN.md — Scaffold Astro + Tailwind v4 + Keystatic, BaseLayout with dark mode toggle, Nav, Footer
+- [ ] 01-02-PLAN.md — Content schemas (all 5 types), sample entries, about page, end-to-end CMS verification
 
 ### Phase 2: Core Pages
 **Goal**: The site has all core content pages — About/bio, portfolio, podcasts, books, and contact links — all CMS-managed, visually designed and approved before implementation, so the old site can be replaced at the end of this phase.
@@ -77,7 +80,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation | 0/TBD | Not started | - |
+| 1. Foundation | 0/2 | Planning complete | - |
 | 2. Core Pages | 0/TBD | Not started | - |
 | 3. Blog | 0/TBD | Not started | - |
 | 4. Polish and Launch | 0/TBD | Not started | - |
