@@ -18,7 +18,6 @@ Requirements for initial release. Each maps to roadmap phases.
 
 - [ ] **CONT-01**: User can edit about/bio content through CMS without code changes
 - [ ] **CONT-02**: User can add/edit portfolio projects through CMS with rich write-ups
-- [ ] **CONT-03**: User can edit resume/work experience through CMS
 - [ ] **CONT-04**: Social and contact links are CMS-managed
 - [ ] **CONT-05**: User can add/edit favorite podcasts through CMS (name, description, link, image)
 - [ ] **CONT-06**: User can add/edit books through CMS with reading status (reading, read, want to read)
@@ -55,6 +54,7 @@ Deferred to future release. Tracked but not in current roadmap.
 - **ENH-01**: Skills display section (CMS-managed)
 - **ENH-02**: Technology tag filtering on portfolio projects (useful at 6+ projects)
 - **ENH-03**: Site-wide search (useful at 20+ blog posts)
+- **CONT-03**: Resume / work experience section (CMS-managed) — deferred from v1
 
 ### Engagement
 
@@ -79,33 +79,32 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| FOUN-01 | — | Pending |
-| FOUN-02 | — | Pending |
-| FOUN-03 | — | Pending |
-| FOUN-04 | — | Pending |
-| CONT-01 | — | Pending |
-| CONT-02 | — | Pending |
-| CONT-03 | — | Pending |
-| CONT-04 | — | Pending |
-| CONT-05 | — | Pending |
-| CONT-06 | — | Pending |
-| BLOG-01 | — | Pending |
-| BLOG-02 | — | Pending |
-| BLOG-03 | — | Pending |
-| BLOG-04 | — | Pending |
-| BLOG-05 | — | Pending |
-| SEO-01 | — | Pending |
-| SEO-02 | — | Pending |
-| SEO-03 | — | Pending |
-| ANLY-01 | — | Pending |
-| DEPL-01 | — | Pending |
-| DEPL-02 | — | Pending |
+| FOUN-01 | Phase 1 | Pending |
+| FOUN-02 | Phase 1 | Pending |
+| FOUN-03 | Phase 1 | Pending |
+| FOUN-04 | Phase 4 | Pending |
+| CONT-01 | Phase 2 | Pending |
+| CONT-02 | Phase 2 | Pending |
+| CONT-04 | Phase 2 | Pending |
+| CONT-05 | Phase 2 | Pending |
+| CONT-06 | Phase 2 | Pending |
+| BLOG-01 | Phase 3 | Pending |
+| BLOG-02 | Phase 3 | Pending |
+| BLOG-03 | Phase 3 | Pending |
+| BLOG-04 | Phase 3 | Pending |
+| BLOG-05 | Phase 3 | Pending |
+| SEO-01 | Phase 4 | Pending |
+| SEO-02 | Phase 4 | Pending |
+| SEO-03 | Phase 4 | Pending |
+| ANLY-01 | Phase 2 | Pending |
+| DEPL-01 | Phase 4 | Pending |
+| DEPL-02 | Phase 4 | Pending |
 
 **Coverage:**
-- v1 requirements: 21 total
-- Mapped to phases: 0
-- Unmapped: 21 ⚠️
+- v1 requirements: 20 total
+- Mapped to phases: 20
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-03-20*
-*Last updated: 2026-03-20 after initial definition*
+*Last updated: 2026-03-20 after roadmap revision*
