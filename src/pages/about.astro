@@ -1,0 +1,18 @@
+---
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const bioEntries = await getCollection('bio');
+const bio = bioEntries[0];
+const { Content } = bio ? await render(bio) : { Content: null };
+---
+<BaseLayout title="About - Nep">
+  <h1 class="text-3xl font-bold mb-6">About</h1>
+  {Content ? (
+    <div class="prose">
+      <Content />
+    </div>
+  ) : (
+    <p>Bio content coming soon.</p>
+  )}
+</BaseLayout>
