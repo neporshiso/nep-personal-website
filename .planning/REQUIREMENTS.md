@@ -9,9 +9,9 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Foundation
 
-- [ ] **FOUN-01**: Site uses responsive mobile-first layout
-- [ ] **FOUN-02**: User can toggle between dark and light mode; system preference detected on first visit
-- [ ] **FOUN-03**: Color contrast meets WCAG AA in both light and dark modes
+- [x] **FOUN-01**: Site uses responsive mobile-first layout
+- [x] **FOUN-02**: User can toggle between dark and light mode; system preference detected on first visit
+- [x] **FOUN-03**: Color contrast meets WCAG AA in both light and dark modes
 - [ ] **FOUN-04**: All pages achieve LCP < 2.5s
 
 ### Content
@@ -79,9 +79,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| FOUN-01 | Phase 1 | Pending |
-| FOUN-02 | Phase 1 | Pending |
-| FOUN-03 | Phase 1 | Pending |
+| FOUN-01 | Phase 1 | Complete |
+| FOUN-02 | Phase 1 | Complete |
+| FOUN-03 | Phase 1 | Complete |
 | FOUN-04 | Phase 4 | Pending |
 | CONT-01 | Phase 2 | Pending |
 | CONT-02 | Phase 2 | Pending |
