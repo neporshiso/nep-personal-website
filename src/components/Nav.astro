@@ -1,0 +1,82 @@
+---
+// Nav.astro - Top navigation bar with responsive mobile menu
+import ThemeToggle from './ThemeToggle.astro';
+
+const navLinks = [
+  { label: 'About', href: '/about' },
+  { label: 'Portfolio', href: '/portfolio' },
+  { label: 'Blog', href: '/blog' },
+  { label: 'Podcasts', href: '/podcasts' },
+  { label: 'Books', href: '/books' },
+];
+---
+<nav class="w-full border-b border-[var(--border,#d5c4a1)] dark:border-[var(--border-dark,#504945)]">
+  <div class="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between">
+    <!-- Site name/logo -->
+    <a
+      href="/"
+      class="font-semibold text-lg text-[var(--text)] hover:opacity-70 no-underline"
+    >
+      Nep
+    </a>
+
+    <!-- Desktop navigation links -->
+    <div class="hidden sm:flex items-center gap-6">
+      {navLinks.map((link) => (
+        <a
+          href={link.href}
+          class="text-sm text-[var(--text)] hover:opacity-70 no-underline"
+        >
+          {link.label}
+        </a>
+      ))}
+      <ThemeToggle />
+    </div>
+
+    <!-- Mobile controls: hamburger + theme toggle -->
+    <div class="flex items-center gap-2 sm:hidden">
+      <ThemeToggle />
+      <button
+        id="mobile-menu-toggle"
+        aria-label="Toggle navigation menu"
+        aria-expanded="false"
+        class="cursor-pointer p-2 min-w-[44px] min-h-[44px] flex items-center justify-center rounded text-[var(--text)] hover:opacity-70"
+      >
+        <span class="text-xl" aria-hidden="true">&#9776;</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Mobile dropdown menu -->
+  <div
+    id="mobile-menu"
+    class="hidden sm:hidden border-t border-[var(--border,#d5c4a1)] dark:border-[var(--border-dark,#504945)]"
+  >
+    <div class="max-w-3xl mx-auto px-4 py-3 flex flex-col gap-3">
+      {navLinks.map((link) => (
+        <a
+          href={link.href}
+          class="text-sm text-[var(--text)] hover:opacity-70 no-underline py-1"
+        >
+          {link.label}
+        </a>
+      ))}
+    </div>
+  </div>
+</nav>
+
+<script>
+  const toggle = document.getElementById('mobile-menu-toggle');
+  const menu = document.getElementById('mobile-menu');
+
+  toggle?.addEventListener('click', () => {
+    const isOpen = !menu?.classList.contains('hidden');
+    if (isOpen) {
+      menu?.classList.add('hidden');
+      toggle?.setAttribute('aria-expanded', 'false');
+    } else {
+      menu?.classList.remove('hidden');
+      toggle?.setAttribute('aria-expanded', 'true');
+    }
+  });
+</script>
