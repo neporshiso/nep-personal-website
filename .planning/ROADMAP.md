@@ -12,7 +12,7 @@ Rebuild a personal developer site from a static HTML/CSS/JS codebase into a mode
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Foundation** - Astro scaffold, Tailwind v4, CMS setup, content schemas, BaseLayout with dark mode
+- [x] **Phase 1: Foundation** - Astro scaffold, Tailwind v4, CMS setup, content schemas, BaseLayout with dark mode (completed 2026-03-21)
 - [ ] **Phase 2: Core Pages** - About/bio, portfolio, podcasts, books, contact links, analytics — UI design step precedes implementation
 - [ ] **Phase 3: Blog** - Blog listing, post pages, MDX rendering, syntax highlighting, RSS feed
 - [ ] **Phase 4: Polish and Launch** - SEO completeness, performance audit, production CMS workflow, deployment verified
@@ -80,7 +80,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation | 1/2 | In Progress|  |
+| 1. Foundation | 2/2 | Complete   | 2026-03-21 |
 | 2. Core Pages | 0/TBD | Not started | - |
 | 3. Blog | 0/TBD | Not started | - |
 | 4. Polish and Launch | 0/TBD | Not started | - |
