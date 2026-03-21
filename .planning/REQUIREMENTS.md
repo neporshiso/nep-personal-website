@@ -1,0 +1,111 @@
+# Requirements: Nep Personal Website
+
+**Defined:** 2026-03-20
+**Core Value:** All site content is editable through a CMS so the site stays current without touching code
+
+## v1 Requirements
+
+Requirements for initial release. Each maps to roadmap phases.
+
+### Foundation
+
+- [ ] **FOUN-01**: Site uses responsive mobile-first layout
+- [ ] **FOUN-02**: User can toggle between dark and light mode; system preference detected on first visit
+- [ ] **FOUN-03**: Color contrast meets WCAG AA in both light and dark modes
+- [ ] **FOUN-04**: All pages achieve LCP < 2.5s
+
+### Content
+
+- [ ] **CONT-01**: User can edit about/bio content through CMS without code changes
+- [ ] **CONT-02**: User can add/edit portfolio projects through CMS with rich write-ups
+- [ ] **CONT-03**: User can edit resume/work experience through CMS
+- [ ] **CONT-04**: Social and contact links are CMS-managed
+- [ ] **CONT-05**: User can add/edit favorite podcasts through CMS (name, description, link, image)
+- [ ] **CONT-06**: User can add/edit books through CMS with reading status (reading, read, want to read)
+
+### Blog
+
+- [ ] **BLOG-01**: Blog listing page shows all published posts
+- [ ] **BLOG-02**: Blog detail page renders MDX content with full formatting
+- [ ] **BLOG-03**: Code blocks have syntax highlighting (Shiki)
+- [ ] **BLOG-04**: Each post displays estimated reading time
+- [ ] **BLOG-05**: RSS/Atom feed auto-generated from blog posts
+
+### SEO
+
+- [ ] **SEO-01**: All pages have Open Graph meta tags for rich link previews
+- [ ] **SEO-02**: All pages and posts have unique meta descriptions
+- [ ] **SEO-03**: Sitemap.xml auto-generated and updated on build
+
+### Analytics
+
+- [ ] **ANLY-01**: Working analytics replaces dead UA property (Vercel Analytics or Plausible)
+
+### Deployment
+
+- [ ] **DEPL-01**: Site deploys to Vercel with automatic rebuilds on content changes
+- [ ] **DEPL-02**: CMS works in production mode (GitHub OAuth, commits trigger redeploy)
+
+## v2 Requirements
+
+Deferred to future release. Tracked but not in current roadmap.
+
+### Content Enhancements
+
+- **ENH-01**: Skills display section (CMS-managed)
+- **ENH-02**: Technology tag filtering on portfolio projects (useful at 6+ projects)
+- **ENH-03**: Site-wide search (useful at 20+ blog posts)
+
+### Engagement
+
+- **ENG-01**: Newsletter / email capture integration
+- **ENG-02**: Comments system on blog posts
+
+## Out of Scope
+
+| Feature | Reason |
+|---------|--------|
+| Custom animations / 3D effects | Minimal aesthetic; signals over-engineering to hiring managers |
+| User accounts / authentication | No use case on a public content site; CMS handles auth internally |
+| Contact form | Spam risk without CAPTCHA; email link is simpler and sufficient |
+| Multiple language / i18n | No indication of need; significant complexity multiplier |
+| Social share buttons | Visual noise; Open Graph tags handle sharing without buttons |
+| Real-time features | This is a content site, not an application |
+| Mobile app | Web-first; no mobile app use case |
+
+## Traceability
+
+Which phases cover which requirements. Updated during roadmap creation.
+
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| FOUN-01 | — | Pending |
+| FOUN-02 | — | Pending |
+| FOUN-03 | — | Pending |
+| FOUN-04 | — | Pending |
+| CONT-01 | — | Pending |
+| CONT-02 | — | Pending |
+| CONT-03 | — | Pending |
+| CONT-04 | — | Pending |
+| CONT-05 | — | Pending |
+| CONT-06 | — | Pending |
+| BLOG-01 | — | Pending |
+| BLOG-02 | — | Pending |
+| BLOG-03 | — | Pending |
+| BLOG-04 | — | Pending |
+| BLOG-05 | — | Pending |
+| SEO-01 | — | Pending |
+| SEO-02 | — | Pending |
+| SEO-03 | — | Pending |
+| ANLY-01 | — | Pending |
+| DEPL-01 | — | Pending |
+| DEPL-02 | — | Pending |
+
+**Coverage:**
+- v1 requirements: 21 total
+- Mapped to phases: 0
+- Unmapped: 21 ⚠️
+
+---
+*Requirements defined: 2026-03-20*
+*Last updated: 2026-03-20 after initial definition*
