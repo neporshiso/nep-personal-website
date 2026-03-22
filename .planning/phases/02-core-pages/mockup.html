@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Phase 2 — UI Mockup</title>
+<style>
+  /* ── Gruvbox tokens ── */
+  :root {
+    --bg: #fdf6e3;
+    --text: #3c3836;
+    --muted: #7c6f64;
+    --border: #d5c4a1;
+    --accent: #b57614;
+    --accent-link: #d79921;
+    --accent-hover: #af3a03;
+    --font: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --mono: ui-monospace, 'Cascadia Code', 'Fira Code', monospace;
+  }
+  .dark {
+    --bg: #1d2021;
+    --text: #ebdbb2;
+    --muted: #7c6f64;
+    --border: #504945;
+    --accent: #d79921;
+    --accent-link: #d79921;
+    --accent-hover: #af3a03;
+  }
+
+  /* ── Reset / base ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: var(--font);
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--text);
+    background: var(--bg);
+    transition: background 0.2s, color 0.2s;
+  }
+  a { color: inherit; text-decoration: none; }
+
+  /* ── Layout ── */
+  .shell { max-width: 48rem; margin: 0 auto; padding: 0 16px; }
+
+  /* ── Nav ── */
+  nav {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 0; border-bottom: 1px solid var(--border);
+  }
+  .site-name { font-size: 18px; font-weight: 600; }
+  .site-name .crumb { font-weight: 400; color: var(--muted); }
+  .nav-links { display: flex; gap: 24px; align-items: center; }
+  .nav-links a { font-size: 14px; opacity: 0.85; transition: opacity 0.15s; }
+  .nav-links a:hover { opacity: 0.7; }
+  .nav-links a.active { color: var(--accent-link); opacity: 1; }
+  .toggle {
+    min-width: 44px; min-height: 44px;
+    display: flex; align-items: center; justify-content: center;
+    background: none; border: none; font-size: 18px;
+    color: var(--text); cursor: pointer;
+  }
+
+  /* ── Typography ── */
+  h1 { font-size: 30px; font-weight: 600; line-height: 1.2; margin-bottom: 24px; }
+  h2 { font-size: 20px; font-weight: 600; line-height: 1.3; margin-bottom: 24px; }
+
+  /* ── Footer ── */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 24px 0; margin-top: 48px;
+    text-align: center; font-size: 14px; color: var(--muted);
+  }
+
+  /* ── Blog listing (homepage) ── */
+  .blog-list { display: flex; flex-direction: column; padding-top: 32px; }
+  .blog-entry {
+    display: block; padding: 24px 0;
+    border-bottom: 1px solid var(--border);
+    transition: opacity 0.15s;
+  }
+  .blog-entry:first-child { padding-top: 0; }
+  .blog-entry:hover { opacity: 0.8; }
+  .blog-entry .entry-title { font-size: 20px; font-weight: 600; line-height: 1.3; }
+  .blog-entry .entry-meta { font-size: 14px; color: var(--muted); margin-top: 4px; }
+  .blog-entry .entry-excerpt {
+    font-size: 16px; margin-top: 8px; color: var(--text);
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  }
+
+  /* ── Card grid ── */
+  .grid { display: grid; gap: 24px; }
+  .grid-2 { grid-template-columns: 1fr; }
+  @media (min-width: 640px) { .grid-2 { grid-template-columns: 1fr 1fr; } }
+  .grid-books { grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (min-width: 640px) { .grid-books { grid-template-columns: repeat(3, 1fr); } }
+  @media (min-width: 768px) { .grid-books { grid-template-columns: repeat(4, 1fr); } }
+
+  /* ── ProjectCard ── */
+  .project-card {
+    border: 1px solid var(--border); border-radius: 8px;
+    padding: 16px; transition: opacity 0.15s; cursor: pointer;
+  }
+  .project-card:hover { opacity: 0.8; }
+  .project-card .title { font-size: 20px; font-weight: 600; line-height: 1.3; }
+  .project-card .year { font-size: 14px; color: var(--muted); margin-top: 4px; }
+  .project-card .desc {
+    font-size: 16px; margin-top: 8px;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  }
+  .tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .tag {
+    font-size: 14px; padding: 4px 8px;
+    background: var(--border); border-radius: 9999px; color: var(--text); opacity: 0.9;
+  }
+  .card-links { display: flex; gap: 16px; margin-top: 12px; font-size: 14px; }
+  .card-links a { color: var(--accent-link); }
+  .card-links a:hover { color: var(--accent-hover); }
+
+  /* ── PodcastCard ── */
+  .podcast-card { display: flex; gap: 16px; align-items: center; transition: opacity 0.15s; }
+  .podcast-card:hover { opacity: 0.8; }
+  .podcast-img {
+    width: 64px; height: 64px; border-radius: 8px;
+    background: var(--border); flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px; color: var(--muted);
+  }
+  .podcast-card .name { font-size: 16px; font-weight: 600; }
+  .podcast-card .cat { font-size: 14px; color: var(--muted); margin-top: 2px; }
+
+  /* ── BookCard ── */
+  .book-card { transition: opacity 0.15s; }
+  .book-card:hover { opacity: 0.8; }
+  .book-cover {
+    width: 100%; aspect-ratio: 2/3;
+    background: var(--border); border-radius: 8px 8px 0 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px; color: var(--muted);
+  }
+  .book-info { padding: 8px 0; }
+  .book-card .btitle { font-size: 16px; font-weight: 600; line-height: 1.3; }
+  .book-card .author { font-size: 14px; color: var(--muted); margin-top: 2px; }
+  .badge {
+    display: inline-block; font-size: 14px; margin-top: 6px;
+    padding: 1px 8px; border-radius: 9999px; border: 1px solid var(--border);
+  }
+  .badge.reading { color: var(--accent-link); }
+  .badge.read, .badge.want { color: var(--muted); }
+
+  /* ── About ── */
+  .prose { max-width: 65ch; }
+  .prose p + p { margin-top: 16px; }
+  .social-row { display: flex; gap: 24px; margin-top: 32px; }
+  .social-row a {
+    font-size: 14px; color: var(--muted);
+    display: flex; align-items: center; gap: 6px; transition: color 0.15s;
+  }
+  .social-row a:hover { color: var(--text); }
+  .social-icon { width: 20px; height: 20px; opacity: 0.7; }
+
+  /* ── Project detail (full page) ── */
+  .detail-meta { font-size: 14px; color: var(--muted); margin-bottom: 24px; }
+  .detail-hero {
+    width: 100%; aspect-ratio: 16/9; border-radius: 8px;
+    background: var(--border); margin-bottom: 24px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; color: var(--muted);
+  }
+  .detail-body { margin-bottom: 32px; }
+  .detail-body p + p { margin-top: 16px; }
+  .back-link {
+    display: inline-block; font-size: 14px; color: var(--muted);
+    cursor: pointer; transition: color 0.15s;
+  }
+  .back-link:hover { color: var(--text); }
+
+  /* ── ContactSection ── */
+  .contact-section {
+    border-top: 1px solid var(--border); padding: 48px 0 0; text-align: center;
+  }
+  .contact-section .cta {
+    color: var(--accent-link); font-size: 16px; border-bottom: 1px solid var(--accent-link);
+  }
+  .contact-section .social-row { justify-content: center; margin-top: 24px; }
+
+  /* ── Page transitions ── */
+  .page { display: none; }
+  .page.visible { display: block; animation: fadeIn 0.25s ease; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  /* ── Mockup label ── */
+  .mockup-label {
+    position: fixed; bottom: 16px; right: 16px;
+    background: var(--text); color: var(--bg);
+    font-size: 12px; padding: 4px 10px; border-radius: 6px;
+    opacity: 0.6; pointer-events: none;
+  }
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <!-- Nav -->
+  <nav>
+    <span class="site-name" id="siteName">nep's home on the web</span>
+    <div class="nav-links">
+      <a href="#" data-page="home" class="active">Home</a>
+      <a href="#" data-page="about">About</a>
+      <a href="#" data-page="portfolio">Portfolio</a>
+      <a href="#" data-page="podcasts">Podcasts</a>
+      <a href="#" data-page="books">Books</a>
+      <button class="toggle" aria-label="Toggle dark mode" onclick="document.documentElement.classList.toggle('dark')">☀</button>
+    </div>
+  </nav>
+
+  <!-- ═══════ HOME (Blog Listing) ═══════ -->
+  <div class="page visible" id="page-home">
+    <div class="blog-list">
+      <a href="#" class="blog-entry" onclick="event.preventDefault();">
+        <div class="entry-title">The Moment I Realized The Importance Of Data Structures & Algorithms</div>
+        <div class="entry-meta">December 4, 2019</div>
+        <div class="entry-excerpt">Data Structures and Algorithms is a topic that inevitably comes up when you're a software engineer. Here's the moment it clicked for me and why it changed how I approach problems.</div>
+      </a>
+      <a href="#" class="blog-entry" onclick="event.preventDefault();">
+        <div class="entry-title">Small Group Projects - Tips for Success</div>
+        <div class="entry-meta">November 12, 2019</div>
+        <div class="entry-excerpt">Working in small teams on software projects can be incredibly rewarding — or incredibly frustrating. These are the lessons I've learned about making group projects work well.</div>
+      </a>
+      <a href="#" class="blog-entry" onclick="event.preventDefault();">
+        <div class="entry-title">Welcome to the Blog!</div>
+        <div class="entry-meta">October 1, 2019</div>
+        <div class="entry-excerpt">An introduction to this blog — what I plan to write about, why I'm starting it, and what you can expect to find here as a reader.</div>
+      </a>
+    </div>
+    <div class="contact-section">
+      <a href="#" class="cta">Get in touch</a>
+      <div class="social-row">
+        <a href="#"><span class="social-icon">GH</span> GitHub</a>
+        <a href="#"><span class="social-icon">LI</span> LinkedIn</a>
+        <a href="#"><span class="social-icon">✉</span> Email</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════ ABOUT ═══════ -->
+  <div class="page" id="page-about">
+    <div class="prose" style="padding-top:32px;">
+      <p>I'm a developer who enjoys building things that live on the web. I care about clean code, thoughtful design, and making complex systems feel simple.</p>
+      <p>When I'm not coding, you'll find me reading, listening to podcasts, or exploring new ideas. This site is where I share my work and what I'm learning along the way.</p>
+    </div>
+    <div class="social-row">
+      <a href="#"><span class="social-icon">GH</span> GitHub</a>
+      <a href="#"><span class="social-icon">LI</span> LinkedIn</a>
+      <a href="#"><span class="social-icon">✉</span> Email</a>
+    </div>
+  </div>
+
+  <!-- ═══════ PORTFOLIO ═══════ -->
+  <div class="page" id="page-portfolio">
+    <div class="grid grid-2" id="projectGrid" style="padding-top:32px;">
+      <div class="project-card" data-project="0">
+        <div class="title">Personal Website Rebuild</div>
+        <div class="year">2026</div>
+        <div class="desc">A full rebuild of my personal site using Astro 6, Tailwind v4, and Keystatic CMS. Designed for minimal aesthetics and full CMS control.</div>
+        <div class="tags">
+          <span class="tag">Astro</span>
+          <span class="tag">Tailwind</span>
+          <span class="tag">Keystatic</span>
+        </div>
+        <div class="card-links">
+          <a href="#" onclick="event.stopPropagation();">Live demo ↗</a>
+          <a href="#" onclick="event.stopPropagation();">GitHub ↗</a>
+        </div>
+      </div>
+      <div class="project-card" data-project="1">
+        <div class="title">Task Pipeline Engine</div>
+        <div class="year">2025</div>
+        <div class="desc">An async job processing engine built with Node.js and Redis, handling millions of events daily with retry logic and dead letter queues.</div>
+        <div class="tags">
+          <span class="tag">Node.js</span>
+          <span class="tag">Redis</span>
+          <span class="tag">TypeScript</span>
+        </div>
+        <div class="card-links">
+          <a href="#" onclick="event.stopPropagation();">GitHub ↗</a>
+        </div>
+      </div>
+      <div class="project-card" data-project="2">
+        <div class="title">Budget Tracker App</div>
+        <div class="year">2024</div>
+        <div class="desc">A mobile-first budgeting app with real-time sync, category breakdowns, and monthly spending insights.</div>
+        <div class="tags">
+          <span class="tag">React</span>
+          <span class="tag">Firebase</span>
+          <span class="tag">Chart.js</span>
+        </div>
+        <div class="card-links">
+          <a href="#" onclick="event.stopPropagation();">Live demo ↗</a>
+          <a href="#" onclick="event.stopPropagation();">GitHub ↗</a>
+        </div>
+      </div>
+      <div class="project-card" data-project="3">
+        <div class="title">CLI Documentation Tool</div>
+        <div class="year">2024</div>
+        <div class="desc">A command-line utility that auto-generates documentation from TypeScript source files with JSDoc annotations.</div>
+        <div class="tags">
+          <span class="tag">TypeScript</span>
+          <span class="tag">CLI</span>
+        </div>
+        <div class="card-links">
+          <a href="#" onclick="event.stopPropagation();">GitHub ↗</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════ PROJECT DETAIL (full page) ═══════ -->
+  <div class="page" id="page-project-detail">
+    <span class="back-link" onclick="showPage('portfolio')" style="margin-bottom:24px; padding-top:32px;">← Portfolio</span>
+    <h1 id="detailTitle" style="margin-top:16px;"></h1>
+    <div class="detail-meta" id="detailYear"></div>
+    <div class="detail-hero">16:9 hero image / video</div>
+    <div id="detailTags" class="tags" style="margin-bottom:24px;"></div>
+    <div class="detail-body prose" id="detailBody"></div>
+    <div class="card-links" id="detailLinks"></div>
+    <span class="back-link" onclick="showPage('portfolio')" style="margin-top:32px;">← Portfolio</span>
+  </div>
+
+  <!-- ═══════ PODCASTS ═══════ -->
+  <div class="page" id="page-podcasts">
+    <div class="grid" style="gap:16px; padding-top:32px;">
+      <a href="#" class="podcast-card"><div class="podcast-img">🎙</div><div><div class="name">Syntax</div><div class="cat">Web Development</div></div></a>
+      <a href="#" class="podcast-card"><div class="podcast-img">🎙</div><div><div class="name">The Changelog</div><div class="cat">Open Source</div></div></a>
+      <a href="#" class="podcast-card"><div class="podcast-img">🎙</div><div><div class="name">Shop Talk Show</div><div class="cat">Frontend</div></div></a>
+      <a href="#" class="podcast-card"><div class="podcast-img">🎙</div><div><div class="name">Acquired</div><div class="cat">Business & Tech</div></div></a>
+      <a href="#" class="podcast-card"><div class="podcast-img">🎙</div><div><div class="name">Lex Fridman Podcast</div><div class="cat">Science & Technology</div></div></a>
+    </div>
+  </div>
+
+  <!-- ═══════ BOOKS ═══════ -->
+  <div class="page" id="page-books">
+    <div class="grid grid-books" style="padding-top:32px;">
+      <div class="book-card"><div class="book-cover">📖</div><div class="book-info"><div class="btitle">Designing Data-Intensive Applications</div><div class="author">Martin Kleppmann</div><span class="badge reading">reading</span></div></div>
+      <div class="book-card"><div class="book-cover">📖</div><div class="book-info"><div class="btitle">A Philosophy of Software Design</div><div class="author">John Ousterhout</div><span class="badge read">read</span></div></div>
+      <div class="book-card"><div class="book-cover">📖</div><div class="book-info"><div class="btitle">The Pragmatic Programmer</div><div class="author">Hunt & Thomas</div><span class="badge read">read</span></div></div>
+      <div class="book-card"><div class="book-cover">📖</div><div class="book-info"><div class="btitle">Staff Engineer</div><div class="author">Will Larson</div><span class="badge want">want to read</span></div></div>
+      <div class="book-card"><div class="book-cover">📖</div><div class="book-info"><div class="btitle">Atomic Habits</div><div class="author">James Clear</div><span class="badge read">read</span></div></div>
+      <div class="book-card"><div class="book-cover">📖</div><div class="book-info"><div class="btitle">Thinking, Fast and Slow</div><div class="author">Daniel Kahneman</div><span class="badge want">want to read</span></div></div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>&copy; 2026 Nep Orshiso. All rights reserved.</footer>
+</div>
+
+<div class="mockup-label">Phase 2 UI Mockup</div>
+
+<script>
+  const projects = [
+    { title: 'Personal Website Rebuild', year: '2026', tags: ['Astro','Tailwind','Keystatic'], links: [['Live demo','#'],['GitHub','#']],
+      body: '<p>A ground-up rebuild of my personal portfolio and blog, replacing a static HTML/CSS/JS site with a modern Astro-powered setup. Every piece of content — bio, projects, books, podcasts — is managed through Keystatic CMS, so the site stays current without touching code.</p><p>The design follows a warm Gruvbox-inspired palette with dark and light modes, system fonts for fast rendering, and a content-first layout with no visual clutter. Built with accessibility in mind: WCAG AA contrast, proper ARIA labels, and 44px touch targets throughout.</p>' },
+    { title: 'Task Pipeline Engine', year: '2025', tags: ['Node.js','Redis','TypeScript'], links: [['GitHub','#']],
+      body: '<p>Built to handle high-throughput event processing with robust error handling. Features include configurable retry policies, dead letter queues for failed jobs, and real-time monitoring dashboards. Processing over 2M events daily in production with sub-second latency.</p><p>The architecture uses Redis Streams for reliable message delivery with consumer groups, ensuring no events are lost even during service restarts. Written entirely in TypeScript with comprehensive test coverage.</p>' },
+    { title: 'Budget Tracker App', year: '2024', tags: ['React','Firebase','Chart.js'], links: [['Live demo','#'],['GitHub','#']],
+      body: '<p>A personal finance tracker designed mobile-first with offline support. Users can categorize transactions, set monthly budgets, and view spending trends through interactive Chart.js visualizations.</p><p>Firebase provides real-time sync across devices and offline persistence. The app uses Firebase Auth for secure login and Firestore for instant data updates across all connected clients.</p>' },
+    { title: 'CLI Documentation Tool', year: '2024', tags: ['TypeScript','CLI'], links: [['GitHub','#']],
+      body: '<p>Parses TypeScript AST to extract JSDoc comments, function signatures, and type information, then generates clean Markdown documentation. Supports custom templates and can watch for file changes to auto-regenerate docs during development.</p><p>Designed as a zero-config CLI that works out of the box for most TypeScript projects. Just point it at your source directory and get beautifully formatted documentation.</p>' }
+  ];
+
+  // Page switching
+  const allPages = document.querySelectorAll('.page');
+  const navLinks = document.querySelectorAll('.nav-links [data-page]');
+
+  const crumbMap = {
+    home: "nep's home on the web",
+    about: 'about nep',
+    portfolio: "nep's portfolio",
+    'project-detail': "nep's portfolio",
+    podcasts: "nep's favorite podcasts",
+    books: "nep's reading"
+  };
+
+  function showPage(id) {
+    allPages.forEach(p => p.classList.remove('visible'));
+    navLinks.forEach(a => a.classList.remove('active'));
+    document.getElementById('page-' + id)?.classList.add('visible');
+    navLinks.forEach(a => { if (a.dataset.page === id) a.classList.add('active'); });
+    if (id === 'project-detail') navLinks.forEach(a => { if (a.dataset.page === 'portfolio') a.classList.add('active'); });
+    // Update site name breadcrumb
+    document.getElementById('siteName').textContent = crumbMap[id] || "nep's home on the web";
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  navLinks.forEach(a => a.addEventListener('click', e => { e.preventDefault(); showPage(a.dataset.page); }));
+
+  // Card click → full page
+  document.querySelectorAll('.project-card').forEach(card => {
+    card.addEventListener('click', () => {
+      const p = projects[parseInt(card.dataset.project)];
+      document.getElementById('detailTitle').textContent = p.title;
+      document.getElementById('detailYear').textContent = p.year;
+      document.getElementById('detailTags').innerHTML = p.tags.map(t => '<span class="tag">'+t+'</span>').join('');
+      document.getElementById('detailBody').innerHTML = p.body;
+      document.getElementById('detailLinks').innerHTML = p.links.map(([l,h]) => '<a href="'+h+'">'+l+' ↗</a>').join('');
+      showPage('project-detail');
+    });
+  });
+
+  // Theme toggle
+  const toggle = document.querySelector('.toggle');
+  new MutationObserver(() => {
+    toggle.textContent = document.documentElement.classList.contains('dark') ? '☽' : '☀';
+  }).observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+</script>
+</body>
+</html>

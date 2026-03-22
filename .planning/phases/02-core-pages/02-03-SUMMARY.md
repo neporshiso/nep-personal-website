@@ -75,3 +75,13 @@ None — plan executed exactly as written.
 ## Known Stubs
 
 None. All data flows from the Keystatic CMS projects collection via `getCollection('projects')`. The empty state is intentional (D-06: portfolio starts empty).
+
+## Self-Check: PASSED
+
+- FOUND: src/components/ProjectCard.astro
+- FOUND: src/pages/portfolio/index.astro
+- FOUND: src/pages/portfolio/[slug].astro
+- FOUND: commit 3f63edc (Task 1)
+- FOUND: commit ddc8b06 (Task 2)
+- FOUND: dist/portfolio/index.html (build verified)
+- FOUND: dist/portfolio/sample-project/index.html (detail page verified)

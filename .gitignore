@@ -1,3 +1,5 @@
+.claude/
+
 # build output
 dist/
 # generated types

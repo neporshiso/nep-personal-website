@@ -122,6 +122,10 @@ None - no external service configuration required.
 - Plans 02-02 through 02-06 can proceed: icon imports work, analytics fires automatically, siteTitle is available as a prop, social data is loadable via getCollection('social')
 - No blockers identified
 
+## Self-Check: PASSED
+
+All claimed files exist on disk. All task commits verified in git log (f918a02, 1e69893). Build exits 0.
+
 ---
 *Phase: 02-core-pages*
 *Completed: 2026-03-22*
