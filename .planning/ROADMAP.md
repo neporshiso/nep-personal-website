@@ -14,7 +14,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Foundation** - Astro scaffold, Tailwind v4, CMS setup, content schemas, BaseLayout with dark mode (completed 2026-03-21)
 - [ ] **Phase 2: Core Pages** - Homepage blog listing (3 migrated posts), about/bio, portfolio with detail pages, podcasts, books, contact, analytics — UI-SPEC approved
-- [ ] **Phase 3: Blog** - Individual post pages, MDX rendering, syntax highlighting, RSS feed
+- [ ] **Phase 3: Blog** - Syntax highlighting (Shiki/Gruvbox), reading time, RSS feed — completing the blog experience
 - [ ] **Phase 4: Polish and Launch** - SEO completeness, performance audit, production CMS workflow, deployment verified
 
 ## Phase Details
@@ -59,15 +59,19 @@ Plans:
 - [x] 02-06-PLAN.md — Visual and functional smoke test (checkpoint) — approved with restructuring
 
 ### Phase 3: Blog
-**Goal**: Individual blog post pages exist with full MDX rendering, syntax highlighting, and RSS feed — completing the blog experience started in Phase 2 (which added the listing on the homepage).
+**Goal**: Blog posts have syntax-highlighted code blocks (Shiki with Gruvbox dual themes), estimated reading time, and an RSS feed — completing the blog experience started in Phase 2 (which added the listing and detail pages).
 **Depends on**: Phase 2
 **Requirements**: BLOG-01, BLOG-02, BLOG-03, BLOG-04, BLOG-05
 **Success Criteria** (what must be TRUE):
-  1. Clicking a blog entry on the homepage navigates to `/blog/[slug]` with full rendered content
-  2. A blog post page renders MDX content including headings, inline code, and fenced code blocks with syntax highlighting
-  3. Code blocks display token-level syntax highlighting (Shiki) for at least JavaScript, TypeScript, and shell
-  4. Visiting `/rss.xml` returns a valid Atom/RSS feed containing all published posts
-**Plans**: TBD
+  1. Clicking a blog entry on `/thoughts` navigates to `/thoughts/[slug]` with full rendered content
+  2. A blog post page renders Markdoc content including headings, inline code, and fenced code blocks with syntax highlighting
+  3. Code blocks display token-level syntax highlighting (Shiki) with Gruvbox light/dark-hard themes matching the site's dark mode toggle
+  4. Each blog post page displays estimated reading time (e.g. "4 min read") next to the publication date
+  5. Visiting `/rss.xml` returns a valid RSS feed containing all published (non-draft) posts with links to `/thoughts/[slug]`
+**Plans**: 2 plans
+Plans:
+- [ ] 03-01-PLAN.md — Shiki syntax highlighting (Gruvbox dual themes) + reading time on detail pages
+- [ ] 03-02-PLAN.md — RSS feed at /rss.xml
 
 ### Phase 4: Polish and Launch
 **Goal**: All pages have complete SEO metadata and meet the LCP performance target, the production CMS workflow is verified (GitHub OAuth triggers a Vercel redeploy on content save), and the new site is live on the real domain replacing the old one.
@@ -90,5 +94,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 |-------|----------------|--------|-----------|
 | 1. Foundation | 2/2 | Complete   | 2026-03-21 |
 | 2. Core Pages | 5/6 | In Progress|  |
-| 3. Blog | 0/TBD | Not started | - |
+| 3. Blog | 0/2 | Not started | - |
 | 4. Polish and Launch | 0/TBD | Not started | - |
