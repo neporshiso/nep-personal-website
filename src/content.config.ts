@@ -57,4 +57,17 @@ const bio = defineCollection({
   schema: z.object({}),
 });
 
-export const collections = { projects, posts, podcasts, books, bio };
+const social = defineCollection({
+  loader: glob({ pattern: '**/*.{yaml,yml}', base: './src/content/social' }),
+  schema: z.object({
+    email: z.string().optional(),
+    github: z.string().url().optional(),
+    linkedin: z.string().url().optional(),
+    links: z.array(z.object({
+      label: z.string(),
+      url: z.string().url(),
+    })).default([]),
+  }),
+});
+
+export const collections = { projects, posts, podcasts, books, bio, social };

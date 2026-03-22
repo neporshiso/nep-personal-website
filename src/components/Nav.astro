@@ -2,6 +2,12 @@
 // Nav.astro - Top navigation bar with responsive mobile menu
 import ThemeToggle from './ThemeToggle.astro';
 
+interface Props {
+  siteTitle?: string;
+}
+
+const { siteTitle = "nep's home on the web" } = Astro.props;
+
 const navLinks = [
   { label: 'About', href: '/about' },
   { label: 'Portfolio', href: '/portfolio' },
@@ -9,6 +15,8 @@ const navLinks = [
   { label: 'Podcasts', href: '/podcasts' },
   { label: 'Books', href: '/books' },
 ];
+
+const currentPath = Astro.url.pathname;
 ---
 <nav class="w-full border-b border-[var(--border,#d5c4a1)] dark:border-[var(--border-dark,#504945)]">
   <div class="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between">
@@ -17,7 +25,7 @@ const navLinks = [
       href="/"
       class="font-semibold text-lg text-[var(--text)] hover:opacity-70 no-underline"
     >
-      Nep
+      {siteTitle}
     </a>
 
     <!-- Desktop navigation links -->
@@ -25,7 +33,13 @@ const navLinks = [
       {navLinks.map((link) => (
         <a
           href={link.href}
-          class="text-sm text-[var(--text)] hover:opacity-70 no-underline"
+          aria-current={currentPath === link.href || (link.href !== '/' && currentPath.startsWith(link.href)) ? 'page' : undefined}
+          class:list={[
+            'text-sm no-underline hover:opacity-70',
+            (currentPath === link.href || (link.href !== '/' && currentPath.startsWith(link.href)))
+              ? 'text-[#d79921] dark:text-[var(--accent)]'
+              : 'text-[var(--text)]'
+          ]}
         >
           {link.label}
         </a>
@@ -56,7 +70,13 @@ const navLinks = [
       {navLinks.map((link) => (
         <a
           href={link.href}
-          class="text-sm text-[var(--text)] hover:opacity-70 no-underline py-1"
+          aria-current={currentPath === link.href || (link.href !== '/' && currentPath.startsWith(link.href)) ? 'page' : undefined}
+          class:list={[
+            'text-sm no-underline hover:opacity-70 py-1',
+            (currentPath === link.href || (link.href !== '/' && currentPath.startsWith(link.href)))
+              ? 'text-[#d79921] dark:text-[var(--accent)]'
+              : 'text-[var(--text)]'
+          ]}
         >
           {link.label}
         </a>

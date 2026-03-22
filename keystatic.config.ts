@@ -104,5 +104,22 @@ export default config({
         body: fields.markdoc({ label: 'Bio Content' }),
       },
     }),
+    social: singleton({
+      label: 'Social & Contact',
+      path: 'src/content/social',
+      format: { data: 'yaml' },
+      schema: {
+        email: fields.text({ label: 'Email address' }),
+        github: fields.url({ label: 'GitHub URL', validation: { isRequired: false } }),
+        linkedin: fields.url({ label: 'LinkedIn URL', validation: { isRequired: false } }),
+        links: fields.array(
+          fields.object({
+            label: fields.text({ label: 'Label' }),
+            url: fields.url({ label: 'URL' }),
+          }),
+          { label: 'Additional links', itemLabel: (props) => props.fields.label.value }
+        ),
+      },
+    }),
   },
 });
