@@ -53,7 +53,7 @@ Plans:
 Plans:
 - [x] 02-01-PLAN.md — Infrastructure: packages, config, siteTitle prop, Analytics, social singleton
 - [x] 02-02-PLAN.md — Homepage (blog listing + contact) and about page update
-- [ ] 02-03-PLAN.md — Portfolio listing and project detail pages
+- [x] 02-03-PLAN.md — Portfolio listing and project detail pages
 - [x] 02-04-PLAN.md — Podcasts and books listing pages
 - [ ] 02-05-PLAN.md — Real content population (blog posts, bio, books, podcasts, social)
 - [ ] 02-06-PLAN.md — Visual and functional smoke test (checkpoint)
@@ -89,6 +89,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation | 2/2 | Complete   | 2026-03-21 |
-| 2. Core Pages | 3/6 | In Progress|  |
+| 2. Core Pages | 4/6 | In Progress|  |
 | 3. Blog | 0/TBD | Not started | - |
 | 4. Polish and Launch | 0/TBD | Not started | - |

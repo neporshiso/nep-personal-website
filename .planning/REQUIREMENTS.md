@@ -17,7 +17,7 @@ Requirements for initial release. Each maps to roadmap phases.
 ### Content
 
 - [x] **CONT-01**: User can edit about/bio content through CMS without code changes
-- [ ] **CONT-02**: User can add/edit portfolio projects through CMS with rich write-ups
+- [x] **CONT-02**: User can add/edit portfolio projects through CMS with rich write-ups
 - [x] **CONT-04**: Social and contact links are CMS-managed
 - [x] **CONT-05**: User can add/edit favorite podcasts through CMS (name, description, link, image)
 - [x] **CONT-06**: User can add/edit books through CMS with reading status (reading, read, want to read)
@@ -84,7 +84,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | FOUN-03 | Phase 1 | Complete |
 | FOUN-04 | Phase 4 | Pending |
 | CONT-01 | Phase 2 | Complete |
-| CONT-02 | Phase 2 | Pending |
+| CONT-02 | Phase 2 | Complete |
 | CONT-04 | Phase 2 | Complete |
 | CONT-05 | Phase 2 | Complete |
 | CONT-06 | Phase 2 | Complete |
