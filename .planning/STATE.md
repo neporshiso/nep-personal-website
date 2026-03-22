@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: Ready to execute
-stopped_at: Completed 02-core-pages 02-01-PLAN.md
-last_updated: "2026-03-22T20:37:38.270Z"
+stopped_at: Completed 02-core-pages 02-04-PLAN.md
+last_updated: "2026-03-22T20:42:27.249Z"
 progress:
   total_phases: 4
   completed_phases: 1
   total_plans: 8
-  completed_plans: 3
+  completed_plans: 5
 ---
 
 # Project State
@@ -24,7 +24,7 @@ See: .planning/PROJECT.md (updated 2026-03-20)
 ## Current Position
 
 Phase: 02 (core-pages) — EXECUTING
-Plan: 2 of 6
+Plan: 4 of 6
 
 ## Performance Metrics
 
@@ -49,6 +49,8 @@ Plan: 2 of 6
 | Phase 01-foundation P01 | 7 | 2 tasks | 9 files |
 | Phase 01-foundation P02 | 45 | 3 tasks | 8 files |
 | Phase 02-core-pages P01 | 4 | 2 tasks | 9 files |
+| Phase 02-core-pages P02 | 6 | 2 tasks | 4 files |
+| Phase 02-core-pages P04 | 8 | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -69,6 +71,11 @@ Recent decisions affecting current work:
 - [Phase 02-core-pages]: siteTitle prop defaults to "nep's home on the web" — contextual pages can override via BaseLayout
 - [Phase 02-core-pages]: Active nav accent: #d79921 light / var(--accent) dark — consistent with Phase 1 WCAG AA for normal-text links
 - [Phase 02-core-pages]: Social singleton uses glob yaml loader pattern (consistent with bio collection approach from Phase 1)
+- [Phase 02-core-pages]: Homepage uses post.id not post.slug — required for Astro v5 Content Layer API
+- [Phase 02-core-pages]: ContactSection self-fetches social data — avoids prop drilling, keeps component reusable
+- [Phase 02-core-pages]: No visible h1 on about page — sr-only h1 satisfies a11y, nav siteTitle is page identifier per UI-SPEC
+- [Phase 02-core-pages]: PodcastCard is full-anchor <a> element for entire card click target opening in new tab
+- [Phase 02-core-pages]: BookCard reading badge uses #d79921 light / var(--accent) dark per WCAG AA for normal text
 
 ### Pending Todos
 
@@ -82,6 +89,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-22T20:37:38.266Z
-Stopped at: Completed 02-core-pages 02-01-PLAN.md
+Last session: 2026-03-22T20:42:27.237Z
+Stopped at: Completed 02-core-pages 02-04-PLAN.md
 Resume file: None
