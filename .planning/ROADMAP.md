@@ -13,8 +13,8 @@ Rebuild a personal developer site from a static HTML/CSS/JS codebase into a mode
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Foundation** - Astro scaffold, Tailwind v4, CMS setup, content schemas, BaseLayout with dark mode (completed 2026-03-21)
-- [ ] **Phase 2: Core Pages** - About/bio, portfolio, podcasts, books, contact links, analytics — UI design step precedes implementation
-- [ ] **Phase 3: Blog** - Blog listing, post pages, MDX rendering, syntax highlighting, RSS feed
+- [ ] **Phase 2: Core Pages** - Homepage blog listing (3 migrated posts), about/bio, portfolio with detail pages, podcasts, books, contact, analytics — UI-SPEC approved
+- [ ] **Phase 3: Blog** - Individual post pages, MDX rendering, syntax highlighting, RSS feed
 - [ ] **Phase 4: Polish and Launch** - SEO completeness, performance audit, production CMS workflow, deployment verified
 
 ## Phase Details
@@ -35,27 +35,28 @@ Plans:
 - [ ] 01-02-PLAN.md — Content schemas (all 5 types), sample entries, about page, end-to-end CMS verification
 
 ### Phase 2: Core Pages
-**Goal**: The site has all core content pages — About/bio, portfolio, podcasts, books, and contact links — all CMS-managed, visually designed and approved before implementation, so the old site can be replaced at the end of this phase.
+**Goal**: The site has all core content pages — homepage blog listing, about/bio, portfolio (with detail pages), podcasts, books, and contact — all CMS-managed, with 3 blog posts migrated from blog.neporshiso.com, so the old site can be replaced at the end of this phase.
 
-> **UI Design step:** Before implementation plans begin, run `/gsd:ui-phase` to produce a visual design for the site. Implementation plans in this phase execute after design is approved.
+> **UI-SPEC approved** (2026-03-22). Design decisions: contextual site name nav (no page h1s), homepage = blog listing, project detail = full page route, single "Get in touch" CTA.
 
 **Depends on**: Phase 1
 **Requirements**: CONT-01, CONT-02, CONT-04, CONT-05, CONT-06, ANLY-01
 **Success Criteria** (what must be TRUE):
-  1. Editing the bio in the CMS and triggering a build updates the About section on the live site with no code changes
-  2. Adding a portfolio project through the CMS produces a project detail page with full write-up and any embedded S3 video loads correctly
-  3. Podcasts and Books pages display CMS-managed entries with names, descriptions, images, and links
-  4. Social and contact links are editable in the CMS and render correctly on the site
-  5. Analytics events appear in the analytics dashboard when pages are visited (UA property is replaced and collecting data)
-  6. The site renders correctly on a 375px-wide mobile screen with a working responsive nav
+  1. The homepage shows all published blog posts (title, date, excerpt) sorted newest-first, including 3 posts migrated from blog.neporshiso.com
+  2. Editing the bio in the CMS and triggering a build updates the About section with no code changes
+  3. Adding a portfolio project through the CMS produces a project detail page (`/portfolio/[slug]`) with full write-up and any embedded S3 video loads correctly
+  4. Podcasts and Books pages display CMS-managed entries with names, descriptions, images, and links
+  5. The nav site name updates contextually per page ("nep's home on the web", "about nep", etc.)
+  6. Analytics events appear in the analytics dashboard when pages are visited (UA property is replaced and collecting data)
+  7. The site renders correctly on a 375px-wide mobile screen with a working responsive nav
 **Plans**: TBD
 
 ### Phase 3: Blog
-**Goal**: A fully functional blog exists where posts are written and published through the CMS, render with proper MDX formatting and syntax highlighting, and are discoverable via an RSS feed — completing the primary net-new capability vs. the current site.
+**Goal**: Individual blog post pages exist with full MDX rendering, syntax highlighting, and RSS feed — completing the blog experience started in Phase 2 (which added the listing on the homepage).
 **Depends on**: Phase 2
 **Requirements**: BLOG-01, BLOG-02, BLOG-03, BLOG-04, BLOG-05
 **Success Criteria** (what must be TRUE):
-  1. The blog listing page shows all published posts with title, date, and estimated reading time
+  1. Clicking a blog entry on the homepage navigates to `/blog/[slug]` with full rendered content
   2. A blog post page renders MDX content including headings, inline code, and fenced code blocks with syntax highlighting
   3. Code blocks display token-level syntax highlighting (Shiki) for at least JavaScript, TypeScript, and shell
   4. Visiting `/rss.xml` returns a valid Atom/RSS feed containing all published posts

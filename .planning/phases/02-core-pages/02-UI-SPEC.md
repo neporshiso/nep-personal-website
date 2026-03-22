@@ -55,16 +55,17 @@ All sizes use the system font stack from global.css. No custom typeface loaded.
 |------|------|----------------|--------|--------------|-------------|-------|
 | Body | 16px | text-base | Regular (400) | font-normal | 1.6 | Body copy, bio text, descriptions |
 | Label | 14px | text-sm | Regular (400) | font-normal | 1.5 | Nav links, captions, tag pills, metadata (year, status, author) |
-| Heading | 20px | text-xl | Semibold (600) | font-semibold | 1.3 | Card titles, section subheadings (h2 within content area) |
-| Display | 30px | text-3xl | Semibold (600) | font-semibold | 1.2 | Page-level h1 (e.g. "About", "Portfolio") |
+| Heading | 20px | text-xl | Semibold (600) | font-semibold | 1.3 | Card titles, blog entry titles, project detail h1 |
+| Display | 30px | text-3xl | Semibold (600) | font-semibold | 1.2 | Project detail h1 only (no standalone page headings — see Navigation Contract) |
 
 Notes:
-- Two weights only: Regular (400) for body/label, Semibold (600) for all headings including Display h1. Bold (700) is not used.
+- Two weights only: Regular (400) for body/label, Semibold (600) for all headings. Bold (700) is not used.
 - `line-height: 1.6` on body is already set globally in `global.css` — do not override.
-- Page h1 pattern is `text-3xl font-semibold mb-6` — apply consistently across all pages. Note: existing `about.astro` uses `font-bold`; update to `font-semibold` during Phase 2 implementation.
+- **No page-level h1 headings.** Pages do not have standalone titles like "Portfolio" or "Books". The contextual site name in the nav serves as the page identifier (see Navigation Contract). The only h1 on listing pages is visually hidden for accessibility. Project detail pages use h1 for the project title.
+- Existing `about.astro` uses `font-bold`; update to `font-semibold` during Phase 2 implementation.
 - Code blocks: `ui-monospace` stack, no size override (inherits body 16px), used in blog phase — referenced here for completeness.
 
-Source: global.css line 46 (line-height 1.6), about.astro line 11 (text-3xl — weight updated to font-semibold per this contract), Nav.astro line 17 (font-semibold text-lg for site name), Nav.astro line 27 (text-sm for nav links).
+Source: global.css line 46 (line-height 1.6), Nav.astro line 17 (font-semibold text-lg for site name), Nav.astro line 27 (text-sm for nav links).
 
 ---
 
@@ -96,9 +97,46 @@ All values taken directly from global.css. No new colors introduced in Phase 2.
 
 ---
 
+## Navigation Contract
+
+The site name in the top-left nav updates contextually per page. No standalone page headings (`<h1>`) are rendered on listing pages — the site name is the page identifier.
+
+| Page | Site name text |
+|------|---------------|
+| `/` (home) | "nep's home on the web" |
+| `/about` | "about nep" |
+| `/portfolio` | "nep's portfolio" |
+| `/portfolio/[slug]` | "nep's portfolio" |
+| `/podcasts` | "nep's favorite podcasts" |
+| `/books` | "nep's reading" |
+
+Implementation:
+- Site name element: `font-semibold text-lg` (carried from Phase 1 Nav.astro)
+- Text updates on page navigation. In Astro, each page template passes a `siteTitle` prop to BaseLayout/Nav.
+- Clicking the site name navigates to `/` (home).
+- Accessibility: each page includes a visually hidden `<h1>` matching the site name text for screen readers.
+
+---
+
 ## Component Inventory
 
 New components introduced in Phase 2. Each must match the spacing, typography, and color contracts above.
+
+### BlogEntry
+
+Used on: `/` homepage (blog listing)
+
+| Property | Value |
+|----------|-------|
+| Layout | Vertical stack — title, date, 2-line excerpt. Each entry is a full-width link |
+| Element | `<a>` wrapping the entire entry |
+| Title | text-xl font-semibold, text-[var(--text)] |
+| Date | text-sm text-[var(--muted)], margin-top 4px |
+| Excerpt | text-base text-[var(--text)], line-clamp-2, margin-top 8px |
+| Divider | border-bottom 1px border-[var(--border)] between entries |
+| Spacing | py-6 (24px) per entry, first entry has no top padding |
+| Hover state | `hover:opacity-80` on entry |
+| List layout | Single column, no grid — vertical flow with dividers |
 
 ### ProjectCard
 
@@ -170,48 +208,52 @@ Used on: homepage (`/`) and footer region
 
 Max content width: `max-w-3xl mx-auto px-4` — from BaseLayout. Every page uses BaseLayout. No page overrides this width.
 
-### `/` — Homepage
+**No visible page headings.** Each page's identity is communicated via the contextual site name in the nav (see Navigation Contract). A visually hidden `<h1>` is included for accessibility. Content starts with `padding-top: 32px` below the nav.
+
+### `/` — Homepage (Blog Listing)
 
 Structure (top to bottom):
-1. Name headline: `<h1>` Display size (`text-3xl font-semibold`)
-2. Tagline: one sentence, text-base text-[var(--muted)]
-3. "Get in touch" contact CTA — accent color inline link
-4. Nav is already rendered by BaseLayout above this
+1. Visually hidden `<h1>nep's home on the web</h1>`
+2. BlogEntry list — all published posts, newest first (title, date, excerpt)
+3. ContactSection — "Get in touch" CTA + social icons (single instance, no duplication)
+
+Content source: `getCollection('posts')` — includes 3 posts migrated from blog.neporshiso.com (Gatsby).
 
 ### `/about`
 
 Structure (top to bottom):
-1. `<h1>About</h1>` — `text-3xl font-semibold mb-6`
+1. Visually hidden `<h1>about nep</h1>`
 2. Bio MDX prose block — `class="prose"` (plain text render, no Tailwind Typography plugin — Phase 1 used raw prose class)
 3. Social/contact links row — icons + text, muted color, flex gap-6
 
 ### `/portfolio`
 
 Structure (top to bottom):
-1. `<h1>Portfolio</h1>` — `text-3xl font-semibold mb-6`
+1. Visually hidden `<h1>nep's portfolio</h1>`
 2. ProjectCard grid (see component above)
 
 ### `/portfolio/[slug]`
 
 Structure (top to bottom):
-1. `<h1>{title}</h1>` — `text-3xl font-semibold mb-2`
-2. Year label — text-sm text-[var(--muted)] mb-6
-3. Hero media (S3 image or video) — full content column width, rounded-md, aspect-video for video
-4. Tech stack tags row — pill tags, flex flex-wrap gap-2, mb-6
-5. Rich text body — `class="prose"` MDX/Markdoc render
-6. Links row — "Live demo", "GitHub", etc. — accent color, flex gap-4
-7. Back link — `← Portfolio` — text-sm text-[var(--muted)] hover:text-[var(--text)], mt-8
+1. Back link — `← Portfolio` — text-sm text-[var(--muted)] hover:text-[var(--text)], mb-6
+2. `<h1>{title}</h1>` — `text-3xl font-semibold mb-2` (visible — this is the project name, not a page label)
+3. Year label — text-sm text-[var(--muted)] mb-6
+4. Hero media (S3 image or video) — full content column width, rounded-md, aspect-video for video
+5. Tech stack tags row — pill tags, flex flex-wrap gap-2, mb-6
+6. Rich text body — `class="prose"` MDX/Markdoc render
+7. Links row — "Live demo", "GitHub", etc. — accent color, flex gap-4
+8. Back link — `← Portfolio` — text-sm text-[var(--muted)] hover:text-[var(--text)], mt-8
 
 ### `/podcasts`
 
 Structure (top to bottom):
-1. `<h1>Podcasts</h1>` — `text-3xl font-semibold mb-6`
+1. Visually hidden `<h1>nep's favorite podcasts</h1>`
 2. PodcastCard grid (see component above)
 
 ### `/books`
 
 Structure (top to bottom):
-1. `<h1>Books</h1>` — `text-3xl font-semibold mb-6`
+1. Visually hidden `<h1>nep's reading</h1>`
 2. BookCard grid (see component above)
 
 ---
@@ -235,8 +277,14 @@ Structure (top to bottom):
 
 | Element | Copy |
 |---------|------|
-| Primary CTA | "Get in touch" — user confirmed |
-| Homepage tagline | "Developer, writer, reader." (from index.astro — confirm or update in CMS) |
+| Site name: home | "nep's home on the web" — user confirmed |
+| Site name: about | "about nep" — user confirmed |
+| Site name: portfolio | "nep's portfolio" — user confirmed |
+| Site name: podcasts | "nep's favorite podcasts" — user confirmed |
+| Site name: books | "nep's reading" — user confirmed |
+| Primary CTA | "Get in touch" — user confirmed, appears once on homepage ContactSection |
+| Blog empty state heading | "No posts yet." |
+| Blog empty state body | "Check back soon — posts will appear here once published." |
 | Portfolio empty state heading | "No projects yet." |
 | Portfolio empty state body | "Check back soon — projects will appear here once added through the CMS." |
 | Podcasts empty state heading | "No podcasts listed yet." |
