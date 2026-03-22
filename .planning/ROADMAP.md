@@ -31,8 +31,8 @@ Decimal phases appear between their surrounding integers in numeric order.
   5. All content type schemas (Project, Post, Bio, Podcast, Book) are defined with Zod validation and reject malformed entries at build time
 **Plans**: 2 plans
 Plans:
-- [ ] 01-01-PLAN.md — Scaffold Astro + Tailwind v4 + Keystatic, BaseLayout with dark mode toggle, Nav, Footer
-- [ ] 01-02-PLAN.md — Content schemas (all 5 types), sample entries, about page, end-to-end CMS verification
+- [x] 01-01-PLAN.md — Scaffold Astro + Tailwind v4 + Keystatic, BaseLayout with dark mode toggle, Nav, Footer
+- [x] 01-02-PLAN.md — Content schemas (all 5 types), sample entries, about page, end-to-end CMS verification
 
 ### Phase 2: Core Pages
 **Goal**: The site has all core content pages — homepage blog listing, about/bio, portfolio (with detail pages), podcasts, books, and contact — all CMS-managed, with 3 blog posts migrated from blog.neporshiso.com, so the old site can be replaced at the end of this phase.
@@ -49,7 +49,14 @@ Plans:
   5. The nav site name updates contextually per page ("nep's home on the web", "about nep", etc.)
   6. Analytics events appear in the analytics dashboard when pages are visited (UA property is replaced and collecting data)
   7. The site renders correctly on a 375px-wide mobile screen with a working responsive nav
-**Plans**: TBD
+**Plans**: 6 plans
+Plans:
+- [ ] 02-01-PLAN.md — Infrastructure: packages, config, siteTitle prop, Analytics, social singleton
+- [ ] 02-02-PLAN.md — Homepage (blog listing + contact) and about page update
+- [ ] 02-03-PLAN.md — Portfolio listing and project detail pages
+- [ ] 02-04-PLAN.md — Podcasts and books listing pages
+- [ ] 02-05-PLAN.md — Real content population (blog posts, bio, books, podcasts, social)
+- [ ] 02-06-PLAN.md — Visual and functional smoke test (checkpoint)
 
 ### Phase 3: Blog
 **Goal**: Individual blog post pages exist with full MDX rendering, syntax highlighting, and RSS feed — completing the blog experience started in Phase 2 (which added the listing on the homepage).
@@ -82,6 +89,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation | 2/2 | Complete   | 2026-03-21 |
-| 2. Core Pages | 0/TBD | Not started | - |
+| 2. Core Pages | 0/6 | Planned | - |
 | 3. Blog | 0/TBD | Not started | - |
 | 4. Polish and Launch | 0/TBD | Not started | - |
