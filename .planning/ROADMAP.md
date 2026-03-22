@@ -51,7 +51,7 @@ Plans:
   7. The site renders correctly on a 375px-wide mobile screen with a working responsive nav
 **Plans**: 6 plans
 Plans:
-- [ ] 02-01-PLAN.md — Infrastructure: packages, config, siteTitle prop, Analytics, social singleton
+- [x] 02-01-PLAN.md — Infrastructure: packages, config, siteTitle prop, Analytics, social singleton
 - [ ] 02-02-PLAN.md — Homepage (blog listing + contact) and about page update
 - [ ] 02-03-PLAN.md — Portfolio listing and project detail pages
 - [ ] 02-04-PLAN.md — Podcasts and books listing pages

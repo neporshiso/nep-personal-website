@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: unknown
-stopped_at: Phase 2 context gathered
-last_updated: "2026-03-22T20:08:31.063Z"
+status: Ready to execute
+stopped_at: Completed 02-core-pages 02-01-PLAN.md
+last_updated: "2026-03-22T20:37:38.270Z"
 progress:
   total_phases: 4
   completed_phases: 1
-  total_plans: 2
-  completed_plans: 2
+  total_plans: 8
+  completed_plans: 3
 ---
 
 # Project State
@@ -19,12 +19,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-20)
 
 **Core value:** All site content is editable through a CMS so the site stays current without touching code
-**Current focus:** Phase 01 — foundation
+**Current focus:** Phase 02 — core-pages
 
 ## Current Position
 
-Phase: 01 (foundation) — EXECUTING
-Plan: 1 of 2
+Phase: 02 (core-pages) — EXECUTING
+Plan: 2 of 6
 
 ## Performance Metrics
 
@@ -48,6 +48,7 @@ Plan: 1 of 2
 *Updated after each plan completion*
 | Phase 01-foundation P01 | 7 | 2 tasks | 9 files |
 | Phase 01-foundation P02 | 45 | 3 tasks | 8 files |
+| Phase 02-core-pages P01 | 4 | 2 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -65,6 +66,9 @@ Recent decisions affecting current work:
 - [Phase 01-foundation]: Anti-flash script must be literal first child of <head> with is:inline for synchronous pre-paint execution
 - [Phase 01-foundation]: Astro v5 Content Layer API uses standalone render(entry) import from astro:content, not entry.render() instance method
 - [Phase 01-foundation]: Bio Keystatic singleton loaded as getCollection('bio') via glob loader — treats single file as one-entry collection, avoids mixing Reader API
+- [Phase 02-core-pages]: siteTitle prop defaults to "nep's home on the web" — contextual pages can override via BaseLayout
+- [Phase 02-core-pages]: Active nav accent: #d79921 light / var(--accent) dark — consistent with Phase 1 WCAG AA for normal-text links
+- [Phase 02-core-pages]: Social singleton uses glob yaml loader pattern (consistent with bio collection approach from Phase 1)
 
 ### Pending Todos
 
@@ -78,6 +82,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-22T20:08:31.059Z
-Stopped at: Phase 2 context gathered
-Resume file: .planning/phases/02-core-pages/02-CONTEXT.md
+Last session: 2026-03-22T20:37:38.266Z
+Stopped at: Completed 02-core-pages 02-01-PLAN.md
+Resume file: None
