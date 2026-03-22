@@ -1,0 +1,30 @@
+---
+interface Props {
+  title: string;
+  author: string;
+  coverImage?: string;
+  status: 'reading' | 'read' | 'want-to-read';
+}
+
+const { title, author, coverImage, status } = Astro.props;
+---
+
+<div class="overflow-hidden">
+  {coverImage ? (
+    <img src={coverImage} alt={title} loading="lazy" class="w-full aspect-[2/3] object-cover rounded-t-md" />
+  ) : (
+    <div class="w-full aspect-[2/3] bg-[var(--border,#d5c4a1)] dark:bg-[var(--border-dark,#504945)] rounded-t-md"></div>
+  )}
+  <div class="pt-3">
+    <p class="text-base font-semibold text-[var(--text)] line-clamp-2">{title}</p>
+    <p class="text-sm text-[var(--muted,#7c6f64)] mt-1">{author}</p>
+    <span class:list={[
+      'inline-block text-sm px-2 py-0.5 rounded-full border mt-2',
+      status === 'reading'
+        ? 'text-[#d79921] dark:text-[var(--accent)] border-[var(--border,#d5c4a1)] dark:border-[var(--border-dark,#504945)]'
+        : 'text-[var(--muted,#7c6f64)] border-[var(--border,#d5c4a1)] dark:border-[var(--border-dark,#504945)]'
+    ]}>
+      {status === 'want-to-read' ? 'want to read' : status}
+    </span>
+  </div>
+</div>

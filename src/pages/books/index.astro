@@ -1,0 +1,28 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import BookCard from '../../components/BookCard.astro';
+
+const books = await getCollection('books');
+---
+<BaseLayout title="Books — Nep" siteTitle="nep's reading">
+  <h1 class="sr-only">nep's reading</h1>
+
+  {books.length > 0 ? (
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+      {books.map((book) => (
+        <BookCard
+          title={book.data.title}
+          author={book.data.author}
+          coverImage={book.data.coverImage}
+          status={book.data.status}
+        />
+      ))}
+    </div>
+  ) : (
+    <div class="text-center py-12">
+      <h2 class="text-xl font-semibold mb-2 text-[var(--text)]">No books listed yet.</h2>
+      <p class="text-base text-[var(--muted,#7c6f64)]">Reading list will appear here once added.</p>
+    </div>
+  )}
+</BaseLayout>
