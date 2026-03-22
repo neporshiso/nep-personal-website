@@ -37,16 +37,16 @@ Plans:
 ### Phase 2: Core Pages
 **Goal**: The site has all core content pages — homepage blog listing, about/bio, portfolio (with detail pages), podcasts, books, and contact — all CMS-managed, with 3 blog posts migrated from blog.neporshiso.com, so the old site can be replaced at the end of this phase.
 
-> **UI-SPEC approved** (2026-03-22). Design decisions: contextual site name nav (no page h1s), homepage = blog listing, project detail = full page route, single "Get in touch" CTA.
+> **UI-SPEC approved** (2026-03-22). Design decisions: contextual site name nav (no page h1s), homepage = bio, blog listing at /thoughts, project detail = full page route, single "Get in touch" CTA. Restructured during smoke test: blog→thoughts, about→homepage.
 
 **Depends on**: Phase 1
 **Requirements**: CONT-01, CONT-02, CONT-04, CONT-05, CONT-06, ANLY-01
 **Success Criteria** (what must be TRUE):
-  1. The homepage shows all published blog posts (title, date, excerpt) sorted newest-first, including 3 posts migrated from blog.neporshiso.com
-  2. Editing the bio in the CMS and triggering a build updates the About section with no code changes
-  3. Adding a portfolio project through the CMS produces a project detail page (`/portfolio/[slug]`) with full write-up and any embedded S3 video loads correctly
-  4. Podcasts and Books pages display CMS-managed entries with names, descriptions, images, and links
-  5. The nav site name updates contextually per page ("nep's home on the web", "about nep", etc.)
+  1. The `/thoughts` page shows all published blog posts (title, date, excerpt) sorted newest-first, including 3 posts migrated from blog.neporshiso.com, with individual posts at `/thoughts/[slug]`
+  2. Editing the bio in the CMS and triggering a build updates the homepage bio section with no code changes
+  3. Adding a portfolio project through the CMS produces a project detail page (`/portfolio/[slug]`) with full write-up and embedded local video loads correctly
+  4. Podcasts and Books pages display CMS-managed entries with names, descriptions, and links (cover images added when real assets are available)
+  5. The nav site name updates contextually per page ("nep's home on the web", "nep's thoughts", "nep's portfolio", etc.)
   6. Analytics events appear in the analytics dashboard when pages are visited (UA property is replaced and collecting data)
   7. The site renders correctly on a 375px-wide mobile screen with a working responsive nav
 **Plans**: 6 plans
@@ -56,7 +56,7 @@ Plans:
 - [x] 02-03-PLAN.md — Portfolio listing and project detail pages
 - [x] 02-04-PLAN.md — Podcasts and books listing pages
 - [x] 02-05-PLAN.md — Real content population (blog posts, bio, books, podcasts, social)
-- [ ] 02-06-PLAN.md — Visual and functional smoke test (checkpoint)
+- [x] 02-06-PLAN.md — Visual and functional smoke test (checkpoint) — approved with restructuring
 
 ### Phase 3: Blog
 **Goal**: Individual blog post pages exist with full MDX rendering, syntax highlighting, and RSS feed — completing the blog experience started in Phase 2 (which added the listing on the homepage).
