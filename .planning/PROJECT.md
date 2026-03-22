@@ -21,12 +21,21 @@ All site content is editable through a CMS so the site stays current without tou
 
 ### Active
 
-- [ ] CMS-managed portfolio projects
 - [ ] CMS-managed resume/work experience
 - [ ] CMS-managed skills
-- [ ] Blog with CMS-managed posts
 - [ ] Deploy to Vercel or Netlify
 - [ ] Feature parity with current site before going live
+
+### Validated in Phase 2: Core Pages
+
+- ✓ CMS-managed portfolio projects — ProjectCard + detail pages at /portfolio/[slug]
+- ✓ CMS-managed blog posts — 3 real posts migrated, listing at /thoughts, detail at /thoughts/[slug]
+- ✓ CMS-managed podcasts — PodcastCard, listing at /podcasts
+- ✓ CMS-managed books — BookCard with reading status badges, listing at /books
+- ✓ CMS-managed social/contact links — Keystatic singleton, ContactSection as site-wide footer
+- ✓ Analytics — Vercel Analytics replaces dead Google Analytics UA property
+- ✓ Bio on homepage — about content moved from /about to /, CMS-managed
+- ✓ User-directed restructuring: blog→thoughts, about→homepage, single footer
 
 ### Validated in Phase 1: Foundation
 
@@ -70,4 +79,4 @@ All site content is editable through a CMS so the site stays current without tou
 | Hosting platform | Vercel or Netlify — user familiar with both, no strong preference | Vercel (decided during project setup) |
 
 ---
-*Last updated: 2026-03-21 after Phase 1 completion*
+*Last updated: 2026-03-22 after Phase 2 completion*
