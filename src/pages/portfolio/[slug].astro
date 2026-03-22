@@ -1,0 +1,58 @@
+---
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+export async function getStaticPaths() {
+  const projects = await getCollection('projects');
+  return projects.map((project) => ({
+    params: { slug: project.id },
+    props: { project },
+  }));
+}
+
+const { project } = Astro.props;
+const { Content } = await render(project);
+---
+<BaseLayout title={`${project.data.title} — Nep`} siteTitle="nep's portfolio">
+  <!-- Top back link -->
+  <a href="/portfolio" class="text-sm text-[var(--muted,#7c6f64)] hover:text-[var(--text)] no-underline mb-6 inline-block">&larr; Portfolio</a>
+
+  <!-- Project title (visible h1 — project detail is the ONE page with a visible h1) -->
+  <h1 class="text-3xl font-semibold mb-2 text-[var(--text)]">{project.data.title}</h1>
+
+  <!-- Year -->
+  <p class="text-sm text-[var(--muted,#7c6f64)] mb-6">{project.data.year}</p>
+
+  <!-- Hero media (if exists) -->
+  {project.data.media && (
+    project.data.media.endsWith('.mp4') || project.data.media.endsWith('.webm')
+      ? <video src={project.data.media} controls preload="metadata" playsinline class="w-full rounded-md aspect-video mb-6"></video>
+      : <img src={project.data.media} alt={project.data.title} loading="eager" class="w-full rounded-md mb-6" />
+  )}
+
+  <!-- Tech stack tags -->
+  {project.data.techStack.length > 0 && (
+    <div class="flex flex-wrap gap-2 mb-6">
+      {project.data.techStack.map((tech) => (
+        <span class="text-sm px-2 py-1 bg-[var(--border,#d5c4a1)] dark:bg-[var(--border-dark,#504945)] rounded-full">{tech}</span>
+      ))}
+    </div>
+  )}
+
+  <!-- Rich text body -->
+  <div class="prose">
+    <Content />
+  </div>
+
+  <!-- Links row -->
+  {project.data.links.length > 0 && (
+    <div class="flex gap-4 mt-6">
+      {project.data.links.map((link) => (
+        <a href={link.url} target="_blank" rel="noopener noreferrer" class="text-sm text-[#d79921] dark:text-[var(--accent)] hover:text-[var(--accent-hover)] no-underline">{link.label}</a>
+      ))}
+    </div>
+  )}
+
+  <!-- Bottom back link -->
+  <a href="/portfolio" class="text-sm text-[var(--muted,#7c6f64)] hover:text-[var(--text)] no-underline mt-8 inline-block">&larr; Portfolio</a>
+</BaseLayout>
