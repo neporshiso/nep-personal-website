@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: Ready to execute
-stopped_at: Completed 02-core-pages 02-03-PLAN.md
-last_updated: "2026-03-22T20:43:40.768Z"
+stopped_at: Completed 02-core-pages 02-05-PLAN.md
+last_updated: "2026-03-22T20:55:12.758Z"
 progress:
   total_phases: 4
   completed_phases: 1
   total_plans: 8
-  completed_plans: 6
+  completed_plans: 7
 ---
 
 # Project State
@@ -24,7 +24,7 @@ See: .planning/PROJECT.md (updated 2026-03-20)
 ## Current Position
 
 Phase: 02 (core-pages) — EXECUTING
-Plan: 5 of 6
+Plan: 6 of 6
 
 ## Performance Metrics
 
@@ -52,6 +52,7 @@ Plan: 5 of 6
 | Phase 02-core-pages P02 | 6 | 2 tasks | 4 files |
 | Phase 02-core-pages P04 | 8 | 2 tasks | 4 files |
 | Phase 02-core-pages P03 | 2 | 2 tasks | 3 files |
+| Phase 02-core-pages P05 | 7 | 2 tasks | 12 files |
 
 ## Accumulated Context
 
@@ -78,6 +79,8 @@ Recent decisions affecting current work:
 - [Phase 02-core-pages]: PodcastCard is full-anchor <a> element for entire card click target opening in new tab
 - [Phase 02-core-pages]: BookCard reading badge uses #d79921 light / var(--accent) dark per WCAG AA for normal text
 - [Phase 02-core-pages]: Portfolio detail page: visible h1 text-3xl font-semibold (project name), all listing pages use sr-only h1
+- [Phase 02-core-pages]: Blog posts written as substantive original content (blog.neporshiso.com inaccessible; plan allows this fallback)
+- [Phase 02-core-pages]: Astro content layer cache (node_modules/.astro/data-store.json) must be cleared when deleting content files to prevent stale route generation
 
 ### Pending Todos
 
@@ -91,6 +94,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-22T20:43:40.764Z
-Stopped at: Completed 02-core-pages 02-03-PLAN.md
+Last session: 2026-03-22T20:55:12.750Z
+Stopped at: Completed 02-core-pages 02-05-PLAN.md
 Resume file: None
