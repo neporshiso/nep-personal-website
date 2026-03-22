@@ -56,15 +56,15 @@ All sizes use the system font stack from global.css. No custom typeface loaded.
 | Body | 16px | text-base | Regular (400) | font-normal | 1.6 | Body copy, bio text, descriptions |
 | Label | 14px | text-sm | Regular (400) | font-normal | 1.5 | Nav links, captions, tag pills, metadata (year, status, author) |
 | Heading | 20px | text-xl | Semibold (600) | font-semibold | 1.3 | Card titles, section subheadings (h2 within content area) |
-| Display | 30px | text-3xl | Bold (700) | font-bold | 1.2 | Page-level h1 (e.g. "About", "Portfolio") |
+| Display | 30px | text-3xl | Semibold (600) | font-semibold | 1.2 | Page-level h1 (e.g. "About", "Portfolio") |
 
 Notes:
-- Two weights in active use: regular (400) for body/label, semibold (600) for headings — bold (700) reserved for display h1 only.
+- Two weights only: Regular (400) for body/label, Semibold (600) for all headings including Display h1. Bold (700) is not used.
 - `line-height: 1.6` on body is already set globally in `global.css` — do not override.
-- Page h1 pattern `text-3xl font-bold mb-6` is established in `about.astro` — apply consistently across all pages.
+- Page h1 pattern is `text-3xl font-semibold mb-6` — apply consistently across all pages. Note: existing `about.astro` uses `font-bold`; update to `font-semibold` during Phase 2 implementation.
 - Code blocks: `ui-monospace` stack, no size override (inherits body 16px), used in blog phase — referenced here for completeness.
 
-Source: global.css line 46 (line-height 1.6), about.astro line 11 (text-3xl font-bold mb-6), Nav.astro line 17 (font-semibold text-lg for site name), Nav.astro line 27 (text-sm for nav links).
+Source: global.css line 46 (line-height 1.6), about.astro line 11 (text-3xl — weight updated to font-semibold per this contract), Nav.astro line 17 (font-semibold text-lg for site name), Nav.astro line 27 (text-sm for nav links).
 
 ---
 
@@ -173,7 +173,7 @@ Max content width: `max-w-3xl mx-auto px-4` — from BaseLayout. Every page uses
 ### `/` — Homepage
 
 Structure (top to bottom):
-1. Name headline: `<h1>` Display size (text-3xl font-bold)
+1. Name headline: `<h1>` Display size (`text-3xl font-semibold`)
 2. Tagline: one sentence, text-base text-[var(--muted)]
 3. "Get in touch" contact CTA — accent color inline link
 4. Nav is already rendered by BaseLayout above this
@@ -181,20 +181,20 @@ Structure (top to bottom):
 ### `/about`
 
 Structure (top to bottom):
-1. `<h1>About</h1>` — text-3xl font-bold mb-6 (already in about.astro)
+1. `<h1>About</h1>` — `text-3xl font-semibold mb-6`
 2. Bio MDX prose block — `class="prose"` (plain text render, no Tailwind Typography plugin — Phase 1 used raw prose class)
 3. Social/contact links row — icons + text, muted color, flex gap-6
 
 ### `/portfolio`
 
 Structure (top to bottom):
-1. `<h1>Portfolio</h1>` — text-3xl font-bold mb-6
+1. `<h1>Portfolio</h1>` — `text-3xl font-semibold mb-6`
 2. ProjectCard grid (see component above)
 
 ### `/portfolio/[slug]`
 
 Structure (top to bottom):
-1. `<h1>{title}</h1>` — text-3xl font-bold mb-2
+1. `<h1>{title}</h1>` — `text-3xl font-semibold mb-2`
 2. Year label — text-sm text-[var(--muted)] mb-6
 3. Hero media (S3 image or video) — full content column width, rounded-md, aspect-video for video
 4. Tech stack tags row — pill tags, flex flex-wrap gap-2, mb-6
@@ -205,13 +205,13 @@ Structure (top to bottom):
 ### `/podcasts`
 
 Structure (top to bottom):
-1. `<h1>Podcasts</h1>` — text-3xl font-bold mb-6
+1. `<h1>Podcasts</h1>` — `text-3xl font-semibold mb-6`
 2. PodcastCard grid (see component above)
 
 ### `/books`
 
 Structure (top to bottom):
-1. `<h1>Books</h1>` — text-3xl font-bold mb-6
+1. `<h1>Books</h1>` — `text-3xl font-semibold mb-6`
 2. BookCard grid (see component above)
 
 ---
@@ -251,6 +251,19 @@ Structure (top to bottom):
 | Analytics: no user-visible copy | Vercel Analytics or Plausible script — silent, no cookie banner required for Plausible |
 
 Destructive actions: none in Phase 2. No confirmation dialogs needed.
+
+### Error States
+
+**Broken image fallback alt text strategy:**
+- Card images (BookCard cover, PodcastCard cover, ProjectCard hero): `alt` must always equal the content item name (e.g. the book title, podcast name, or project title). This ensures the alt text remains meaningful if the image fails to load. Never use empty `alt=""` on content images — empty alt is reserved for purely decorative images only.
+- When an image fails to render (network error, missing S3 asset), the browser will display the alt text in place. No additional error UI element is required — the alt text alone is the fallback.
+
+**Page-level data fetch failure:**
+- If a collection fails to load (e.g. `getCollection()` throws or returns an error), display the following inline message in the content area in place of the card grid:
+  - Heading: "Content unavailable."
+  - Body: "Something went wrong loading this page. Try refreshing, or check back later."
+  - Styling: text-base text-[var(--muted)], no accent color, no icon, centered within the content column.
+- This applies to: `/portfolio`, `/podcasts`, `/books`.
 
 ---
 
