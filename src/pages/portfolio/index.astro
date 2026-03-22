@@ -1,0 +1,31 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ProjectCard from '../../components/ProjectCard.astro';
+
+const projects = await getCollection('projects');
+const sorted = projects.sort((a, b) => b.data.year - a.data.year);
+---
+<BaseLayout title="Portfolio — Nep" siteTitle="nep's portfolio">
+  <h1 class="sr-only">nep's portfolio</h1>
+
+  {sorted.length > 0 ? (
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+      {sorted.map((project) => (
+        <ProjectCard
+          title={project.data.title}
+          year={project.data.year}
+          description={project.data.description}
+          techStack={project.data.techStack}
+          links={project.data.links}
+          slug={project.id}
+        />
+      ))}
+    </div>
+  ) : (
+    <div class="text-center py-12">
+      <h2 class="text-xl font-semibold mb-2 text-[var(--text)]">No projects yet.</h2>
+      <p class="text-base text-[var(--muted,#7c6f64)]">Check back soon — projects will appear here once added through the CMS.</p>
+    </div>
+  )}
+</BaseLayout>

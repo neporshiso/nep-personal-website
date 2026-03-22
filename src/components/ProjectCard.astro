@@ -1,0 +1,32 @@
+---
+interface Props {
+  title: string;
+  year: number;
+  description?: string;
+  techStack: string[];
+  links: { label: string; url: string }[];
+  slug: string;
+}
+
+const { title, year, description, techStack, links, slug } = Astro.props;
+---
+
+<div class="border border-[var(--border,#d5c4a1)] dark:border-[var(--border-dark,#504945)] rounded-md p-4">
+  <a href={"/portfolio/" + slug} class="text-xl font-semibold text-[var(--text)] hover:opacity-80 no-underline">{title}</a>
+  <p class="text-sm text-[var(--muted,#7c6f64)] mt-1">{year}</p>
+  {description && <p class="text-base text-[var(--text)] line-clamp-2 mt-2">{description}</p>}
+  {techStack.length > 0 && (
+    <div class="flex flex-wrap gap-2 mt-3">
+      {techStack.map((tech) => (
+        <span class="text-sm px-2 py-1 bg-[var(--border,#d5c4a1)] dark:bg-[var(--border-dark,#504945)] rounded-full">{tech}</span>
+      ))}
+    </div>
+  )}
+  {links.length > 0 && (
+    <div class="flex gap-4 mt-3">
+      {links.map((link) => (
+        <a href={link.url} target="_blank" rel="noopener noreferrer" class="text-sm text-[#d79921] dark:text-[var(--accent)] hover:text-[var(--accent-hover)] no-underline">{link.label}</a>
+      ))}
+    </div>
+  )}
+</div>
