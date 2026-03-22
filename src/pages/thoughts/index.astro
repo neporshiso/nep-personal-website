@@ -1,0 +1,31 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import BlogEntry from '../../components/BlogEntry.astro';
+
+const allPosts = await getCollection('posts');
+const posts = allPosts
+  .filter((p) => !p.data.draft)
+  .sort((a, b) => b.data.publishedDate.valueOf() - a.data.publishedDate.valueOf());
+---
+<BaseLayout title="Thoughts — Nep" siteTitle="nep's thoughts">
+  <h1 class="sr-only">nep's thoughts</h1>
+
+  {posts.length > 0 ? (
+    <div class="divide-y divide-[var(--border,#d5c4a1)] dark:divide-[var(--border-dark,#504945)]">
+      {posts.map((post) => (
+        <BlogEntry
+          title={post.data.title}
+          publishedDate={post.data.publishedDate}
+          excerpt={post.data.excerpt}
+          slug={post.id}
+        />
+      ))}
+    </div>
+  ) : (
+    <div class="text-center py-12">
+      <h2 class="text-xl font-semibold mb-2 text-[var(--text)]">No thoughts yet.</h2>
+      <p class="text-base text-[var(--muted,#7c6f64)]">Check back soon — posts will appear here once published.</p>
+    </div>
+  )}
+</BaseLayout>

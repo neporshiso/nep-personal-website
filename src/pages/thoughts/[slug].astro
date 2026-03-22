@@ -1,0 +1,43 @@
+---
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('posts');
+  return posts.map((post) => ({
+    params: { slug: post.id },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+
+const formattedDate = post.data.publishedDate.toLocaleDateString('en-US', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+});
+---
+<BaseLayout title={`${post.data.title} — Nep`} siteTitle="nep's thoughts">
+  <a
+    href="/thoughts"
+    class="text-sm text-[var(--muted,#7c6f64)] hover:text-[var(--text)] no-underline mb-6 inline-block"
+  >
+    ← Thoughts
+  </a>
+
+  <h1 class="text-3xl font-semibold mb-2 text-[var(--text)]">{post.data.title}</h1>
+  <p class="text-sm text-[var(--muted,#7c6f64)] mb-6">{formattedDate}</p>
+
+  <div class="prose">
+    <Content />
+  </div>
+
+  <a
+    href="/thoughts"
+    class="text-sm text-[var(--muted,#7c6f64)] hover:text-[var(--text)] no-underline mt-8 inline-block"
+  >
+    ← Thoughts
+  </a>
+</BaseLayout>
