@@ -10,7 +10,7 @@ const projects = defineCollection({
     title: z.string(),
     description: z.string().optional(),
     techStack: z.array(z.string()).default([]),
-    media: z.string().url().optional().nullable(),
+    media: z.string().optional().nullable(),
     links: z.array(z.object({
       label: z.string(),
       url: z.string().url(),

@@ -18,7 +18,7 @@ export default config({
           fields.text({ label: 'Technology' }),
           { label: 'Tech Stack', itemLabel: (props) => props.fields.value.value }
         ),
-        media: fields.url({ label: 'Media URL (S3)', validation: { isRequired: false } }),
+        media: fields.text({ label: 'Media path (e.g. /assets/projects/hero.mp4)', validation: { isRequired: false } }),
         links: fields.array(
           fields.object({
             label: fields.text({ label: 'Label' }),
