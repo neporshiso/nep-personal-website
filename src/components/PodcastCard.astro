@@ -1,0 +1,22 @@
+---
+interface Props {
+  name: string;
+  link: string;
+  coverImage?: string;
+  category?: string;
+}
+
+const { name, link, coverImage, category } = Astro.props;
+---
+
+<a href={link} target="_blank" rel="noopener noreferrer" class="flex items-center gap-4 hover:opacity-80 no-underline">
+  {coverImage ? (
+    <img src={coverImage} alt={name} loading="lazy" class="w-16 h-16 rounded-md object-cover flex-shrink-0" />
+  ) : (
+    <div class="w-16 h-16 rounded-md bg-[var(--border,#d5c4a1)] dark:bg-[var(--border-dark,#504945)] flex-shrink-0"></div>
+  )}
+  <div>
+    <p class="text-base font-semibold text-[var(--text)]">{name}</p>
+    {category && <p class="text-sm text-[var(--muted,#7c6f64)]">{category}</p>}
+  </div>
+</a>

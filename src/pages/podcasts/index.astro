@@ -1,0 +1,28 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PodcastCard from '../../components/PodcastCard.astro';
+
+const podcasts = await getCollection('podcasts');
+---
+<BaseLayout title="Podcasts — Nep" siteTitle="nep's favorite podcasts">
+  <h1 class="sr-only">nep's favorite podcasts</h1>
+
+  {podcasts.length > 0 ? (
+    <div class="grid grid-cols-1 gap-4">
+      {podcasts.map((podcast) => (
+        <PodcastCard
+          name={podcast.data.name}
+          link={podcast.data.link}
+          coverImage={podcast.data.coverImage}
+          category={podcast.data.category}
+        />
+      ))}
+    </div>
+  ) : (
+    <div class="text-center py-12">
+      <h2 class="text-xl font-semibold mb-2 text-[var(--text)]">No podcasts listed yet.</h2>
+      <p class="text-base text-[var(--muted,#7c6f64)]">Podcast recommendations will appear here once added.</p>
+    </div>
+  )}
+</BaseLayout>
