@@ -1,0 +1,26 @@
+---
+interface Props {
+  title: string;
+  publishedDate: Date;
+  excerpt?: string;
+  slug: string;
+}
+
+const { title, publishedDate, excerpt, slug } = Astro.props;
+
+const formattedDate = publishedDate.toLocaleDateString('en-US', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+});
+---
+
+<div class="py-6 first:pt-0">
+  <a href={`/blog/${slug}`} class="no-underline block hover:opacity-80">
+    <h2 class="text-xl font-semibold text-[var(--text)]">{title}</h2>
+    <p class="text-sm text-[var(--muted,#7c6f64)] mt-1">{formattedDate}</p>
+    {excerpt && (
+      <p class="text-base text-[var(--text)] line-clamp-2 mt-2">{excerpt}</p>
+    )}
+  </a>
+</div>

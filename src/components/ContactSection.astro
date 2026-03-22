@@ -1,0 +1,59 @@
+---
+import { Icon } from 'astro-icon/components';
+import { getCollection } from 'astro:content';
+
+const socialEntries = await getCollection('social');
+const social = socialEntries[0];
+const email = social?.data.email ?? '';
+const github = social?.data.github ?? '';
+const linkedin = social?.data.linkedin ?? '';
+---
+
+<section class="py-12 border-t border-[var(--border,#d5c4a1)] dark:border-[var(--border-dark,#504945)] text-center">
+  <h2 class="text-xl font-semibold mb-6 text-[var(--text)]">Get in touch</h2>
+
+  {email && (
+    <a
+      href={`mailto:${email}`}
+      class="text-[#d79921] dark:text-[var(--accent)] hover:text-[var(--accent-hover)] no-underline"
+    >
+      {email}
+    </a>
+  )}
+
+  <div class="flex items-center justify-center gap-6 mt-6">
+    {github && (
+      <a
+        href={github}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="text-[var(--muted,#7c6f64)] hover:text-[var(--text)] transition-colors"
+      >
+        <Icon name="ph:github-logo" class="w-5 h-5" aria-hidden="true" />
+        <span class="sr-only">GitHub</span>
+      </a>
+    )}
+
+    {linkedin && (
+      <a
+        href={linkedin}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="text-[var(--muted,#7c6f64)] hover:text-[var(--text)] transition-colors"
+      >
+        <Icon name="ph:linkedin-logo" class="w-5 h-5" aria-hidden="true" />
+        <span class="sr-only">LinkedIn</span>
+      </a>
+    )}
+
+    {email && (
+      <a
+        href={`mailto:${email}`}
+        class="text-[var(--muted,#7c6f64)] hover:text-[var(--text)] transition-colors"
+      >
+        <Icon name="ph:envelope-simple" class="w-5 h-5" aria-hidden="true" />
+        <span class="sr-only">Email</span>
+      </a>
+    )}
+  </div>
+</section>
