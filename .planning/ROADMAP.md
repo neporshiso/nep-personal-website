@@ -15,6 +15,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1: Foundation** - Astro scaffold, Tailwind v4, CMS setup, content schemas, BaseLayout with dark mode (completed 2026-03-21)
 - [ ] **Phase 2: Core Pages** - Homepage blog listing (3 migrated posts), about/bio, portfolio with detail pages, podcasts, books, contact, analytics — UI-SPEC approved
 - [x] **Phase 3: Blog** - Syntax highlighting (Shiki/Gruvbox), reading time, RSS feed — completing the blog experience (completed 2026-03-23)
+- [ ] **Phase 3.1: Real Content Population** (INSERTED) - Replace fake blog posts, enrich podcasts with cover art, populate books
 - [ ] **Phase 4: Polish and Launch** - SEO completeness, performance audit, production CMS workflow, deployment verified
 
 ## Phase Details
@@ -72,6 +73,17 @@ Plans:
 Plans:
 - [x] 03-01-PLAN.md — Shiki syntax highlighting (Gruvbox dual themes) + reading time on detail pages
 - [x] 03-02-PLAN.md — RSS feed at /rss.xml
+
+### Phase 03.1: Real Content Population (INSERTED)
+
+**Goal:** Replace fabricated blog posts with real content from blog.neporshiso.com, enrich podcasts with real entries and cover art (downloaded locally via iTunes Search API lookup), and populate books with real entries and cover images.
+**Depends on:** Phase 3
+**Success Criteria** (what must be TRUE):
+  1. The 3 fabricated blog posts are replaced with the 3 real posts from blog.neporshiso.com (Data Structures & Algorithms, Small Group Projects, Welcome to the Blog)
+  2. Podcasts page shows real podcast entries (<10) with cover art images loaded from `/public/assets/podcasts/`
+  3. Books page shows real book entries with cover images loaded from `/public/assets/books/`
+  4. All content renders correctly and builds pass
+**Plans:** TBD
 
 ### Phase 4: Polish and Launch
 **Goal**: All pages have complete SEO metadata and meet the LCP performance target, the production CMS workflow is verified (GitHub OAuth triggers a Vercel redeploy on content save), and the new site is live on the real domain replacing the old one.

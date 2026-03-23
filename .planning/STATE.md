@@ -86,6 +86,10 @@ Recent decisions affecting current work:
 - [Phase 03-blog]: RSS 2.0 format over Atom — simpler, broader reader support; excerpt-only items for lightweight feed; gruvbox-light-hard for Shiki light theme (gruvbox-light not in bundle)
 - [Phase 03-blog]: gruvbox-light is not a valid Shiki v4 theme ID; use gruvbox-light-hard (valid bundled theme)
 
+### Roadmap Evolution
+
+- Phase 03.1 inserted after Phase 3: Real Content Population (INSERTED) — replace fabricated blog posts with real content, enrich podcasts with cover art, populate books
+
 ### Pending Todos
 
 None yet.
