@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: Ready to plan
-stopped_at: Phase 3.1 context gathered
-last_updated: "2026-03-23T03:49:54.986Z"
+status: Ready to execute
+stopped_at: Completed 03.1-01-PLAN.md
+last_updated: "2026-03-23T20:20:57.997Z"
 progress:
   total_phases: 5
   completed_phases: 3
-  total_plans: 10
-  completed_plans: 10
+  total_plans: 12
+  completed_plans: 11
 ---
 
 # Project State
@@ -19,12 +19,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-20)
 
 **Core value:** All site content is editable through a CMS so the site stays current without touching code
-**Current focus:** Phase 03 — blog
+**Current focus:** Phase 03.1 — real-content-population
 
 ## Current Position
 
-Phase: 4
-Plan: Not started
+Phase: 03.1 (real-content-population) — EXECUTING
+Plan: 2 of 2
 
 ## Performance Metrics
 
@@ -55,6 +55,7 @@ Plan: Not started
 | Phase 02-core-pages P05 | 7 | 2 tasks | 12 files |
 | Phase 03-blog P02 | 2 | 1 tasks | 5 files |
 | Phase 03-blog P01 | 5 | 2 tasks | 3 files |
+| Phase 03.1 P01 | 2 | 1 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -85,6 +86,7 @@ Recent decisions affecting current work:
 - [Phase 02-core-pages]: Astro content layer cache (node_modules/.astro/data-store.json) must be cleared when deleting content files to prevent stale route generation
 - [Phase 03-blog]: RSS 2.0 format over Atom — simpler, broader reader support; excerpt-only items for lightweight feed; gruvbox-light-hard for Shiki light theme (gruvbox-light not in bundle)
 - [Phase 03-blog]: gruvbox-light is not a valid Shiki v4 theme ID; use gruvbox-light-hard (valid bundled theme)
+- [Phase 03.1]: Astro content cache cleared (node_modules/.astro/data-store.json) before rebuild after deleting fabricated posts
 
 ### Roadmap Evolution
 
@@ -102,6 +104,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-23T03:49:54.970Z
-Stopped at: Phase 3.1 context gathered
-Resume file: .planning/phases/03.1-real-content-population/03.1-CONTEXT.md
+Last session: 2026-03-23T20:20:57.992Z
+Stopped at: Completed 03.1-01-PLAN.md
+Resume file: None
