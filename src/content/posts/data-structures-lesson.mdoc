@@ -1,0 +1,61 @@
+---
+title: 'The Moment I Realized The Importance Of Data Structures & Algorithms'
+tags:
+  - python
+  - algorithms
+  - data-structures
+  - leetcode
+draft: false
+excerpt: 'A LeetCode problem revealed why choosing the right data structure matters — O(1) dict lookup vs O(n) list scan on 24,500 integers.'
+publishedDate: '2019-12-04'
+---
+
+Recently I've been working through LeetCode problems to sharpen my understanding of algorithms and data structures. One problem in particular gave me a concrete, hands-on lesson in why choosing the right data structure matters.
+
+## The Problem: Contains Duplicate
+
+The problem is straightforward: given an array of integers, return `true` if any value appears at least twice, and `false` if every element is distinct.
+
+My first instinct was to use a list to track the values I had already seen. For each number in the input, I would check whether it was already in the list. If it was, return `True`. If not, append it and keep going.
+
+```python
+class Solution:
+    def containsDuplicate(self, nums):
+        seen = []
+        for num in nums:
+            if num in seen:
+                return True
+            seen.append(num)
+        return False
+```
+
+This logic is correct. And for most of the test cases on LeetCode, it passed. I was feeling good — until the final test case.
+
+## Where It Fell Apart
+
+The last test case contained 24,500 integers. My solution timed out.
+
+The issue is the `in` operator on a Python list. When you write `if num in seen`, Python has to scan every element in the list from start to finish to determine whether `num` is present. That is an O(n) operation. Combined with the outer loop over the input array, the total time complexity becomes O(n²). At 24,500 elements, that is a lot of unnecessary work.
+
+The fix was to swap the list for a dictionary (or a set — same underlying idea).
+
+```python
+class Solution:
+    def containsDuplicate(self, nums):
+        seen = {}
+        for num in nums:
+            if num in seen:
+                return True
+            seen[num] = True
+        return False
+```
+
+With a dictionary, the `in` operator does a hash lookup — O(1) average time. The total time complexity drops to O(n), and the solution passed all 18 test cases including the large one.
+
+## The Lesson
+
+The two solutions contain almost identical code. The only change is replacing `[]` with `{}`. But the performance difference at scale is dramatic.
+
+This is what people mean when they talk about data structures mattering. It is not abstract theory — it shows up in whether your code handles real inputs or times out. A list gives you O(n) membership testing. A hash table gives you O(1). When you are checking membership inside a loop, that difference compounds quickly.
+
+I had read about hash tables and their O(1) lookup properties before. But working through this problem made the concept concrete in a way that reading never quite did. Sometimes you just have to hit the timeout to really understand why the right tool matters.
