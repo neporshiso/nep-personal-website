@@ -83,7 +83,10 @@ Plans:
   2. Podcasts page shows real podcast entries (<10) with cover art images loaded from `/public/assets/podcasts/`
   3. Books page shows real book entries with cover images loaded from `/public/assets/books/`
   4. All content renders correctly and builds pass
-**Plans:** TBD
+**Plans:** 2 plans
+Plans:
+- [ ] 03.1-01-PLAN.md — Replace 3 fabricated blog posts with real posts from blog.neporshiso.com
+- [ ] 03.1-02-PLAN.md — Populate podcasts and books with real entries and cover images (user input required)
 
 ### Phase 4: Polish and Launch
 **Goal**: All pages have complete SEO metadata and meet the LCP performance target, the production CMS workflow is verified (GitHub OAuth triggers a Vercel redeploy on content save), and the new site is live on the real domain replacing the old one.
@@ -100,11 +103,12 @@ Plans:
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 → 2 → 3 → 4
+Phases execute in numeric order: 1 → 2 → 3 → 3.1 → 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation | 2/2 | Complete   | 2026-03-21 |
 | 2. Core Pages | 5/6 | In Progress|  |
 | 3. Blog | 2/2 | Complete   | 2026-03-23 |
+| 3.1. Real Content Population | 0/2 | Not started | - |
 | 4. Polish and Launch | 0/TBD | Not started | - |
