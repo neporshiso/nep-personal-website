@@ -26,6 +26,12 @@ All site content is editable through a CMS so the site stays current without tou
 - [ ] Deploy to Vercel or Netlify
 - [ ] Feature parity with current site before going live
 
+### Validated in Phase 3.1: Real Content Population
+
+- ✓ Real blog posts — 3 authentic 2019 posts from blog.neporshiso.com replace fabricated placeholders
+- ✓ Real podcasts with cover art — 10 podcasts with iTunes-sourced cover images committed to repo
+- ✓ Real books with cover images — 53 books (20 read + 33 want-to-read) with Open Library covers
+
 ### Validated in Phase 2: Core Pages
 
 - ✓ CMS-managed portfolio projects — ProjectCard + detail pages at /portfolio/[slug]
@@ -79,4 +85,4 @@ All site content is editable through a CMS so the site stays current without tou
 | Hosting platform | Vercel or Netlify — user familiar with both, no strong preference | Vercel (decided during project setup) |
 
 ---
-*Last updated: 2026-03-22 after Phase 2 completion*
+*Last updated: 2026-03-23 after Phase 3.1 completion*
