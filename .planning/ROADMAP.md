@@ -71,7 +71,7 @@ Plans:
 **Plans**: 2 plans
 Plans:
 - [ ] 03-01-PLAN.md — Shiki syntax highlighting (Gruvbox dual themes) + reading time on detail pages
-- [ ] 03-02-PLAN.md — RSS feed at /rss.xml
+- [x] 03-02-PLAN.md — RSS feed at /rss.xml
 
 ### Phase 4: Polish and Launch
 **Goal**: All pages have complete SEO metadata and meet the LCP performance target, the production CMS workflow is verified (GitHub OAuth triggers a Vercel redeploy on content save), and the new site is live on the real domain replacing the old one.
@@ -94,5 +94,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 |-------|----------------|--------|-----------|
 | 1. Foundation | 2/2 | Complete   | 2026-03-21 |
 | 2. Core Pages | 5/6 | In Progress|  |
-| 3. Blog | 0/2 | Not started | - |
+| 3. Blog | 1/2 | In Progress|  |
 | 4. Polish and Launch | 0/TBD | Not started | - |
