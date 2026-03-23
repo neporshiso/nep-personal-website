@@ -15,7 +15,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1: Foundation** - Astro scaffold, Tailwind v4, CMS setup, content schemas, BaseLayout with dark mode (completed 2026-03-21)
 - [ ] **Phase 2: Core Pages** - Homepage blog listing (3 migrated posts), about/bio, portfolio with detail pages, podcasts, books, contact, analytics — UI-SPEC approved
 - [x] **Phase 3: Blog** - Syntax highlighting (Shiki/Gruvbox), reading time, RSS feed — completing the blog experience (completed 2026-03-23)
-- [ ] **Phase 3.1: Real Content Population** (INSERTED) - Replace fake blog posts, enrich podcasts with cover art, populate books
+- [x] **Phase 3.1: Real Content Population** (INSERTED) - Replace fake blog posts, enrich podcasts with cover art, populate books (completed 2026-03-23)
 - [ ] **Phase 4: Polish and Launch** - SEO completeness, performance audit, production CMS workflow, deployment verified
 
 ## Phase Details
@@ -83,10 +83,10 @@ Plans:
   2. Podcasts page shows real podcast entries (<10) with cover art images loaded from `/public/assets/podcasts/`
   3. Books page shows real book entries with cover images loaded from `/public/assets/books/`
   4. All content renders correctly and builds pass
-**Plans:** 1/2 plans executed
+**Plans:** 2/2 plans executed
 Plans:
 - [x] 03.1-01-PLAN.md — Replace 3 fabricated blog posts with real posts from blog.neporshiso.com
-- [ ] 03.1-02-PLAN.md — Populate podcasts and books with real entries and cover images (user input required)
+- [x] 03.1-02-PLAN.md — Populate podcasts and books with real entries and cover images
 
 ### Phase 4: Polish and Launch
 **Goal**: All pages have complete SEO metadata and meet the LCP performance target, the production CMS workflow is verified (GitHub OAuth triggers a Vercel redeploy on content save), and the new site is live on the real domain replacing the old one.
@@ -110,5 +110,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 3.1 → 4
 | 1. Foundation | 2/2 | Complete   | 2026-03-21 |
 | 2. Core Pages | 5/6 | In Progress|  |
 | 3. Blog | 2/2 | Complete   | 2026-03-23 |
-| 3.1. Real Content Population | 0/2 | Not started | - |
+| 3.1. Real Content Population | 2/2 | Complete | 2026-03-23 |
 | 4. Polish and Launch | 0/TBD | Not started | - |
