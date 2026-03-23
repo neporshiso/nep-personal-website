@@ -14,7 +14,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Foundation** - Astro scaffold, Tailwind v4, CMS setup, content schemas, BaseLayout with dark mode (completed 2026-03-21)
 - [ ] **Phase 2: Core Pages** - Homepage blog listing (3 migrated posts), about/bio, portfolio with detail pages, podcasts, books, contact, analytics — UI-SPEC approved
-- [ ] **Phase 3: Blog** - Syntax highlighting (Shiki/Gruvbox), reading time, RSS feed — completing the blog experience
+- [x] **Phase 3: Blog** - Syntax highlighting (Shiki/Gruvbox), reading time, RSS feed — completing the blog experience (completed 2026-03-23)
 - [ ] **Phase 4: Polish and Launch** - SEO completeness, performance audit, production CMS workflow, deployment verified
 
 ## Phase Details
@@ -70,7 +70,7 @@ Plans:
   5. Visiting `/rss.xml` returns a valid RSS feed containing all published (non-draft) posts with links to `/thoughts/[slug]`
 **Plans**: 2 plans
 Plans:
-- [ ] 03-01-PLAN.md — Shiki syntax highlighting (Gruvbox dual themes) + reading time on detail pages
+- [x] 03-01-PLAN.md — Shiki syntax highlighting (Gruvbox dual themes) + reading time on detail pages
 - [x] 03-02-PLAN.md — RSS feed at /rss.xml
 
 ### Phase 4: Polish and Launch
@@ -94,5 +94,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 |-------|----------------|--------|-----------|
 | 1. Foundation | 2/2 | Complete   | 2026-03-21 |
 | 2. Core Pages | 5/6 | In Progress|  |
-| 3. Blog | 1/2 | In Progress|  |
+| 3. Blog | 2/2 | Complete   | 2026-03-23 |
 | 4. Polish and Launch | 0/TBD | Not started | - |

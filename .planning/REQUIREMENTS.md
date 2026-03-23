@@ -24,10 +24,10 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Blog
 
-- [ ] **BLOG-01**: Blog listing page shows all published posts
-- [ ] **BLOG-02**: Blog detail page renders MDX content with full formatting
-- [ ] **BLOG-03**: Code blocks have syntax highlighting (Shiki)
-- [ ] **BLOG-04**: Each post displays estimated reading time
+- [x] **BLOG-01**: Blog listing page shows all published posts
+- [x] **BLOG-02**: Blog detail page renders MDX content with full formatting
+- [x] **BLOG-03**: Code blocks have syntax highlighting (Shiki)
+- [x] **BLOG-04**: Each post displays estimated reading time
 - [x] **BLOG-05**: RSS/Atom feed auto-generated from blog posts
 
 ### SEO
@@ -88,10 +88,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | CONT-04 | Phase 2 | Complete |
 | CONT-05 | Phase 2 | Complete |
 | CONT-06 | Phase 2 | Complete |
-| BLOG-01 | Phase 3 | Pending |
-| BLOG-02 | Phase 3 | Pending |
-| BLOG-03 | Phase 3 | Pending |
-| BLOG-04 | Phase 3 | Pending |
+| BLOG-01 | Phase 3 | Complete |
+| BLOG-02 | Phase 3 | Complete |
+| BLOG-03 | Phase 3 | Complete |
+| BLOG-04 | Phase 3 | Complete |
 | BLOG-05 | Phase 3 | Complete |
 | SEO-01 | Phase 4 | Pending |
 | SEO-02 | Phase 4 | Pending |

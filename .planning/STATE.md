@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: Ready to execute
-stopped_at: Completed 03-blog-02-PLAN.md
-last_updated: "2026-03-23T01:22:06.330Z"
+status: Phase complete — ready for verification
+stopped_at: Completed 03-01-PLAN.md
+last_updated: "2026-03-23T01:24:22.719Z"
 progress:
   total_phases: 4
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 10
-  completed_plans: 9
+  completed_plans: 10
 ---
 
 # Project State
@@ -54,6 +54,7 @@ Plan: 2 of 2
 | Phase 02-core-pages P03 | 2 | 2 tasks | 3 files |
 | Phase 02-core-pages P05 | 7 | 2 tasks | 12 files |
 | Phase 03-blog P02 | 2 | 1 tasks | 5 files |
+| Phase 03-blog P01 | 5 | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -83,6 +84,7 @@ Recent decisions affecting current work:
 - [Phase 02-core-pages]: Blog posts written as substantive original content (blog.neporshiso.com inaccessible; plan allows this fallback)
 - [Phase 02-core-pages]: Astro content layer cache (node_modules/.astro/data-store.json) must be cleared when deleting content files to prevent stale route generation
 - [Phase 03-blog]: RSS 2.0 format over Atom — simpler, broader reader support; excerpt-only items for lightweight feed; gruvbox-light-hard for Shiki light theme (gruvbox-light not in bundle)
+- [Phase 03-blog]: gruvbox-light is not a valid Shiki v4 theme ID; use gruvbox-light-hard (valid bundled theme)
 
 ### Pending Todos
 
@@ -96,6 +98,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-23T01:22:06.326Z
-Stopped at: Completed 03-blog-02-PLAN.md
+Last session: 2026-03-23T01:24:22.715Z
+Stopped at: Completed 03-01-PLAN.md
 Resume file: None
