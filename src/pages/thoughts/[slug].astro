@@ -18,6 +18,10 @@ const formattedDate = post.data.publishedDate.toLocaleDateString('en-US', {
   month: 'long',
   day: 'numeric',
 });
+
+const body = post.body || '';
+const wordCount = body.trim().split(/\s+/).filter(Boolean).length;
+const readingTime = Math.max(1, Math.ceil(wordCount / 200));
 ---
 <BaseLayout title={`${post.data.title} — Nep`} siteTitle="nep's thoughts">
   <a
@@ -28,7 +32,7 @@ const formattedDate = post.data.publishedDate.toLocaleDateString('en-US', {
   </a>
 
   <h1 class="text-3xl font-semibold mb-2 text-[var(--text)]">{post.data.title}</h1>
-  <p class="text-sm text-[var(--muted,#7c6f64)] mb-6">{formattedDate}</p>
+  <p class="text-sm text-[var(--muted,#7c6f64)] mb-6">{formattedDate} &middot; {readingTime} min read</p>
 
   <div class="prose">
     <Content />
