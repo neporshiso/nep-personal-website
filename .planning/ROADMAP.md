@@ -83,7 +83,7 @@ Plans:
   2. Podcasts page shows real podcast entries (<10) with cover art images loaded from `/public/assets/podcasts/`
   3. Books page shows real book entries with cover images loaded from `/public/assets/books/`
   4. All content renders correctly and builds pass
-**Plans:** 2/2 plans executed
+**Plans:** 2/2 plans complete
 Plans:
 - [x] 03.1-01-PLAN.md — Replace 3 fabricated blog posts with real posts from blog.neporshiso.com
 - [x] 03.1-02-PLAN.md — Populate podcasts and books with real entries and cover images
