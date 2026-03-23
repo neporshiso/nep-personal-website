@@ -9,6 +9,7 @@ import keystatic from '@keystatic/astro';
 const isProduction = process.env.NODE_ENV === 'production';
 
 export default defineConfig({
+  site: 'https://neporshiso.com',
   vite: {
     plugins: [tailwindcss()],
   },
