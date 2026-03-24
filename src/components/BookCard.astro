@@ -1,4 +1,6 @@
 ---
+import { Image } from 'astro:assets';
+
 interface Props {
   title: string;
   author: string;
@@ -11,7 +13,14 @@ const { title, author, coverImage, status } = Astro.props;
 
 <div class="overflow-hidden">
   {coverImage ? (
-    <img src={coverImage} alt={title} loading="lazy" class="w-full aspect-[2/3] object-cover rounded-t-md" />
+    <Image
+      src={coverImage}
+      alt={title}
+      width={200}
+      height={300}
+      loading="lazy"
+      class="w-full aspect-[2/3] object-cover rounded-t-md"
+    />
   ) : (
     <div class="w-full aspect-[2/3] bg-[var(--border,#d5c4a1)] dark:bg-[var(--border-dark,#504945)] rounded-t-md"></div>
   )}
