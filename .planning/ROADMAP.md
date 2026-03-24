@@ -101,7 +101,7 @@ Plans:
 **Plans**: 3 plans
 Plans:
 - [ ] 04-01-PLAN.md — SEO meta tags (OG, Twitter card, canonical), sitemap integration, RSS feed restore
-- [ ] 04-02-PLAN.md — Image CLS prevention (BookCard/PodcastCard Astro Image conversion)
+- [x] 04-02-PLAN.md — Image CLS prevention (BookCard/PodcastCard Astro Image conversion)
 - [ ] 04-03-PLAN.md — Vercel adapter, Keystatic GitHub mode, deployment verification checkpoint
 
 ## Progress
