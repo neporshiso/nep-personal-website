@@ -32,9 +32,9 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### SEO
 
-- [ ] **SEO-01**: All pages have Open Graph meta tags for rich link previews
-- [ ] **SEO-02**: All pages and posts have unique meta descriptions
-- [ ] **SEO-03**: Sitemap.xml auto-generated and updated on build
+- [x] **SEO-01**: All pages have Open Graph meta tags for rich link previews
+- [x] **SEO-02**: All pages and posts have unique meta descriptions
+- [x] **SEO-03**: Sitemap.xml auto-generated and updated on build
 
 ### Analytics
 
@@ -93,9 +93,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | BLOG-03 | Phase 3 | Complete |
 | BLOG-04 | Phase 3 | Complete |
 | BLOG-05 | Phase 3 | Complete |
-| SEO-01 | Phase 4 | Pending |
-| SEO-02 | Phase 4 | Pending |
-| SEO-03 | Phase 4 | Pending |
+| SEO-01 | Phase 4 | Complete |
+| SEO-02 | Phase 4 | Complete |
+| SEO-03 | Phase 4 | Complete |
 | ANLY-01 | Phase 2 | Complete |
 | DEPL-01 | Phase 4 | Pending |
 | DEPL-02 | Phase 4 | Pending |

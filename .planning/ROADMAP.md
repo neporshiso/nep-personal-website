@@ -100,7 +100,7 @@ Plans:
   5. The live site is accessible at the production domain with no broken links or missing assets from the old site's anchor-based URL structure
 **Plans**: 3 plans
 Plans:
-- [ ] 04-01-PLAN.md — SEO meta tags (OG, Twitter card, canonical), sitemap integration, RSS feed restore
+- [x] 04-01-PLAN.md — SEO meta tags (OG, Twitter card, canonical), sitemap integration, RSS feed restore
 - [x] 04-02-PLAN.md — Image CLS prevention (BookCard/PodcastCard Astro Image conversion)
 - [ ] 04-03-PLAN.md — Vercel adapter, Keystatic GitHub mode, deployment verification checkpoint
 
