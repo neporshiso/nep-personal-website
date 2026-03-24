@@ -98,7 +98,11 @@ Plans:
   3. All pages score LCP under 2.5 seconds on a simulated mobile connection (measured in Chrome DevTools or Lighthouse)
   4. Saving a content change in the production CMS admin triggers a new Vercel deployment and the change appears on the live site within a few minutes
   5. The live site is accessible at the production domain with no broken links or missing assets from the old site's anchor-based URL structure
-**Plans**: TBD
+**Plans**: 3 plans
+Plans:
+- [ ] 04-01-PLAN.md — SEO meta tags (OG, Twitter card, canonical), sitemap integration, RSS feed restore
+- [ ] 04-02-PLAN.md — Image CLS prevention (BookCard/PodcastCard Astro Image conversion)
+- [ ] 04-03-PLAN.md — Vercel adapter, Keystatic GitHub mode, deployment verification checkpoint
 
 ## Progress
 
@@ -111,4 +115,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 3.1 → 4
 | 2. Core Pages | 5/6 | In Progress|  |
 | 3. Blog | 2/2 | Complete   | 2026-03-23 |
 | 3.1. Real Content Population | 2/2 | Complete | 2026-03-23 |
-| 4. Polish and Launch | 0/TBD | Not started | - |
+| 4. Polish and Launch | 0/3 | Not started | - |
