@@ -6,11 +6,11 @@ import markdoc from '@astrojs/markdoc';
 import icon from 'astro-icon';
 import keystatic from '@keystatic/astro';
 import sitemap from '@astrojs/sitemap';
-
-const isProduction = process.env.NODE_ENV === 'production';
+import vercel from '@astrojs/vercel';
 
 export default defineConfig({
   site: 'https://neporshiso.com',
+  adapter: vercel(),
   vite: {
     plugins: [tailwindcss()],
   },
@@ -19,6 +19,6 @@ export default defineConfig({
     markdoc(),
     icon(),
     sitemap(),
-    ...(isProduction ? [] : [keystatic()]),
+    keystatic(),
   ],
 });

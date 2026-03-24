@@ -3,8 +3,15 @@
 // Source: https://keystatic.com/docs/installation-astro + https://keystatic.com/docs/collections
 import { config, fields, collection, singleton } from '@keystatic/core';
 
+const isProduction = process.env.NODE_ENV === 'production';
+
 export default config({
-  storage: { kind: 'local' },
+  storage: isProduction
+    ? {
+        kind: 'github',
+        repo: 'neporshiso/nep-personal-website',
+      }
+    : { kind: 'local' },
 
   collections: {
     projects: collection({
