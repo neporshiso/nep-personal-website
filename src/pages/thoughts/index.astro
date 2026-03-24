@@ -8,7 +8,7 @@ const posts = allPosts
   .filter((p) => !p.data.draft)
   .sort((a, b) => b.data.publishedDate.valueOf() - a.data.publishedDate.valueOf());
 ---
-<BaseLayout title="Thoughts — Nep" siteTitle="nep's thoughts">
+<BaseLayout title="Thoughts — Nep" siteTitle="nep's thoughts" description="Reflections on software development, learning, and building things on the web — by Nep.">
   <h1 class="sr-only">nep's thoughts</h1>
 
   {posts.length > 0 ? (

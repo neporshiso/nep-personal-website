@@ -12,6 +12,8 @@ interface Props {
 }
 
 const { title, description = "Nep's personal website", siteTitle = "nep's home on the web" } = Astro.props;
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+const ogImage = new URL('/assets/og-default.png', Astro.site);
 ---
 <html lang="en">
   <head>
@@ -31,6 +33,21 @@ const { title, description = "Nep's personal website", siteTitle = "nep's home o
     <link rel="icon" href="/favicon.ico" sizes="32x32" />
     <title>{title}</title>
     <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalURL} />
+
+    <!-- Open Graph per D-01, D-02 -->
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="nep's home on the web" />
+
+    <!-- Twitter Card per D-02 -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
   </head>
   <body class="min-h-screen flex flex-col">
     <Nav siteTitle={siteTitle} />

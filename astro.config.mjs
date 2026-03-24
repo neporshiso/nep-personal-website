@@ -5,6 +5,7 @@ import react from '@astrojs/react';
 import markdoc from '@astrojs/markdoc';
 import icon from 'astro-icon';
 import keystatic from '@keystatic/astro';
+import sitemap from '@astrojs/sitemap';
 
 const isProduction = process.env.NODE_ENV === 'production';
 
@@ -17,6 +18,7 @@ export default defineConfig({
     react(),
     markdoc(),
     icon(),
+    sitemap(),
     ...(isProduction ? [] : [keystatic()]),
   ],
 });

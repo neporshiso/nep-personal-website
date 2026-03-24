@@ -5,7 +5,7 @@ import PodcastCard from '../../components/PodcastCard.astro';
 
 const podcasts = await getCollection('podcasts');
 ---
-<BaseLayout title="Podcasts — Nep" siteTitle="nep's favorite podcasts">
+<BaseLayout title="Podcasts — Nep" siteTitle="nep's favorite podcasts" description="Podcasts Nep listens to — tech, culture, and ideas worth sharing.">
   <h1 class="sr-only">nep's favorite podcasts</h1>
 
   {podcasts.length > 0 ? (

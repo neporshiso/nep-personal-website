@@ -23,7 +23,7 @@ const body = post.body || '';
 const wordCount = body.trim().split(/\s+/).filter(Boolean).length;
 const readingTime = Math.max(1, Math.ceil(wordCount / 200));
 ---
-<BaseLayout title={`${post.data.title} — Nep`} siteTitle="nep's thoughts">
+<BaseLayout title={`${post.data.title} — Nep`} siteTitle="nep's thoughts" description={post.data.excerpt || `${post.data.title} — a post by Nep.`}>
   <a
     href="/thoughts"
     class="text-sm text-[var(--muted,#7c6f64)] hover:text-[var(--text)] no-underline mb-6 inline-block"

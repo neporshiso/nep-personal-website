@@ -5,7 +5,7 @@ import BookCard from '../../components/BookCard.astro';
 
 const books = await getCollection('books');
 ---
-<BaseLayout title="Books — Nep" siteTitle="nep's reading">
+<BaseLayout title="Books — Nep" siteTitle="nep's reading" description="Books Nep has read and wants to read — fiction, non-fiction, and technical reads.">
   <h1 class="sr-only">nep's reading</h1>
 
   {books.length > 0 ? (

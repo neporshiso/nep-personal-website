@@ -6,7 +6,7 @@ const bioEntries = await getCollection('bio');
 const bio = bioEntries[0];
 const { Content } = bio ? await render(bio) : { Content: null };
 ---
-<BaseLayout title="Nep - Developer, Writer, Reader">
+<BaseLayout title="Nep - Developer, Writer, Reader" description="Nep's personal website — developer, writer, and reader. Projects, blog posts, books, and podcasts.">
   <h1 class="sr-only">nep's home on the web</h1>
 
   {Content ? (

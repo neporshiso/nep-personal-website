@@ -6,7 +6,7 @@ import ProjectCard from '../../components/ProjectCard.astro';
 const projects = await getCollection('projects');
 const sorted = projects.sort((a, b) => b.data.year - a.data.year);
 ---
-<BaseLayout title="Portfolio — Nep" siteTitle="nep's portfolio">
+<BaseLayout title="Portfolio — Nep" siteTitle="nep's portfolio" description="Software projects built by Nep — web apps, tools, and experiments.">
   <h1 class="sr-only">nep's portfolio</h1>
 
   {sorted.length > 0 ? (
