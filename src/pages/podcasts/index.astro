@@ -9,7 +9,7 @@ const podcasts = await getCollection('podcasts');
   <h1 class="sr-only">nep's favorite podcasts</h1>
 
   {podcasts.length > 0 ? (
-    <div class="grid grid-cols-1 gap-4">
+    <div class="grid grid-cols-2 sm:grid-cols-3 gap-6">
       {podcasts.map((podcast) => (
         <PodcastCard
           name={podcast.data.name}

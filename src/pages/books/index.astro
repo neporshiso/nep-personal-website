@@ -4,20 +4,45 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import BookCard from '../../components/BookCard.astro';
 
 const books = await getCollection('books');
+const reading = books.filter(b => b.data.status === 'reading');
+const read = books.filter(b => b.data.status === 'read');
+const wantToRead = books.filter(b => b.data.status === 'want-to-read');
 ---
 <BaseLayout title="Books — Nep" siteTitle="nep's reading" description="Books Nep has read and wants to read — fiction, non-fiction, and technical reads.">
   <h1 class="sr-only">nep's reading</h1>
 
   {books.length > 0 ? (
-    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-      {books.map((book) => (
-        <BookCard
-          title={book.data.title}
-          author={book.data.author}
-          coverImage={book.data.coverImage}
-          status={book.data.status}
-        />
-      ))}
+    <div class="space-y-10">
+      {reading.length > 0 && (
+        <section>
+          <h2 class="text-lg font-semibold text-[var(--text)] mb-4">Currently Reading</h2>
+          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+            {reading.map((book) => (
+              <BookCard title={book.data.title} author={book.data.author} coverImage={book.data.coverImage} status={book.data.status} />
+            ))}
+          </div>
+        </section>
+      )}
+      {read.length > 0 && (
+        <section>
+          <h2 class="text-lg font-semibold text-[var(--text)] mb-4">Read</h2>
+          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+            {read.map((book) => (
+              <BookCard title={book.data.title} author={book.data.author} coverImage={book.data.coverImage} status={book.data.status} />
+            ))}
+          </div>
+        </section>
+      )}
+      {wantToRead.length > 0 && (
+        <section>
+          <h2 class="text-lg font-semibold text-[var(--text)] mb-4">Want to Read</h2>
+          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+            {wantToRead.map((book) => (
+              <BookCard title={book.data.title} author={book.data.author} coverImage={book.data.coverImage} status={book.data.status} />
+            ))}
+          </div>
+        </section>
+      )}
     </div>
   ) : (
     <div class="text-center py-12">
