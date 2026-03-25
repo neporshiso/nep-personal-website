@@ -54,6 +54,16 @@
     font-size: 0.875rem;
     line-height: 1.7;
   }
+  .prose > * + * {
+    margin-top: 1.25em;
+  }
+  .prose a {
+    color: #d79921;
+    text-decoration: underline;
+  }
+  .prose p + p {
+    margin-top: 1.25em;
+  }
   .dark .astro-code,
   .dark .astro-code span {
     color: var(--shiki-dark) !important;
