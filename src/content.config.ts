@@ -33,20 +33,20 @@ const posts = defineCollection({
 
 const podcasts = defineCollection({
   loader: glob({ pattern: '**/*.{mdoc,yaml}', base: './src/content/podcasts' }),
-  schema: z.object({
+  schema: ({ image }) => z.object({
     name: z.string(),
     link: z.string().url(),
-    coverImage: z.string().optional(),
+    coverImage: image().optional(),
     category: z.string().optional(),
   }),
 });
 
 const books = defineCollection({
   loader: glob({ pattern: '**/*.{mdoc,yaml}', base: './src/content/books' }),
-  schema: z.object({
+  schema: ({ image }) => z.object({
     title: z.string(),
     author: z.string(),
-    coverImage: z.string().optional(),
+    coverImage: image().optional(),
     status: z.enum(['reading', 'read', 'want-to-read']).default('want-to-read'),
     note: z.string().optional(),
   }),

@@ -1,10 +1,11 @@
 ---
 import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
 
 interface Props {
   name: string;
   link: string;
-  coverImage?: string;
+  coverImage?: ImageMetadata;
   category?: string;
 }
 

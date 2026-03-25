@@ -67,7 +67,11 @@ export default config({
       schema: {
         name: fields.slug({ name: { label: 'Name' } }),
         link: fields.url({ label: 'Link' }),
-        coverImage: fields.text({ label: 'Cover Image Path (e.g. /assets/podcasts/my-podcast.jpg)' }),
+        coverImage: fields.image({
+          label: 'Cover Image',
+          directory: 'src/assets/podcasts',
+          publicPath: '../../assets/podcasts/',
+        }),
         category: fields.text({ label: 'Category' }),
       },
     }),
@@ -79,7 +83,11 @@ export default config({
       schema: {
         title: fields.slug({ name: { label: 'Title' } }),
         author: fields.text({ label: 'Author' }),
-        coverImage: fields.text({ label: 'Cover Image Path (e.g. /assets/books/my-book.jpg)' }),
+        coverImage: fields.image({
+          label: 'Cover Image',
+          directory: 'src/assets/books',
+          publicPath: '../../assets/books/',
+        }),
         status: fields.select({
           label: 'Status',
           options: [
