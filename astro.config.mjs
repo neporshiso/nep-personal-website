@@ -10,7 +10,11 @@ import vercel from '@astrojs/vercel';
 
 export default defineConfig({
   site: 'https://neporshiso.com',
-  adapter: vercel(),
+  adapter: vercel({
+    webAnalytics: {
+      enabled: true,
+    },
+  }),
   vite: {
     plugins: [tailwindcss()],
   },
