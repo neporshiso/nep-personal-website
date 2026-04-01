@@ -101,7 +101,7 @@ export default config({
   singletons: {
     bio: singleton({
       label: 'Bio',
-      path: 'src/content/bio',
+      path: 'src/content/bio/',
       format: { contentField: 'body' },
       schema: {
         body: fields.markdoc({ label: 'Bio Content' }),
@@ -109,7 +109,7 @@ export default config({
     }),
     social: singleton({
       label: 'Social & Contact',
-      path: 'src/content/social',
+      path: 'src/content/social/',
       format: { data: 'yaml' },
       schema: {
         email: fields.text({ label: 'Email address' }),
