@@ -14,6 +14,7 @@ export default config({
       label: 'Projects',
       slugField: 'title',
       path: 'src/content/projects/*',
+      format: { data: 'yaml' },
       schema: {
         title: fields.slug({ name: { label: 'Title' } }),
         description: fields.markdoc({ label: 'Description' }),
@@ -60,6 +61,7 @@ export default config({
       label: 'Podcasts',
       slugField: 'name',
       path: 'src/content/podcasts/*',
+      format: { data: 'yaml' },
       schema: {
         name: fields.slug({ name: { label: 'Name' } }),
         link: fields.url({ label: 'Link' }),
@@ -76,6 +78,7 @@ export default config({
       label: 'Books',
       slugField: 'title',
       path: 'src/content/books/*',
+      format: { data: 'yaml' },
       schema: {
         title: fields.slug({ name: { label: 'Title' } }),
         author: fields.text({ label: 'Author' }),
