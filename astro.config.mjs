@@ -10,6 +10,9 @@ import vercel from '@astrojs/vercel';
 
 export default defineConfig({
   site: 'https://neporshiso.com',
+  security: {
+    allowedDomains: [{ hostname: 'neporshiso.com', protocol: 'https' }],
+  },
   adapter: vercel({
     webAnalytics: {
       enabled: true,
