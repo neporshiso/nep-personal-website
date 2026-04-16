@@ -37,19 +37,29 @@ async function handleSignals(request: Request, url: URL, env: Env): Promise<Resp
   // Authenticate via URL query param (TradingView doesn't support custom headers)
   const secret = url.searchParams.get('secret');
   if (!secret || !verifySecret(secret, env.WEBHOOK_SECRET)) {
+    console.error('Auth failed', { hasSecret: !!secret, hasEnvSecret: !!env.WEBHOOK_SECRET });
     return json({ error: 'Unauthorized' }, 401);
   }
 
-  // Parse JSON body
+  // Read raw body for logging, then parse JSON
+  const rawBody = await request.text();
+  console.log('Webhook received', {
+    contentType: request.headers.get('content-type'),
+    bodyLength: rawBody.length,
+    body: rawBody.slice(0, 500),
+  });
+
   let body: unknown;
   try {
-    body = await request.json();
+    body = JSON.parse(rawBody);
   } catch {
+    console.error('JSON parse failed', { rawBody: rawBody.slice(0, 500) });
     return json({ error: 'Invalid JSON' }, 400);
   }
 
   const signals = parseWebhookBody(body);
   if (!signals) {
+    console.error('No signals parsed from body', { body });
     return json({ error: 'No signals parsed' }, 400);
   }
 
@@ -63,6 +73,7 @@ async function handleSignals(request: Request, url: URL, env: Env): Promise<Resp
   const result = await upsertFile(REPO, BRANCH, filePath, mdocContent, env.GITHUB_TOKEN);
 
   if (!result.ok) {
+    console.error('GitHub API failed', { status: result.status, message: result.message });
     return json({ error: 'GitHub API failed', status: result.status }, 500);
   }
 
@@ -128,13 +139,13 @@ function generateMdoc(signals: SignalData, date: Date): string {
   let body = '';
   if (signals.stage2.length > 0) {
     body += '## Stage 2 — Bullish\n\n';
-    body += 'These tickers entered Weinstein Stage 2 today — price is above a rising 150-day SMA.\n\n';
+    body += 'These tickers entered Weinstein Stage 2 today — price is above a rising 30-week WMA.\n\n';
     for (const t of signals.stage2) body += `- **${t}**\n`;
     body += '\n';
   }
   if (signals.stage4.length > 0) {
     body += '## Stage 4 — Bearish\n\n';
-    body += 'These tickers entered Weinstein Stage 4 today — price is below a declining 150-day SMA.\n\n';
+    body += 'These tickers entered Weinstein Stage 4 today — price is below a declining 30-week WMA.\n\n';
     for (const t of signals.stage4) body += `- **${t}**\n`;
     body += '\n';
   }
