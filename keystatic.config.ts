@@ -5,7 +5,7 @@ import { config, fields, collection, singleton } from '@keystatic/core';
 
 export default config({
   storage: {
-    kind: 'github',
+    kind: process.env.NODE_ENV === 'development' ? 'local' : 'github',
     repo: 'neporshiso/nep-personal-website',
   },
 
@@ -16,10 +16,10 @@ export default config({
       path: 'src/content/projects/*',
       schema: {
         title: fields.slug({ name: { label: 'Title' } }),
-        description: fields.markdoc({ label: 'Description' }),
+        description: fields.text({ label: 'Description', multiline: true, validation: { isRequired: false } }),
         techStack: fields.array(
           fields.text({ label: 'Technology' }),
-          { label: 'Tech Stack', itemLabel: (props) => props.fields.value.value }
+          { label: 'Tech Stack', itemLabel: (props) => props.value }
         ),
         media: fields.text({ label: 'Media path (e.g. /assets/projects/hero.mp4)', validation: { isRequired: false } }),
         links: fields.array(
@@ -43,14 +43,14 @@ export default config({
         body: fields.markdoc({ label: 'Body' }),
         tags: fields.array(
           fields.text({ label: 'Tag' }),
-          { label: 'Tags', itemLabel: (props) => props.fields.value.value }
+          { label: 'Tags', itemLabel: (props) => props.value }
         ),
         coverImage: fields.image({
           label: 'Cover Image',
           directory: 'src/assets/images/posts',
           publicPath: '@assets/images/posts/',
         }),
-        draft: fields.checkbox({ label: 'Draft', defaultValue: true }),
+        draft: fields.checkbox({ label: 'Draft', defaultValue: false }),
         excerpt: fields.text({ label: 'Excerpt', multiline: true }),
         publishedDate: fields.date({ label: 'Published Date' }),
       },
