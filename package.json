@@ -24,7 +24,7 @@
     "@keystatic/core": "^0.5.48",
     "@tailwindcss/vite": "^4.2.2",
     "@vercel/analytics": "^2.0.1",
-    "astro": "^5.18.1",
+    "astro": "^6.1.6",
     "astro-icon": "^1.1.5",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
