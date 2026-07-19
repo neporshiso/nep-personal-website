@@ -1,0 +1,46 @@
+---
+export const prerender = false;
+
+import { COOKIE_NAME, checkPassword, makeCookieValue } from '../../lib/nanban/auth';
+
+let error = '';
+if (Astro.request.method === 'POST') {
+  const form = await Astro.request.formData();
+  if (await checkPassword(String(form.get('password') ?? ''))) {
+    Astro.cookies.set(COOKIE_NAME, await makeCookieValue(), {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'lax',
+      path: '/nanban',
+      maxAge: 30 * 24 * 60 * 60,
+    });
+    return Astro.redirect('/nanban');
+  }
+  error = 'Wrong password.';
+}
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>Nanban — login</title>
+    <style>
+      body { font-family: system-ui, sans-serif; display: grid; place-items: center; min-height: 100vh; margin: 0; background: #1d2021; color: #ebdbb2; }
+      form { display: flex; gap: 0.5rem; }
+      input, button { font: inherit; padding: 0.5rem 0.75rem; border-radius: 6px; border: 1px solid #504945; background: #282828; color: inherit; }
+      p.err { color: #fb4934; }
+    </style>
+  </head>
+  <body>
+    <div>
+      <form method="post">
+        <input type="password" name="password" autofocus autocomplete="current-password" placeholder="Password" />
+        <button type="submit">Enter</button>
+      </form>
+      {error && <p class="err">{error}</p>}
+    </div>
+  </body>
+</html>

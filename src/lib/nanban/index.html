@@ -1,0 +1,725 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nanban</title>
+<style>
+  :root {
+    --bg: #f4f5f7; --panel: #ebecf0; --card: #fff; --text: #172b4d;
+    --muted: #6b778c; --border: #dfe1e6; --accent: #0052cc; --danger: #de350b;
+    --shadow: 0 1px 2px rgba(9,30,66,.25);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1d2125; --panel: #22272b; --card: #2c333a; --text: #b6c2cf;
+      --muted: #8c9bab; --border: #38414a; --accent: #579dff; --danger: #ff6b5c;
+      --shadow: 0 1px 2px rgba(0,0,0,.4);
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 14px;
+  }
+  header {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 20px; border-bottom: 1px solid var(--border); background: var(--panel);
+  }
+  header h1 { font-size: 20px; margin: 0; flex: 0 0 auto; }
+  header .spacer { flex: 1; }
+  button {
+    font: inherit; cursor: pointer; border: 1px solid var(--border);
+    background: var(--card); color: var(--text); padding: 6px 12px; border-radius: 4px;
+  }
+  button:hover { background: var(--panel); }
+  button.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+  button.primary:hover { opacity: .9; }
+  #board { display: flex; gap: 12px; padding: 16px; align-items: flex-start; overflow-x: auto; height: calc(100vh - 58px); }
+  .col {
+    flex: 1 1 0; min-width: 240px; max-width: 400px; background: var(--panel);
+    border-radius: 8px; display: flex; flex-direction: column; max-height: 100%;
+  }
+  .col-head {
+    padding: 10px 12px; font-weight: 600; display: flex; justify-content: space-between;
+    align-items: center; flex: 0 0 auto;
+  }
+  .col-head .count { color: var(--muted); font-weight: 400; font-size: 12px; }
+  .col-head .right { display: flex; align-items: center; gap: 6px; }
+  .col-head .sort { border: none; background: none; padding: 0 2px; color: var(--muted); font-size: 13px; }
+  .col-head .sort:hover { color: var(--accent); background: none; }
+  .col-head .sort.on { color: var(--accent); }
+  .lane { flex: 1 1 auto; overflow-y: auto; padding: 4px 8px 8px; min-height: 40px; }
+  .lane.dragover { background: rgba(0,82,204,.06); }
+  .card {
+    background: var(--card); border-radius: 6px; box-shadow: var(--shadow);
+    padding: 10px; margin-bottom: 8px; cursor: grab; position: relative;
+  }
+  .card.dragging { opacity: .4; }
+  .card .title { font-weight: 500; margin-right: 16px; }
+  .card .link { position: absolute; top: 8px; right: 8px; text-decoration: none; color: var(--muted); font-size: 13px; }
+  .card .del {
+    position: absolute; top: 6px; left: 6px; border: none; background: var(--card);
+    color: var(--muted); font-size: 13px; padding: 2px 4px; display: none;
+  }
+  .card:hover .title { margin-left: 18px; }
+  .card:hover .del { display: block; }
+  .card .del:hover { color: var(--danger); background: none; }
+  .detail { width: 560px; max-height: 85vh; overflow-y: auto; }
+  .detail .sub { color: var(--muted); font-size: 12px; margin: -10px 0 14px; }
+  .detail .desc { margin-bottom: 16px; }
+  .detail .desc img { max-width: 100%; }
+  .detail h3 { font-size: 13px; color: var(--muted); margin: 16px 0 8px; text-transform: uppercase; letter-spacing: .04em; }
+  .comment { border-top: 1px solid var(--border); padding: 10px 0; }
+  .comment .who { font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+  .comment .body img { max-width: 100%; }
+  .detail .actions { margin-top: 16px; justify-content: space-between; }
+  button.danger { color: var(--danger); border-color: var(--danger); background: none; }
+  .card .meta { margin-top: 6px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .badge { font-size: 11px; padding: 2px 6px; border-radius: 3px; color: #fff; white-space: nowrap; }
+  .due { font-size: 11px; color: var(--muted); }
+  .due.overdue { color: var(--danger); font-weight: 600; }
+  .assignees { font-size: 11px; color: var(--muted); }
+  .col-done .card .title { text-decoration: line-through; }
+  .col-done .card { opacity: .65; }
+  .drop-line { height: 2px; background: var(--accent); border-radius: 2px; margin: 0 0 8px; }
+  #status { padding: 40px; text-align: center; color: var(--muted); }
+  #status button { margin-top: 12px; }
+  /* modal */
+  .backdrop {
+    position: fixed; inset: 0; background: rgba(9,30,66,.5); display: flex;
+    align-items: center; justify-content: center; z-index: 100;
+  }
+  .modal { background: var(--card); border-radius: 8px; padding: 20px; width: 420px; max-width: 92vw; }
+  .modal h2 { margin: 0 0 16px; font-size: 18px; }
+  .modal label { display: block; margin-bottom: 4px; font-size: 12px; color: var(--muted); }
+  .modal input, .modal select, .modal textarea {
+    width: 100%; padding: 8px; margin-bottom: 14px; border: 1px solid var(--border);
+    border-radius: 4px; font: inherit; background: var(--bg); color: var(--text);
+  }
+  .modal textarea { resize: vertical; min-height: 70px; }
+  .modal .actions { display: flex; justify-content: flex-end; gap: 8px; }
+  #toasts { position: fixed; bottom: 20px; right: 20px; z-index: 200; display: flex; flex-direction: column; gap: 8px; }
+  .toast {
+    background: var(--danger); color: #fff; padding: 10px 16px; border-radius: 6px;
+    box-shadow: var(--shadow); max-width: 320px; animation: slidein .2s;
+  }
+  @keyframes slidein { from { transform: translateX(20px); opacity: 0; } }
+  #filters { display: flex; flex-wrap: wrap; gap: 8px; padding: 12px 16px 0; align-items: center; }
+  #filters .list-row { flex-basis: 100%; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 6px; }
+  #filters .flabel { font-size: 12px; color: var(--muted); margin-right: 2px; }
+  .chip {
+    font-size: 12px; padding: 4px 10px; border-radius: 999px; cursor: pointer;
+    border: 1px solid var(--border); background: var(--card); color: var(--text);
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .chip .dot { width: 8px; height: 8px; border-radius: 50%; }
+  .chip.on { color: #fff; border-color: transparent; }
+  .chip.on .dot { background: #fff; }
+</style>
+
+<header>
+  <h1>Nanban</h1>
+  <div class="spacer"></div>
+  <button id="refresh">Refresh</button>
+  <button id="add" class="primary">+ Add task</button>
+</header>
+
+<div id="filters" style="display:none"></div>
+<div id="status">Loading…</div>
+<div id="board" style="display:none"></div>
+<div id="toasts"></div>
+
+<script>
+"use strict";
+const api = {
+  board: () => fetch("/nanban/api/board").then(r => r.ok ? r.json() : Promise.reject(new Error("Failed to load board"))),
+  post: (path, body) => fetch(path, {
+    method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body)
+  }).then(async r => {
+    const data = await r.json().catch(() => ({}));
+    if (!r.ok || data.error) throw new Error(data.error || ("HTTP " + r.status));
+    return data;
+  }),
+};
+
+let state = { columns: [], projects: [], cards: [], project_order: [] };
+const activeProjects = new Set(); // empty = show all
+const activeLists = new Set();    // todolist_id filter within active projects; empty = all
+const boardEl = document.getElementById("board");
+const statusEl = document.getElementById("status");
+const filtersEl = document.getElementById("filters");
+
+function toast(msg) {
+  const t = document.createElement("div");
+  t.className = "toast"; t.textContent = msg;
+  document.getElementById("toasts").appendChild(t);
+  setTimeout(() => t.remove(), 4000);
+}
+
+// distinct color per project, assigned by position so no two projects collide
+const PALETTE = ["#0052cc", "#2e7d32", "#c62828", "#6a1b9a", "#e65100", "#00838f", "#ad1457", "#5d4037"];
+function badgeColor(id) {
+  const i = state.projects.findIndex(p => String(p.id) === String(id));
+  return PALETTE[(i < 0 ? 0 : i) % PALETTE.length];
+}
+
+// Manual project order (chip drag); projects not yet in the order sort last, by fetch order.
+function projRank(id) {
+  const i = state.project_order.indexOf(String(id));
+  if (i >= 0) return i;
+  const j = state.projects.findIndex(p => String(p.id) === String(id));
+  return state.project_order.length + (j < 0 ? state.projects.length : j);
+}
+
+function isOverdue(due) {
+  if (!due) return false;
+  const d = new Date(due);
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  return d < today;
+}
+
+function fmtDate(due) {
+  const d = new Date(due);
+  return isNaN(d) ? due : d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+}
+
+function cardEl(card) {
+  const el = document.createElement("div");
+  el.className = "card";
+  el.draggable = true;
+  el.dataset.id = card.id;
+
+  const title = document.createElement("div");
+  title.className = "title";
+  title.textContent = card.title;
+  el.appendChild(title);
+
+  if (card.url) {
+    const a = document.createElement("a");
+    a.className = "link"; a.href = card.url; a.target = "_blank"; a.rel = "noopener";
+    a.textContent = "↗"; a.title = "Open in Basecamp";
+    a.addEventListener("click", e => e.stopPropagation());
+    el.appendChild(a);
+  }
+
+  const meta = document.createElement("div");
+  meta.className = "meta";
+  if (card.project_name) {
+    const b = document.createElement("span");
+    b.className = "badge"; b.textContent = card.project_name;
+    b.style.background = badgeColor(card.project_id);
+    meta.appendChild(b);
+  }
+  if (card.due_on) {
+    const d = document.createElement("span");
+    d.className = "due" + (isOverdue(card.due_on) ? " overdue" : "");
+    d.textContent = "📅 " + fmtDate(card.due_on);
+    meta.appendChild(d);
+  }
+  if (card.assignees && card.assignees.length) {
+    const as = document.createElement("span");
+    as.className = "assignees";
+    as.textContent = "👤 " + card.assignees.join(", ");
+    meta.appendChild(as);
+  }
+  if (meta.children.length) el.appendChild(meta);
+
+  const del = document.createElement("button");
+  del.className = "del"; del.textContent = "✕"; del.title = "Delete (trash in Basecamp)";
+  del.addEventListener("click", e => { e.stopPropagation(); deleteCard(card); });
+  el.appendChild(del);
+
+  el.addEventListener("click", () => openDetail(card));
+  return el;
+}
+
+function deleteCard(card) {
+  if (!confirm(`Delete "${card.title}"?\nIt goes to Basecamp's trash (recoverable for 30 days).`)) return;
+  const snapshot = state.cards;
+  state.cards = state.cards.filter(c => c.id !== card.id);
+  render();
+  api.post("/nanban/api/delete", { todo_id: card.id, project_id: card.project_id }).catch(err => {
+    state.cards = snapshot;
+    render();
+    toast("Delete failed: " + err.message);
+  });
+}
+
+// ---- card detail modal ----
+function openDetail(card) {
+  const backdrop = document.createElement("div");
+  backdrop.className = "backdrop";
+  const modal = document.createElement("div");
+  modal.className = "modal detail";
+  modal.innerHTML = `<h2></h2><div class="sub"></div><div class="body">Loading…</div>
+    <div class="actions">
+      <button type="button" class="danger">Delete</button>
+      <span class="spacer" style="flex:1"></span>
+      <button type="button" class="edit-btn">Edit</button>
+      <button type="button" class="close-btn">Close</button>
+    </div>`;
+  modal.querySelector("h2").textContent = card.title;
+  const subBits = [card.project_name, card.todolist_name,
+    card.due_on ? "due " + fmtDate(card.due_on) : "",
+    card.assignees && card.assignees.length ? "👤 " + card.assignees.join(", ") : ""
+  ].filter(Boolean);
+  modal.querySelector(".sub").textContent = subBits.join("  ·  ");
+  backdrop.appendChild(modal);
+
+  const close = () => { backdrop.remove(); document.removeEventListener("keydown", esc); };
+  const esc = e => { if (e.key === "Escape") close(); };
+  document.addEventListener("keydown", esc);
+  backdrop.onclick = e => { if (e.target === backdrop) close(); };
+  modal.querySelector(".close-btn").onclick = close;
+  modal.querySelector(".danger").onclick = () => { close(); deleteCard(card); };
+  modal.querySelector(".edit-btn").onclick = () => openEdit(card, lastDetail, close);
+  document.body.appendChild(backdrop);
+
+  let lastDetail = null;
+  fetch(`/nanban/api/card?project_id=${card.project_id}&todo_id=${card.id}`)
+    .then(r => r.json())
+    .then(d => {
+      if (d.error) throw new Error(d.error);
+      lastDetail = d;
+      const body = modal.querySelector(".body");
+      body.innerHTML = "";
+      if (d.description) {
+        const desc = document.createElement("div");
+        desc.className = "desc";
+        desc.innerHTML = d.description; // own Basecamp content; single-user local app
+        body.appendChild(desc);
+      }
+      if (d.url) {
+        const a = document.createElement("a");
+        a.href = d.url; a.target = "_blank"; a.rel = "noopener";
+        a.textContent = "Open in Basecamp ↗";
+        body.appendChild(a);
+      }
+      if (d.comments.length) {
+        const h = document.createElement("h3");
+        h.textContent = `Comments (${d.comments.length})`;
+        body.appendChild(h);
+        d.comments.forEach(c => {
+          const div = document.createElement("div");
+          div.className = "comment";
+          const who = document.createElement("div");
+          who.className = "who";
+          who.textContent = c.author + (c.created_at ? " · " + new Date(c.created_at).toLocaleString() : "");
+          const cb = document.createElement("div");
+          cb.className = "body";
+          cb.innerHTML = c.content;
+          div.append(who, cb);
+          body.appendChild(div);
+        });
+      }
+      if (!d.description && !d.comments.length && !d.url) body.textContent = "No details.";
+    })
+    .catch(err => { modal.querySelector(".body").textContent = "Failed to load details: " + err.message; });
+}
+
+// ---- edit card modal ----
+function openEdit(card, detail, closeDetail) {
+  if (closeDetail) closeDetail();
+  // Strip HTML from description for a plain-text edit (Basecamp stores it as HTML).
+  const tmp = document.createElement("div");
+  tmp.innerHTML = (detail && detail.description) || "";
+  const descText = tmp.textContent.trim();
+
+  const backdrop = document.createElement("div");
+  backdrop.className = "backdrop";
+  backdrop.innerHTML = `
+    <form class="modal">
+      <h2>Edit task</h2>
+      <label>Title *</label>
+      <input name="title">
+      <label>Due date</label>
+      <input name="due" type="date">
+      <label>Description</label>
+      <textarea name="description"></textarea>
+      <div class="actions">
+        <button type="button" class="cancel">Cancel</button>
+        <button type="submit" class="primary">Save</button>
+      </div>
+    </form>`;
+  const form = backdrop.querySelector("form");
+  form.title.value = card.title;
+  form.due.value = card.due_on || "";
+  form.description.value = descText;
+
+  const close = () => { backdrop.remove(); document.removeEventListener("keydown", esc); };
+  const esc = e => { if (e.key === "Escape") close(); };
+  document.addEventListener("keydown", esc);
+  backdrop.onclick = e => { if (e.target === backdrop) close(); };
+  backdrop.querySelector(".cancel").onclick = close;
+
+  form.onsubmit = async e => {
+    e.preventDefault();
+    const title = form.title.value.trim();
+    if (!title) return;
+    const btn = form.querySelector('button[type="submit"]');
+    btn.disabled = true;
+    try {
+      const res = await api.post("/nanban/api/update", {
+        todo_id: card.id, project_id: card.project_id,
+        title, description: form.description.value.trim(), due_on: form.due.value || null,
+      });
+      Object.assign(card, { title: res.title, due_on: res.due_on });
+      render();
+      close();
+    } catch (err) {
+      toast("Save failed: " + err.message);
+      btn.disabled = false;
+    }
+  };
+
+  document.body.appendChild(backdrop);
+  form.title.focus();
+}
+
+function renderFilters() {
+  filtersEl.innerHTML = "";
+  if (!state.projects.length) { filtersEl.style.display = "none"; return; }
+  filtersEl.style.display = "flex";
+  const label = document.createElement("span");
+  label.className = "flabel"; label.textContent = "Filter:";
+  filtersEl.appendChild(label);
+  // Chips in manual order; state.projects itself stays in fetch order (badge colors key off it).
+  const sorted = [...state.projects].sort((a, b) => projRank(a.id) - projRank(b.id));
+  sorted.forEach(p => {
+    const on = activeProjects.has(String(p.id));
+    const chip = document.createElement("button");
+    chip.className = "chip" + (on ? " on" : "");
+    const color = badgeColor(p.id);
+    if (on) chip.style.background = color;
+    chip.innerHTML = `<span class="dot"></span>${p.name}`;
+    if (!on) chip.querySelector(".dot").style.background = color;
+    chip.draggable = true;
+    chip.title = "Drag to set project sort order";
+    chip.addEventListener("dragstart", e => {
+      dragProjId = String(p.id);
+      dragId = null; // keep lane drops from acting on a stale card drag
+      e.dataTransfer.setData("text/plain", dragProjId);
+    });
+    chip.addEventListener("dragend", () => { dragProjId = null; });
+    chip.addEventListener("dragover", e => { if (dragProjId) e.preventDefault(); });
+    chip.addEventListener("drop", e => {
+      e.preventDefault();
+      if (!dragProjId || dragProjId === String(p.id)) return;
+      const ids = sorted.map(x => String(x.id));
+      const from = ids.indexOf(dragProjId);
+      const to = ids.indexOf(String(p.id));
+      if (from < 0 || to < 0) return;
+      ids.splice(from, 1);
+      ids.splice(to, 0, dragProjId); // after target when dragging right, before when dragging left
+      const prev = state.project_order;
+      state.project_order = ids;
+      dragProjId = null;
+      renderFilters();
+      api.post("/nanban/api/project_order", { order: ids }).catch(err => {
+        state.project_order = prev;
+        renderFilters();
+        toast("Reorder failed: " + err.message);
+      });
+    });
+    chip.onclick = () => {
+      const k = String(p.id);
+      if (activeProjects.has(k)) {
+        activeProjects.delete(k);
+        // drop list filters that belonged to the deselected project
+        p.todolists.forEach(t => activeLists.delete(String(t.id)));
+      } else {
+        activeProjects.add(k);
+      }
+      renderFilters(); render();
+    };
+    filtersEl.appendChild(chip);
+  });
+  if (activeProjects.size) {
+    const clear = document.createElement("button");
+    clear.className = "chip"; clear.textContent = "Clear";
+    clear.onclick = () => { activeProjects.clear(); activeLists.clear(); renderFilters(); render(); };
+    filtersEl.appendChild(clear);
+  }
+
+  // Secondary row: todolists of the active projects.
+  const lists = sorted
+    .filter(p => activeProjects.has(String(p.id)))
+    .flatMap(p => p.todolists);
+  if (lists.length) {
+    const row = document.createElement("div");
+    row.className = "list-row";
+    const lbl = document.createElement("span");
+    lbl.className = "flabel"; lbl.textContent = "List:";
+    row.appendChild(lbl);
+    lists.forEach(t => {
+      const on = activeLists.has(String(t.id));
+      const chip = document.createElement("button");
+      chip.className = "chip" + (on ? " on" : "");
+      if (on) chip.style.background = "var(--accent)";
+      chip.textContent = t.title;
+      chip.onclick = () => {
+        const k = String(t.id);
+        activeLists.has(k) ? activeLists.delete(k) : activeLists.add(k);
+        renderFilters(); render();
+      };
+      row.appendChild(chip);
+    });
+    filtersEl.appendChild(row);
+  }
+}
+
+function render() {
+  boardEl.innerHTML = "";
+  const visible = state.cards.filter(c =>
+    (activeProjects.size === 0 || activeProjects.has(String(c.project_id))) &&
+    (activeLists.size === 0 || activeLists.has(String(c.todolist_id)))
+  );
+  state.columns.forEach(colName => {
+    const col = document.createElement("div");
+    col.className = "col" + (colName === "Done" ? " col-done" : "");
+    col.dataset.col = colName;
+
+    const cards = visible
+      .filter(c => c.column === colName)
+      .sort((a, b) => a.position - b.position);
+
+    const head = document.createElement("div");
+    head.className = "col-head";
+    const sorted = !!preSort[colName];
+    head.innerHTML = `<span>${colName}</span><span class="right">` +
+      `<button class="sort${sorted ? " on" : ""}" title="${sorted ? "Revert to previous order" : "Sort by project"}">⇅</button>` +
+      `<span class="count">${cards.length}</span></span>`;
+    head.querySelector(".sort").onclick = () => sortColumn(colName);
+    col.appendChild(head);
+
+    const lane = document.createElement("div");
+    lane.className = "lane";
+    lane.dataset.col = colName;
+    cards.forEach(c => lane.appendChild(cardEl(c)));
+    setupLane(lane);
+    col.appendChild(lane);
+    boardEl.appendChild(col);
+  });
+}
+
+// Toggle sort: first click groups the whole column (filters ignored) by project
+// order, keeping relative manual order within each project; second click reverts
+// to the stashed pre-sort order. Manual card drags in a column clear its stash.
+const preSort = {}; // colName -> [card ids in pre-sort order]; in-memory only
+
+function sortColumn(colName) {
+  const snapshot = state.cards.map(c => ({ ...c }));
+  const hadStash = preSort[colName];
+  const cards = state.cards
+    .filter(c => c.column === colName)
+    .sort((a, b) => a.position - b.position);
+  if (hadStash) {
+    const rank = new Map(hadStash.map((id, i) => [id, i]));
+    const r = c => rank.has(String(c.id)) ? rank.get(String(c.id)) : rank.size + c.position;
+    cards.sort((a, b) => r(a) - r(b)); // cards added since the sort go to the end
+    delete preSort[colName];
+  } else {
+    preSort[colName] = cards.map(c => String(c.id));
+    cards.sort((a, b) => projRank(a.project_id) - projRank(b.project_id) || a.position - b.position);
+  }
+  cards.forEach((c, i) => { c.position = i; });
+  render();
+  api.post("/nanban/api/sort", { column: colName, ids: cards.map(c => c.id) }).catch(err => {
+    state.cards = snapshot;
+    if (hadStash) preSort[colName] = hadStash; else delete preSort[colName];
+    render();
+    toast("Sort failed: " + err.message);
+  });
+}
+
+// ---- drag and drop ----
+let dragId = null;
+let dragProjId = null; // set while dragging a project chip
+
+function setupLane(lane) {
+  lane.addEventListener("dragover", e => {
+    if (dragId === null) return; // ignore chip drags
+    e.preventDefault();
+    lane.classList.add("dragover");
+    clearDropLine();
+    const after = afterElement(lane, e.clientY);
+    const line = document.createElement("div");
+    line.className = "drop-line";
+    if (after) lane.insertBefore(line, after);
+    else lane.appendChild(line);
+  });
+  lane.addEventListener("dragleave", e => {
+    if (!lane.contains(e.relatedTarget)) { lane.classList.remove("dragover"); clearDropLine(); }
+  });
+  lane.addEventListener("drop", e => {
+    e.preventDefault();
+    lane.classList.remove("dragover");
+    const line = lane.querySelector(".drop-line");
+    const index = line ? [...lane.querySelectorAll(".card, .drop-line")].indexOf(line) : lane.children.length;
+    // count only cards before the line for the position index
+    let pos = 0;
+    for (const child of lane.children) {
+      if (child.classList.contains("drop-line")) break;
+      if (child.classList.contains("card")) pos++;
+    }
+    clearDropLine();
+    onDrop(dragId, lane.dataset.col, pos);
+  });
+}
+
+function clearDropLine() {
+  document.querySelectorAll(".drop-line").forEach(l => l.remove());
+}
+
+function afterElement(lane, y) {
+  const cards = [...lane.querySelectorAll(".card:not(.dragging)")];
+  return cards.find(c => {
+    const box = c.getBoundingClientRect();
+    return y < box.top + box.height / 2;
+  });
+}
+
+boardEl.addEventListener("dragstart", e => {
+  const card = e.target.closest(".card");
+  if (!card) return;
+  dragId = card.dataset.id;
+  card.classList.add("dragging");
+});
+boardEl.addEventListener("dragend", e => {
+  const card = e.target.closest(".card");
+  if (card) card.classList.remove("dragging");
+  document.querySelectorAll(".dragover").forEach(l => l.classList.remove("dragover"));
+  clearDropLine();
+});
+
+function onDrop(id, toCol, index) {
+  const card = state.cards.find(c => String(c.id) === String(id));
+  if (!card) return;
+  delete preSort[card.column]; // manual move invalidates the revert stash
+  delete preSort[toCol];
+  const snapshot = state.cards.map(c => ({ ...c }));
+
+  // optimistic reorder
+  const others = state.cards
+    .filter(c => c.column === toCol && String(c.id) !== String(id))
+    .sort((a, b) => a.position - b.position);
+  others.splice(index, 0, card);
+  others.forEach((c, i) => { c.column = toCol; c.position = i; });
+  card.column = toCol;
+  render();
+
+  api.post("/nanban/api/move", {
+    todo_id: card.id, project_id: card.project_id, column: toCol, position: index
+  }).catch(err => {
+    state.cards = snapshot;
+    render();
+    toast("Move failed: " + err.message);
+  });
+}
+
+// ---- load ----
+async function load() {
+  statusEl.style.display = ""; statusEl.textContent = "Loading…";
+  boardEl.style.display = "none";
+  try {
+    state = await api.board();
+    state.project_order = (state.project_order || []).map(String);
+    for (const k of [...activeProjects])  // drop filters for projects no longer present
+      if (!state.projects.some(p => String(p.id) === k)) activeProjects.delete(k);
+    const liveLists = new Set(state.projects.flatMap(p => p.todolists.map(t => String(t.id))));
+    for (const k of [...activeLists]) if (!liveLists.has(k)) activeLists.delete(k);
+    statusEl.style.display = "none";
+    boardEl.style.display = "";
+    renderFilters();
+    render();
+  } catch (err) {
+    boardEl.style.display = "none";
+    statusEl.style.display = "";
+    statusEl.innerHTML = "";
+    statusEl.append("Couldn't load the board. " + err.message);
+    const b = document.createElement("button");
+    b.textContent = "Retry"; b.onclick = load;
+    statusEl.appendChild(document.createElement("br"));
+    statusEl.appendChild(b);
+  }
+}
+
+document.getElementById("refresh").onclick = load;
+
+// ---- add task modal ----
+document.getElementById("add").onclick = openModal;
+
+function openModal() {
+  if (!state.projects.length) { toast("No projects available"); return; }
+  const backdrop = document.createElement("div");
+  backdrop.className = "backdrop";
+  backdrop.innerHTML = `
+    <form class="modal">
+      <h2>Add task</h2>
+      <label>Title *</label>
+      <input name="title" required autofocus>
+      <label>Project</label>
+      <select name="project"></select>
+      <label>To-do list</label>
+      <select name="todolist"></select>
+      <label>Description</label>
+      <textarea name="description"></textarea>
+      <div class="actions">
+        <button type="button" class="cancel">Cancel</button>
+        <button type="submit" class="primary">Add</button>
+      </div>
+    </form>`;
+  const form = backdrop.querySelector("form");
+  const projSel = form.project, listSel = form.todolist;
+
+  state.projects.forEach(p => projSel.add(new Option(p.name, p.id)));
+  function fillLists() {
+    listSel.innerHTML = "";
+    const p = state.projects.find(p => String(p.id) === projSel.value);
+    (p ? p.todolists : []).forEach(t => listSel.add(new Option(t.title, t.id)));
+  }
+  projSel.onchange = fillLists;
+  fillLists();
+
+  const close = () => backdrop.remove();
+  backdrop.querySelector(".cancel").onclick = close;
+  backdrop.onclick = e => { if (e.target === backdrop) close(); };
+  const esc = e => { if (e.key === "Escape") { close(); document.removeEventListener("keydown", esc); } };
+  document.addEventListener("keydown", esc);
+
+  form.onsubmit = async e => {
+    e.preventDefault();
+    const title = form.title.value.trim();
+    if (!title) return;
+    const btn = form.querySelector('button[type="submit"]');
+    btn.disabled = true;
+    try {
+      const res = await api.post("/nanban/api/todo", {
+        project_id: projSel.value ? Number(projSel.value) || projSel.value : projSel.value,
+        todolist_id: listSel.value ? Number(listSel.value) || listSel.value : listSel.value,
+        title,
+        description: form.description.value.trim() || undefined,
+      });
+      const card = res.card;
+      if (card) {
+        if (!card.column) card.column = "To Do";
+        // place at end of To Do
+        const maxPos = state.cards.filter(c => c.column === card.column)
+          .reduce((m, c) => Math.max(m, c.position), -1);
+        if (card.position == null) card.position = maxPos + 1;
+        state.cards.push(card);
+        render();
+      }
+      close();
+      document.removeEventListener("keydown", esc);
+    } catch (err) {
+      toast("Add failed: " + err.message);
+      btn.disabled = false;
+    }
+  };
+
+  document.body.appendChild(backdrop);
+  form.title.focus();
+}
+
+load();
+</script>
