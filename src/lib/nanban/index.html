@@ -141,6 +141,7 @@
 <header>
   <h1>Nanban</h1>
   <div class="spacer"></div>
+  <button id="traytoggle"></button>
   <button id="refresh">Refresh</button>
   <button id="add" class="primary">+ Add task</button>
 </header>
@@ -517,10 +518,13 @@ function renderFilters() {
 
 function render() {
   boardEl.innerHTML = "";
+  const trayed = trayedIds();
   const visible = state.cards.filter(c =>
     (activeProjects.size === 0 || activeProjects.has(String(c.project_id))) &&
-    (activeLists.size === 0 || activeLists.has(String(c.todolist_id)))
+    (activeLists.size === 0 || activeLists.has(String(c.todolist_id))) &&
+    (!hideTrayed || !trayed.has(String(c.id)))
   );
+  trayToggleEl.textContent = hideTrayed ? "Show trayed" : "Hide trayed";
   state.columns.forEach(colName => {
     const col = document.createElement("div");
     col.className = "col" + (colName === "Done" ? " col-done" : "");
@@ -618,6 +622,21 @@ function trayChipsFor(cardId) {
     if (k >= 0) chips.push({ text: "⛓ " + trayLabel(id) + " · " + (k + 1) + "/" + ids.length, batch: true });
   });
   return chips;
+}
+
+// Column-view visibility of trayed cards. Preference, not board data — localStorage.
+let hideTrayed = localStorage.getItem("nanban_hide_trayed") !== "0"; // default hidden
+const trayToggleEl = document.getElementById("traytoggle");
+trayToggleEl.onclick = () => {
+  hideTrayed = !hideTrayed;
+  localStorage.setItem("nanban_hide_trayed", hideTrayed ? "1" : "0");
+  render();
+};
+
+function trayedIds() {
+  const s = new Set();
+  Object.values(state.trays).forEach(t => (t.ids || []).forEach(id => s.add(String(id))));
+  return s;
 }
 
 function persistTrays() {
