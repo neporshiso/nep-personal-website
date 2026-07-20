@@ -17,22 +17,25 @@ export const POST: APIRoute = async ({ request }) => {
   if (!title) return json({ error: 'title required' }, 400);
 
   return handle(async () => {
-    const payload = {
+    const payload: Record<string, unknown> = {
       content: title,
       description: body.description ?? '',
       // empty string clears the date in Basecamp
       due_on: body.due_on || '',
     };
+    if (Array.isArray(body.assignee_ids)) payload.assignee_ids = body.assignee_ids;
     const url = `https://3.basecampapi.com/${process.env.BASECAMP_ACCOUNT_ID}/buckets/${projectId}/todos/${todoId}.json`;
     const updated = await (await bcRequest('PUT', url, payload)).json();
 
     // Refresh the Done snapshot if this card is cached there.
+    const assignees = (updated.assignees ?? []).map((a: any) => a.name);
     const overlay = await loadOverlay();
     const entry = overlay[todoId];
     if (entry?.card) {
       entry.card.title = updated.title || title;
-      entry.card.description = updated.description ?? payload.description;
+      entry.card.description = updated.description ?? String(payload.description);
       entry.card.due_on = updated.due_on ?? null;
+      if (Array.isArray(body.assignee_ids)) entry.card.assignees = assignees;
       await saveOverlay(overlay);
     }
     return {
@@ -40,6 +43,7 @@ export const POST: APIRoute = async ({ request }) => {
       title: updated.title || title,
       description: updated.description ?? payload.description,
       due_on: updated.due_on ?? null,
+      assignees,
     };
   });
 };

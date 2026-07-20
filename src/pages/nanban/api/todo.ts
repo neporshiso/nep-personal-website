@@ -5,12 +5,14 @@ import { badRequest, handle } from '../../../lib/nanban/api';
 
 export const POST: APIRoute = async ({ request }) => {
   let projectId: number, todolistId: number, title: string, description: string;
+  let assigneeIds: number[] | undefined;
   try {
     const b = await request.json();
     projectId = b.project_id;
     todolistId = b.todolist_id;
     title = b.title;
     description = b.description ?? '';
+    if (Array.isArray(b.assignee_ids)) assigneeIds = b.assignee_ids;
     if (projectId == null || todolistId == null || title == null) return badRequest();
   } catch {
     return badRequest();
@@ -18,7 +20,9 @@ export const POST: APIRoute = async ({ request }) => {
 
   return handle(async () => {
     const url = `https://3.basecampapi.com/${process.env.BASECAMP_ACCOUNT_ID}/buckets/${projectId}/todolists/${todolistId}/todos.json`;
-    const created = await (await bcRequest('POST', url, { content: title, description })).json();
+    const payload: Record<string, unknown> = { content: title, description };
+    if (assigneeIds) payload.assignee_ids = assigneeIds;
+    const created = await (await bcRequest('POST', url, payload)).json();
 
     const tid = String(created.id);
     const [overlay, cache] = await Promise.all([loadOverlay(), loadCardCache()]);

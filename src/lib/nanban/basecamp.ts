@@ -26,12 +26,16 @@ export interface Card {
   url: string | null;
 }
 
+type Tray = { name?: string; ids: string[] };
 type OverlayEntry = { column?: string; position?: number; card?: Card };
-type Overlay = { _meta?: { project_order?: string[] } } & Record<string, OverlayEntry>;
+type Overlay = {
+  _meta?: { project_order?: string[]; trays?: Record<string, Tray> };
+} & Record<string, OverlayEntry>;
 type CardCache = {
   cards: Record<string, Card>;
   projNames: Record<string, string>;
   listNames: Record<string, string>;
+  people?: Record<string, { id: number; name: string }[]>;
 };
 
 export const loadOverlay = async (): Promise<Overlay> =>
@@ -146,6 +150,22 @@ async function fetchTodolists(project: { id: number; todoset_id: number }) {
   return (await bcGetPaginated(url)).map((t) => ({ id: t.id, title: t.title }));
 }
 
+// People assignable on a project. Try the projects path first; some accounts only
+// expose it under buckets — fall back to that on a 404.
+async function fetchPeople(projectId: number): Promise<{ id: number; name: string }[]> {
+  let raw: any[];
+  try {
+    raw = await bcGetPaginated(`${apiBase()}/projects/${projectId}/people.json`);
+  } catch (e) {
+    if (e instanceof BasecampError && e.status === 404) {
+      raw = await bcGetPaginated(`${apiBase()}/buckets/${projectId}/people.json`);
+    } else {
+      throw e;
+    }
+  }
+  return raw.map((p) => ({ id: p.id, name: p.name }));
+}
+
 async function fetchTodos(projectId: number, todolist: { id: number; title: string }) {
   const url = `${apiBase()}/buckets/${projectId}/todolists/${todolist.id}/todos.json`;
   return (await bcGetPaginated(url)).map((t) => ({
@@ -220,6 +240,11 @@ export async function buildBoard() {
       projects.map(async (p) => [p.id, await fetchTodolists(p)] as const),
     ),
   );
+  const peopleByProj = new Map(
+    await Promise.all(
+      projects.map(async (p) => [p.id, await fetchPeople(p.id)] as const),
+    ),
+  );
   const pairs = projects.flatMap((p) =>
     (listsByProj.get(p.id) ?? []).map((tl) => ({ projectId: p.id, tl })),
   );
@@ -273,12 +298,31 @@ export async function buildBoard() {
   const keepDone = new Set(done.slice(0, DONE_CAP));
   cards = cards.filter((c) => c.column !== 'Done' || keepDone.has(c));
 
+  // Prune tray ids whose card is no longer on the board (final card set).
+  const boardIds = new Set(cards.map((c) => String(c.id)));
+  const trays = overlay._meta?.trays;
+  if (trays) {
+    let changed = false;
+    for (const tray of Object.values(trays)) {
+      const kept = tray.ids.filter((id) => boardIds.has(id));
+      if (kept.length !== tray.ids.length) {
+        tray.ids = kept;
+        changed = true;
+      }
+    }
+    if (changed) await saveOverlay(overlay);
+  }
+
+  const people = Object.fromEntries(
+    projects.map((p) => [String(p.id), peopleByProj.get(p.id) ?? []]),
+  );
   const cache: CardCache = {
     cards: Object.fromEntries(cards.map((c) => [String(c.id), cardFrom(c)])),
     projNames: Object.fromEntries(projects.map((p) => [String(p.id), p.name])),
     listNames: Object.fromEntries(
       [...listsByProj.values()].flat().map((tl) => [String(tl.id), tl.title]),
     ),
+    people,
   };
   await kvSet('nanban:cardcache', cache);
 
@@ -291,5 +335,7 @@ export async function buildBoard() {
     })),
     cards,
     project_order: overlay._meta?.project_order ?? [],
+    people,
+    trays: overlay._meta?.trays ?? {},
   };
 }

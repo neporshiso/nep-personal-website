@@ -33,7 +33,29 @@
   button:hover { background: var(--panel); }
   button.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
   button.primary:hover { opacity: .9; }
-  #board { display: flex; gap: 12px; padding: 16px; align-items: flex-start; overflow-x: auto; height: calc(100vh - 58px); }
+  #board { display: flex; gap: 12px; padding: 16px; align-items: flex-start; overflow-x: auto; height: 60vh; min-height: 260px; }
+  /* shelf (trays) */
+  #shelf { display: flex; gap: 12px; padding: 16px; align-items: flex-start; overflow-x: auto; border-top: 2px dashed var(--border); }
+  .tray { flex: 0 0 240px; background: var(--panel); border-radius: 8px; display: flex; flex-direction: column; max-height: 40vh; }
+  .tray.tray-over { outline: 2px solid var(--accent); }
+  .tray-head { padding: 10px 12px; font-weight: 600; display: flex; align-items: center; justify-content: space-between; gap: 6px; flex: 0 0 auto; }
+  .tray-name { cursor: text; }
+  .tray-name-input { flex: 1 1 auto; padding: 2px 4px; border: 1px solid var(--border); border-radius: 4px; font: inherit; background: var(--bg); color: var(--text); }
+  .tray-del { border: none; background: none; color: var(--muted); padding: 0 2px; font-size: 13px; }
+  .tray-del:hover { color: var(--danger); background: none; }
+  .tray-body { flex: 1 1 auto; overflow-y: auto; padding: 4px 8px 8px; min-height: 30px; }
+  .tray-row { background: var(--card); border-radius: 6px; box-shadow: var(--shadow); padding: 6px 8px; margin-bottom: 6px; cursor: grab; position: relative; display: flex; align-items: baseline; gap: 6px; }
+  .tray-row.dragging { opacity: .4; }
+  .tray-row .seq { color: var(--accent); font-weight: 600; font-size: 12px; }
+  .tray-row .tray-title { flex: 1 1 auto; }
+  .tray-row .tray-ref { color: var(--muted); font-size: 11px; white-space: nowrap; }
+  .tray-row .tray-x { border: none; background: none; color: var(--muted); padding: 0 2px; display: none; }
+  .tray-row:hover .tray-x { display: block; }
+  .tray-row .tray-x:hover { color: var(--danger); background: none; }
+  .tray.new-batch { align-items: center; justify-content: center; color: var(--muted); border: 2px dashed var(--border); background: transparent; cursor: pointer; min-height: 60px; padding: 16px; text-align: center; }
+  .tray.new-batch:hover { color: var(--accent); border-color: var(--accent); }
+  .tray-chip { font-size: 11px; padding: 2px 6px; border-radius: 999px; border: 1px solid var(--accent); color: var(--accent); background: transparent; white-space: nowrap; }
+  .tray-chip.batch { border-style: dashed; }
   .col {
     flex: 1 1 0; min-width: 240px; max-width: 400px; background: var(--panel);
     border-radius: 8px; display: flex; flex-direction: column; max-height: 100%;
@@ -126,6 +148,7 @@
 <div id="filters" style="display:none"></div>
 <div id="status">Loading…</div>
 <div id="board" style="display:none"></div>
+<div id="shelf" style="display:none"></div>
 <div id="toasts"></div>
 
 <script>
@@ -141,12 +164,21 @@ const api = {
   }),
 };
 
-let state = { columns: [], projects: [], cards: [], project_order: [] };
+let state = { columns: [], projects: [], cards: [], project_order: [], people: {}, trays: {} };
 const activeProjects = new Set(); // empty = show all
 const activeLists = new Set();    // todolist_id filter within active projects; empty = all
 const boardEl = document.getElementById("board");
+const shelfEl = document.getElementById("shelf");
 const statusEl = document.getElementById("status");
 const filtersEl = document.getElementById("filters");
+
+// Fixed trays always rendered first; batches (batch-<ts>) follow.
+const FIXED_TRAYS = [
+  { id: "weekend", label: "☀ Upcoming Weekend", chip: "☀ Weekend" },
+  { id: "handoff", label: "⏪ Work Handoff", chip: "⏪ Handoff" },
+];
+const isBatch = id => id.startsWith("batch-");
+const cardById = id => state.cards.find(c => String(c.id) === String(id));
 
 function toast(msg) {
   const t = document.createElement("div");
@@ -221,6 +253,12 @@ function cardEl(card) {
     as.textContent = "👤 " + card.assignees.join(", ");
     meta.appendChild(as);
   }
+  trayChipsFor(card.id).forEach(ch => {
+    const c = document.createElement("span");
+    c.className = "tray-chip" + (ch.batch ? " batch" : "");
+    c.textContent = ch.text;
+    meta.appendChild(c);
+  });
   if (meta.children.length) el.appendChild(meta);
 
   const del = document.createElement("button");
@@ -333,6 +371,8 @@ function openEdit(card, detail, closeDetail) {
       <input name="title">
       <label>Due date</label>
       <input name="due" type="date">
+      <label>Assignee</label>
+      <select name="assignee"></select>
       <label>Description</label>
       <textarea name="description"></textarea>
       <div class="actions">
@@ -344,6 +384,10 @@ function openEdit(card, detail, closeDetail) {
   form.title.value = card.title;
   form.due.value = card.due_on || "";
   form.description.value = descText;
+  fillAssignees(form.assignee, card.project_id, card.assignees);
+  // Only send assignee_ids when the user changes the select — the single-select
+  // can't represent multi-assignee cards, and an untouched "" must not unassign them.
+  const initialAssignee = form.assignee.value;
 
   const close = () => { backdrop.remove(); document.removeEventListener("keydown", esc); };
   const esc = e => { if (e.key === "Escape") close(); };
@@ -361,8 +405,12 @@ function openEdit(card, detail, closeDetail) {
       const res = await api.post("/nanban/api/update", {
         todo_id: card.id, project_id: card.project_id,
         title, description: form.description.value.trim(), due_on: form.due.value || null,
+        ...(form.assignee.value !== initialAssignee
+          ? { assignee_ids: form.assignee.value ? [Number(form.assignee.value)] : [] }
+          : {}),
       });
       Object.assign(card, { title: res.title, due_on: res.due_on });
+      if (res.assignees) card.assignees = res.assignees;
       render();
       close();
     } catch (err) {
@@ -499,6 +547,7 @@ function render() {
     col.appendChild(lane);
     boardEl.appendChild(col);
   });
+  renderShelf();
 }
 
 // Toggle sort: first click groups the whole column (filters ignored) by project
@@ -531,9 +580,227 @@ function sortColumn(colName) {
   });
 }
 
+// ---- assignees ----
+function fillAssignees(sel, projectId, current) {
+  sel.innerHTML = "";
+  sel.add(new Option("Unassigned", ""));
+  const people = (state.people && state.people[String(projectId)]) || [];
+  people.forEach(p => sel.add(new Option(p.name, p.id)));
+  if (current && current.length === 1) {
+    const match = people.find(p => p.name === current[0]);
+    if (match) sel.value = String(match.id);
+  }
+}
+
+// ---- trays ----
+function trayLabel(id) {
+  const fixed = FIXED_TRAYS.find(f => f.id === id);
+  if (fixed) return fixed.label;
+  const tray = state.trays[id] || { ids: [] };
+  if (tray.name) return tray.name;
+  if (!tray.ids.length) return "Empty batch";
+  const first = cardById(tray.ids[0]);
+  let head = (first ? first.title : "?");
+  if (head.length > 20) head = head.slice(0, 20) + "…";
+  return head + (tray.ids.length > 1 ? " +" + (tray.ids.length - 1) : "");
+}
+
+// Chips shown on a board card for each tray it belongs to.
+function trayChipsFor(cardId) {
+  const key = String(cardId);
+  const chips = [];
+  FIXED_TRAYS.forEach(f => {
+    if ((state.trays[f.id]?.ids || []).map(String).includes(key)) chips.push({ text: f.chip });
+  });
+  Object.keys(state.trays).filter(isBatch).forEach(id => {
+    const ids = (state.trays[id].ids || []).map(String);
+    const k = ids.indexOf(key);
+    if (k >= 0) chips.push({ text: "⛓ " + trayLabel(id) + " · " + (k + 1) + "/" + ids.length, batch: true });
+  });
+  return chips;
+}
+
+function persistTrays() {
+  api.post("/nanban/api/trays", { trays: state.trays }).catch(err => toast("Tray save failed: " + err.message));
+}
+
+function addToTray(trayId, cardId) {
+  if (!state.trays[trayId]) state.trays[trayId] = { ids: [] };
+  const ids = state.trays[trayId].ids;
+  if (ids.map(String).includes(String(cardId))) return;
+  ids.push(String(cardId));
+  render();
+  persistTrays();
+}
+
+function removeFromTray(trayId, cardId) {
+  const tray = state.trays[trayId];
+  if (!tray) return;
+  tray.ids = tray.ids.filter(id => String(id) !== String(cardId));
+  render();
+  persistTrays();
+}
+
+function renameTray(trayId, name) {
+  if (!state.trays[trayId]) state.trays[trayId] = { ids: [] };
+  const n = name.trim();
+  if (n) state.trays[trayId].name = n; else delete state.trays[trayId].name;
+  render();
+  persistTrays();
+}
+
+function deleteTray(trayId) {
+  delete state.trays[trayId];
+  render();
+  persistTrays();
+}
+
+function newBatch() {
+  state.trays["batch-" + Date.now()] = { ids: [] };
+  render();
+  persistTrays();
+}
+
+function trayRowEl(trayId, cardId, seq) {
+  const card = cardById(cardId);
+  const row = document.createElement("div");
+  row.className = "tray-row";
+  row.draggable = true;
+  row.dataset.id = String(cardId);
+  if (seq != null) {
+    const s = document.createElement("span");
+    s.className = "seq"; s.textContent = seq + ".";
+    row.appendChild(s);
+  }
+  const title = document.createElement("span");
+  title.className = "tray-title";
+  title.textContent = card ? card.title : "(missing card)";
+  row.appendChild(title);
+  if (card) {
+    const ref = document.createElement("span");
+    ref.className = "tray-ref";
+    ref.textContent = "in " + card.column;
+    row.appendChild(ref);
+  }
+  const x = document.createElement("button");
+  x.className = "tray-x"; x.textContent = "✕"; x.title = "Remove from tray";
+  x.addEventListener("click", e => { e.stopPropagation(); removeFromTray(trayId, cardId); });
+  row.appendChild(x);
+  if (card) row.addEventListener("click", () => openDetail(card));
+  row.addEventListener("dragstart", e => {
+    e.stopPropagation();
+    dragRowId = String(cardId); dragRowTray = trayId; dragId = null;
+    row.classList.add("dragging");
+    e.dataTransfer.setData("text/plain", String(cardId));
+  });
+  row.addEventListener("dragend", () => { dragRowId = null; dragRowTray = null; row.classList.remove("dragging"); clearDropLine(); });
+  return row;
+}
+
+function trayEl(id) {
+  const batch = isBatch(id);
+  const tray = state.trays[id] || { ids: [] };
+  const el = document.createElement("div");
+  el.className = "tray";
+  el.dataset.tray = id;
+
+  const head = document.createElement("div");
+  head.className = "tray-head";
+  const name = document.createElement("span");
+  name.className = "tray-name";
+  name.textContent = trayLabel(id);
+  head.appendChild(name);
+  if (batch) {
+    name.title = "Click to rename";
+    name.addEventListener("click", () => {
+      const input = document.createElement("input");
+      input.className = "tray-name-input";
+      input.value = state.trays[id]?.name || "";
+      const commit = () => renameTray(id, input.value);
+      input.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); input.blur(); } });
+      input.addEventListener("blur", commit);
+      head.replaceChild(input, name);
+      input.focus();
+    });
+    const del = document.createElement("button");
+    del.className = "tray-del"; del.textContent = "✕"; del.title = "Delete batch";
+    del.addEventListener("click", () => deleteTray(id));
+    head.appendChild(del);
+  }
+  el.appendChild(head);
+
+  const body = document.createElement("div");
+  body.className = "tray-body";
+  tray.ids.forEach((cid, i) => body.appendChild(trayRowEl(id, cid, batch ? i + 1 : null)));
+  el.appendChild(body);
+  setupTray(el, id);
+  return el;
+}
+
+function renderShelf() {
+  shelfEl.innerHTML = "";
+  const order = [...FIXED_TRAYS.map(f => f.id), ...Object.keys(state.trays).filter(isBatch)];
+  order.forEach(id => shelfEl.appendChild(trayEl(id)));
+  const add = document.createElement("div");
+  add.className = "tray new-batch";
+  add.textContent = "+ New batch";
+  add.addEventListener("click", newBatch);
+  shelfEl.appendChild(add);
+}
+
+function setupTray(el, id) {
+  el.addEventListener("dragover", e => {
+    if (dragId !== null) { e.preventDefault(); el.classList.add("tray-over"); return; }
+    if (dragRowId !== null && dragRowTray === id) {
+      e.preventDefault();
+      clearDropLine();
+      const body = el.querySelector(".tray-body");
+      const after = afterRowElement(body, e.clientY);
+      const line = document.createElement("div");
+      line.className = "drop-line";
+      if (after) body.insertBefore(line, after); else body.appendChild(line);
+    }
+  });
+  el.addEventListener("dragleave", e => {
+    if (!el.contains(e.relatedTarget)) { el.classList.remove("tray-over"); clearDropLine(); }
+  });
+  el.addEventListener("drop", e => {
+    e.preventDefault();
+    el.classList.remove("tray-over");
+    if (dragId !== null) { addToTray(id, dragId); clearDropLine(); return; }
+    if (dragRowId !== null && dragRowTray === id) {
+      const body = el.querySelector(".tray-body");
+      let pos = 0;
+      for (const child of body.children) {
+        if (child.classList.contains("drop-line")) break;
+        if (child.classList.contains("tray-row")) pos++;
+      }
+      clearDropLine();
+      const ids = state.trays[id].ids.map(String);
+      const from = ids.indexOf(dragRowId);
+      if (from < 0) return;
+      ids.splice(from, 1);
+      ids.splice(from < pos ? pos - 1 : pos, 0, dragRowId);
+      state.trays[id].ids = ids;
+      render();
+      persistTrays();
+    }
+  });
+}
+
+function afterRowElement(container, y) {
+  const rows = [...container.querySelectorAll(".tray-row:not(.dragging)")];
+  return rows.find(r => {
+    const box = r.getBoundingClientRect();
+    return y < box.top + box.height / 2;
+  });
+}
+
 // ---- drag and drop ----
 let dragId = null;
 let dragProjId = null; // set while dragging a project chip
+let dragRowId = null;  // set while dragging a tray row (card id)
+let dragRowTray = null; // tray id the dragged row belongs to
 
 function setupLane(lane) {
   lane.addEventListener("dragover", e => {
@@ -620,15 +887,19 @@ function onDrop(id, toCol, index) {
 async function load() {
   statusEl.style.display = ""; statusEl.textContent = "Loading…";
   boardEl.style.display = "none";
+  shelfEl.style.display = "none";
   try {
     state = await api.board();
     state.project_order = (state.project_order || []).map(String);
+    state.people = state.people || {};
+    state.trays = state.trays || {};
     for (const k of [...activeProjects])  // drop filters for projects no longer present
       if (!state.projects.some(p => String(p.id) === k)) activeProjects.delete(k);
     const liveLists = new Set(state.projects.flatMap(p => p.todolists.map(t => String(t.id))));
     for (const k of [...activeLists]) if (!liveLists.has(k)) activeLists.delete(k);
     statusEl.style.display = "none";
     boardEl.style.display = "";
+    shelfEl.style.display = "";
     renderFilters();
     render();
   } catch (err) {
@@ -661,6 +932,8 @@ function openModal() {
       <select name="project"></select>
       <label>To-do list</label>
       <select name="todolist"></select>
+      <label>Assignee</label>
+      <select name="assignee"></select>
       <label>Description</label>
       <textarea name="description"></textarea>
       <div class="actions">
@@ -669,7 +942,7 @@ function openModal() {
       </div>
     </form>`;
   const form = backdrop.querySelector("form");
-  const projSel = form.project, listSel = form.todolist;
+  const projSel = form.project, listSel = form.todolist, asgSel = form.assignee;
 
   state.projects.forEach(p => projSel.add(new Option(p.name, p.id)));
   function fillLists() {
@@ -677,8 +950,9 @@ function openModal() {
     const p = state.projects.find(p => String(p.id) === projSel.value);
     (p ? p.todolists : []).forEach(t => listSel.add(new Option(t.title, t.id)));
   }
-  projSel.onchange = fillLists;
+  projSel.onchange = () => { fillLists(); fillAssignees(asgSel, projSel.value); };
   fillLists();
+  fillAssignees(asgSel, projSel.value);
 
   const close = () => backdrop.remove();
   backdrop.querySelector(".cancel").onclick = close;
@@ -698,6 +972,7 @@ function openModal() {
         todolist_id: listSel.value ? Number(listSel.value) || listSel.value : listSel.value,
         title,
         description: form.description.value.trim() || undefined,
+        assignee_ids: asgSel.value ? [Number(asgSel.value)] : [],
       });
       const card = res.card;
       if (card) {
