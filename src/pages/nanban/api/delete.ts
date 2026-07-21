@@ -1,6 +1,6 @@
 export const prerender = false;
 import type { APIRoute } from 'astro';
-import { bcRequest, loadOverlay, saveOverlay } from '../../../lib/nanban/basecamp';
+import { apiBase, bcRequest, loadOverlay, saveOverlay } from '../../../lib/nanban/basecamp';
 import { badRequest, handle } from '../../../lib/nanban/api';
 
 export const POST: APIRoute = async ({ request }) => {
