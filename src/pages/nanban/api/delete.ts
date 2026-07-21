@@ -16,7 +16,7 @@ export const POST: APIRoute = async ({ request }) => {
 
   return handle(async () => {
     // Trash in Basecamp (recoverable for 30 days), then drop the overlay entry.
-    const url = `https://3.basecampapi.com/${process.env.BASECAMP_ACCOUNT_ID}/buckets/${projectId}/recordings/${todoId}/status/trashed.json`;
+    const url = `${apiBase()}/buckets/${projectId}/recordings/${todoId}/status/trashed.json`;
     await bcRequest('PUT', url, {});
     const overlay = await loadOverlay();
     delete overlay[todoId];

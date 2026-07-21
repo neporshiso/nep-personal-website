@@ -1,6 +1,6 @@
 export const prerender = false;
 import type { APIRoute } from 'astro';
-import { bcRequest, loadOverlay, saveOverlay } from '../../../lib/nanban/basecamp';
+import { apiBase, bcRequest, loadOverlay, saveOverlay } from '../../../lib/nanban/basecamp';
 import { badRequest, handle, json } from '../../../lib/nanban/api';
 
 export const POST: APIRoute = async ({ request }) => {
@@ -24,7 +24,7 @@ export const POST: APIRoute = async ({ request }) => {
       due_on: body.due_on || '',
     };
     if (Array.isArray(body.assignee_ids)) payload.assignee_ids = body.assignee_ids;
-    const url = `https://3.basecampapi.com/${process.env.BASECAMP_ACCOUNT_ID}/buckets/${projectId}/todos/${todoId}.json`;
+    const url = `${apiBase()}/buckets/${projectId}/todos/${todoId}.json`;
     const updated = await (await bcRequest('PUT', url, payload)).json();
 
     // Refresh the Done snapshot if this card is cached there.

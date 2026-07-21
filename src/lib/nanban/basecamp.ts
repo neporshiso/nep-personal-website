@@ -10,7 +10,7 @@ export const COLUMNS = ['Backlog', 'To Do', 'In Progress', 'Blocked', 'Done'];
 const DONE_CAP = 30;
 const USER_AGENT = 'Nanban (nep@joinforma.com)';
 
-const apiBase = () => `https://3.basecampapi.com/${env('BASECAMP_ACCOUNT_ID')}`;
+export const apiBase = () => `https://3.basecampapi.com/${env('BASECAMP_ACCOUNT_ID')}`;
 
 export interface Card {
   id: number;

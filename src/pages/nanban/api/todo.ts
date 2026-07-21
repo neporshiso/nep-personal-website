@@ -1,6 +1,6 @@
 export const prerender = false;
 import type { APIRoute } from 'astro';
-import { bcRequest, cardFrom, loadCardCache, loadOverlay, saveOverlay } from '../../../lib/nanban/basecamp';
+import { apiBase, bcRequest, cardFrom, loadCardCache, loadOverlay, saveOverlay } from '../../../lib/nanban/basecamp';
 import { badRequest, handle } from '../../../lib/nanban/api';
 
 export const POST: APIRoute = async ({ request }) => {
@@ -19,7 +19,7 @@ export const POST: APIRoute = async ({ request }) => {
   }
 
   return handle(async () => {
-    const url = `https://3.basecampapi.com/${process.env.BASECAMP_ACCOUNT_ID}/buckets/${projectId}/todolists/${todolistId}/todos.json`;
+    const url = `${apiBase()}/buckets/${projectId}/todolists/${todolistId}/todos.json`;
     const payload: Record<string, unknown> = { content: title, description };
     if (assigneeIds) payload.assignee_ids = assigneeIds;
     const created = await (await bcRequest('POST', url, payload)).json();
