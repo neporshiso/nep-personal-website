@@ -1,4 +1,5 @@
 // Port of Nanban's server.py Basecamp layer. State lives in Upstash Redis:
+import { env } from './env';
 //   nanban:board     — overlay { [todo_id]: {column, position, card?}, _meta: {project_order} }
 //   nanban:tokens    — { access_token, refresh_token, ... }
 //   nanban:cardcache — { cards: {[id]: Card}, projNames, listNames }
@@ -9,7 +10,7 @@ export const COLUMNS = ['Backlog', 'To Do', 'In Progress', 'Blocked', 'Done'];
 const DONE_CAP = 30;
 const USER_AGENT = 'Nanban (nep@joinforma.com)';
 
-const apiBase = () => `https://3.basecampapi.com/${process.env.BASECAMP_ACCOUNT_ID}`;
+const apiBase = () => `https://3.basecampapi.com/${env('BASECAMP_ACCOUNT_ID')}`;
 
 export interface Card {
   id: number;
@@ -74,9 +75,9 @@ async function refreshAccessToken(): Promise<string> {
   const params = new URLSearchParams({
     type: 'refresh',
     refresh_token: t.refresh_token,
-    client_id: process.env.BASECAMP_CLIENT_ID!,
-    client_secret: process.env.BASECAMP_CLIENT_SECRET!,
-    redirect_uri: process.env.BASECAMP_REDIRECT_URI!,
+    client_id: env('BASECAMP_CLIENT_ID'),
+    client_secret: env('BASECAMP_CLIENT_SECRET'),
+    redirect_uri: env('BASECAMP_REDIRECT_URI'),
   });
   const res = await fetch(`https://launchpad.37signals.com/authorization/token?${params}`, {
     method: 'POST',

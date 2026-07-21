@@ -1,10 +1,11 @@
 // Signed-cookie auth for /nanban. Cookie value: `${expiryEpochMs}.${base64url(HMAC-SHA256(secret, expiry))}`
+import { env } from './env';
 const enc = new TextEncoder();
 
 async function sign(msg: string): Promise<string> {
   const key = await crypto.subtle.importKey(
     'raw',
-    enc.encode(process.env.NANBAN_COOKIE_SECRET!),
+    enc.encode(env('NANBAN_COOKIE_SECRET')),
     { name: 'HMAC', hash: 'SHA-256' },
     false,
     ['sign'],
@@ -46,5 +47,5 @@ export async function verifyCookieValue(value: string | undefined): Promise<bool
 }
 
 export async function checkPassword(input: string): Promise<boolean> {
-  return safeEqual(input, process.env.NANBAN_PASSWORD!);
+  return safeEqual(input, env('NANBAN_PASSWORD'));
 }

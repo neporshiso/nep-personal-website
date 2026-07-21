@@ -1,6 +1,7 @@
 // Minimal Upstash Redis REST client. ponytail: two commands are all Nanban needs.
-const url = () => process.env.UPSTASH_REDIS_REST_URL!;
-const token = () => process.env.UPSTASH_REDIS_REST_TOKEN!;
+import { env } from './env';
+const url = () => env('UPSTASH_REDIS_REST_URL');
+const token = () => env('UPSTASH_REDIS_REST_TOKEN');
 
 async function command<T>(parts: string[]): Promise<T> {
   const res = await fetch(url(), {

@@ -56,6 +56,19 @@
   .tray.new-batch:hover { color: var(--accent); border-color: var(--accent); }
   .tray-chip { font-size: 11px; padding: 2px 6px; border-radius: 999px; border: 1px solid var(--accent); color: var(--accent); background: transparent; white-space: nowrap; }
   .tray-chip.batch { border-style: dashed; }
+  .tray-where { margin-left: auto; font-weight: 400; font-size: 11px; color: var(--accent); white-space: nowrap; }
+  /* placed batch rendered as a group inside a column */
+  .batch-group { border: 1.5px dashed var(--accent); border-radius: 8px; padding: 6px; margin-bottom: 8px; }
+  .batch-head { display: flex; align-items: baseline; gap: 6px; padding: 2px 4px 8px; font-weight: 600; font-size: 13px; }
+  .batch-head .chain { color: var(--accent); }
+  .batch-head { cursor: grab; }
+  .batch-head .count { color: var(--muted); font-weight: 400; font-size: 11px; margin-left: auto; }
+  .batch-back { border: none; background: none; color: var(--muted); padding: 0 2px; font-size: 13px; }
+  .batch-back:hover { color: var(--accent); background: none; }
+  .batch-group.dragging { opacity: .4; }
+  .batch-group .card { margin-bottom: 6px; }
+  .batch-group .card:last-child { margin-bottom: 0; }
+  .batch-group .card .seq { color: var(--accent); font-weight: 600; font-size: 12px; margin-right: 4px; }
   .col {
     flex: 1 1 0; min-width: 240px; max-width: 400px; background: var(--panel);
     border-radius: 8px; display: flex; flex-direction: column; max-height: 100%;
@@ -546,12 +559,73 @@ function render() {
     const lane = document.createElement("div");
     lane.className = "lane";
     lane.dataset.col = colName;
-    cards.forEach(c => lane.appendChild(cardEl(c)));
+    // Partition into loose cards and per-placed-batch groups; a card belongs to
+    // the first placed batch listing it. Groups sit at their min member position.
+    const placed = placedBatchIds();
+    const batchOf = cid => placed.find(b => (state.trays[b].ids || []).map(String).includes(String(cid)));
+    const loose = [], buckets = new Map();
+    cards.forEach(c => {
+      const b = batchOf(c.id);
+      if (b) { if (!buckets.has(b)) buckets.set(b, []); buckets.get(b).push(c); }
+      else loose.push(c);
+    });
+    const items = loose.map(c => ({ pos: c.position, make: () => cardEl(c) }));
+    buckets.forEach((members, b) => {
+      items.push({ pos: Math.min(...members.map(m => m.position)), make: () => batchGroupEl(b, members) });
+    });
+    items.sort((a, b) => a.pos - b.pos).forEach(it => lane.appendChild(it.make()));
     setupLane(lane);
     col.appendChild(lane);
     boardEl.appendChild(col);
   });
   renderShelf();
+}
+
+function batchGroupEl(trayId, members) {
+  const ids = (state.trays[trayId].ids || []).map(String);
+  const sorted = [...members].sort((a, b) => ids.indexOf(String(a.id)) - ids.indexOf(String(b.id)));
+  const g = document.createElement("div");
+  g.className = "batch-group";
+  const head = document.createElement("div");
+  head.className = "batch-head";
+  const chain = document.createElement("span"); chain.className = "chain"; chain.textContent = "⛓";
+  const nm = document.createElement("span"); nm.textContent = trayLabel(trayId);
+  const cnt = document.createElement("span"); cnt.className = "count";
+  cnt.textContent = sorted.length + (sorted.length === 1 ? " card" : " cards");
+  const back = document.createElement("button");
+  back.className = "batch-back"; back.textContent = "↩"; back.title = "Return batch to tray";
+  back.addEventListener("click", e => { e.stopPropagation(); unplaceBatch(trayId); });
+  head.append(chain, nm, cnt, back);
+  head.draggable = true;
+  head.title = "Drag to another column, or onto the shelf to return to tray";
+  head.addEventListener("dragstart", e => {
+    e.stopPropagation();
+    dragTrayId = trayId; dragId = null; dragRowId = null; dragRowTray = null;
+    g.classList.add("dragging");
+    e.dataTransfer.setData("text/plain", trayId);
+  });
+  head.addEventListener("dragend", () => {
+    dragTrayId = null;
+    g.classList.remove("dragging");
+    document.querySelectorAll(".dragover, .tray-over").forEach(l => l.classList.remove("dragover", "tray-over"));
+  });
+  g.appendChild(head);
+  sorted.forEach(c => {
+    const el = cardEl(c);
+    const seq = document.createElement("span");
+    seq.className = "seq"; seq.textContent = (ids.indexOf(String(c.id)) + 1) + ".";
+    (el.querySelector(".title") || el).prepend(seq);
+    g.appendChild(el);
+  });
+  return g;
+}
+
+function unplaceBatch(trayId) {
+  const tray = state.trays[trayId];
+  if (!tray) return;
+  delete tray.placed; // cards keep their column but go back to hidden-tray behavior
+  render();
+  persistTrays();
 }
 
 // Toggle sort: first click groups the whole column (filters ignored) by project
@@ -616,7 +690,7 @@ function trayChipsFor(cardId) {
   FIXED_TRAYS.forEach(f => {
     if ((state.trays[f.id]?.ids || []).map(String).includes(key)) chips.push({ text: f.chip });
   });
-  Object.keys(state.trays).filter(isBatch).forEach(id => {
+  Object.keys(state.trays).filter(id => isBatch(id) && !state.trays[id].placed).forEach(id => {
     const ids = (state.trays[id].ids || []).map(String);
     const k = ids.indexOf(key);
     if (k >= 0) chips.push({ text: "⛓ " + trayLabel(id) + " · " + (k + 1) + "/" + ids.length, batch: true });
@@ -635,8 +709,19 @@ trayToggleEl.onclick = () => {
 
 function trayedIds() {
   const s = new Set();
-  Object.values(state.trays).forEach(t => (t.ids || []).forEach(id => s.add(String(id))));
+  Object.entries(state.trays).forEach(([id, t]) => {
+    if (isBatch(id) && t.placed) return; // placed batches render grouped in the column instead
+    (t.ids || []).forEach(cid => s.add(String(cid)));
+  });
   return s;
+}
+
+const placedBatchIds = () => Object.keys(state.trays).filter(id => isBatch(id) && state.trays[id].placed);
+
+function batchColumnsOf(trayId) {
+  const cols = new Set();
+  (state.trays[trayId]?.ids || []).forEach(cid => { const c = cardById(cid); if (c) cols.add(c.column); });
+  return [...cols];
 }
 
 function persistTrays() {
@@ -729,6 +814,13 @@ function trayEl(id) {
   name.className = "tray-name";
   name.textContent = trayLabel(id);
   head.appendChild(name);
+  if (batch && tray.placed) {
+    const where = document.createElement("span");
+    where.className = "tray-where";
+    const cols = batchColumnsOf(id);
+    where.textContent = cols.length > 1 ? "split" : cols.length === 1 ? "in " + cols[0] : "empty";
+    head.appendChild(where);
+  }
   if (batch) {
     name.title = "Click to rename";
     name.addEventListener("click", () => {
@@ -745,6 +837,19 @@ function trayEl(id) {
     del.className = "tray-del"; del.textContent = "✕"; del.title = "Delete batch";
     del.addEventListener("click", () => deleteTray(id));
     head.appendChild(del);
+    head.draggable = true;
+    head.title = "Drag onto a column to move all cards there";
+    head.addEventListener("dragstart", e => {
+      e.stopPropagation();
+      dragTrayId = id; dragId = null; dragRowId = null; dragRowTray = null;
+      el.classList.add("dragging");
+      e.dataTransfer.setData("text/plain", id);
+    });
+    head.addEventListener("dragend", () => {
+      dragTrayId = null;
+      el.classList.remove("dragging");
+      document.querySelectorAll(".dragover").forEach(l => l.classList.remove("dragover"));
+    });
   }
   el.appendChild(head);
 
@@ -769,6 +874,7 @@ function renderShelf() {
 
 function setupTray(el, id) {
   el.addEventListener("dragover", e => {
+    if (dragTrayId === id) { e.preventDefault(); el.classList.add("tray-over"); return; }
     if (dragId !== null) { e.preventDefault(); el.classList.add("tray-over"); return; }
     if (dragRowId !== null && dragRowTray === id) {
       e.preventDefault();
@@ -786,6 +892,7 @@ function setupTray(el, id) {
   el.addEventListener("drop", e => {
     e.preventDefault();
     el.classList.remove("tray-over");
+    if (dragTrayId === id) { unplaceBatch(id); clearDropLine(); return; }
     if (dragId !== null) { addToTray(id, dragId); clearDropLine(); return; }
     if (dragRowId !== null && dragRowTray === id) {
       const body = el.querySelector(".tray-body");
@@ -820,9 +927,11 @@ let dragId = null;
 let dragProjId = null; // set while dragging a project chip
 let dragRowId = null;  // set while dragging a tray row (card id)
 let dragRowTray = null; // tray id the dragged row belongs to
+let dragTrayId = null; // set while dragging a whole batch tray
 
 function setupLane(lane) {
   lane.addEventListener("dragover", e => {
+    if (dragTrayId !== null) { e.preventDefault(); lane.classList.add("dragover"); return; }
     if (dragId === null) return; // ignore chip drags
     e.preventDefault();
     lane.classList.add("dragover");
@@ -830,7 +939,9 @@ function setupLane(lane) {
     const after = afterElement(lane, e.clientY);
     const line = document.createElement("div");
     line.className = "drop-line";
-    if (after) lane.insertBefore(line, after);
+    // A card inside a batch group is not a lane child — anchor on its group.
+    const ref = after && after.parentElement !== lane ? after.closest(".batch-group") : after;
+    if (ref) lane.insertBefore(line, ref);
     else lane.appendChild(line);
   });
   lane.addEventListener("dragleave", e => {
@@ -839,13 +950,13 @@ function setupLane(lane) {
   lane.addEventListener("drop", e => {
     e.preventDefault();
     lane.classList.remove("dragover");
-    const line = lane.querySelector(".drop-line");
-    const index = line ? [...lane.querySelectorAll(".card, .drop-line")].indexOf(line) : lane.children.length;
-    // count only cards before the line for the position index
+    if (dragTrayId !== null) { clearDropLine(); moveBatchToColumn(dragTrayId, lane.dataset.col); return; }
+    // count only cards before the line for the position index (document order
+    // so cards nested inside batch groups are included)
     let pos = 0;
-    for (const child of lane.children) {
-      if (child.classList.contains("drop-line")) break;
-      if (child.classList.contains("card")) pos++;
+    for (const el2 of lane.querySelectorAll(".card, .drop-line")) {
+      if (el2.classList.contains("drop-line")) break;
+      pos++;
     }
     clearDropLine();
     onDrop(dragId, lane.dataset.col, pos);
@@ -880,6 +991,18 @@ boardEl.addEventListener("dragend", e => {
 function onDrop(id, toCol, index) {
   const card = state.cards.find(c => String(c.id) === String(id));
   if (!card) return;
+  // Dragging a card out of its column sheds placed-batch membership.
+  if (card.column !== toCol) {
+    let shed = false;
+    placedBatchIds().forEach(b => {
+      const t = state.trays[b];
+      if ((t.ids || []).map(String).includes(String(id))) {
+        t.ids = t.ids.filter(x => String(x) !== String(id));
+        shed = true;
+      }
+    });
+    if (shed) persistTrays();
+  }
   delete preSort[card.column]; // manual move invalidates the revert stash
   delete preSort[toCol];
   const snapshot = state.cards.map(c => ({ ...c }));
@@ -900,6 +1023,35 @@ function onDrop(id, toCol, index) {
     render();
     toast("Move failed: " + err.message);
   });
+}
+
+// Move every card in a batch to a column, appended at the end in tray order.
+// Sequential on purpose: /move has per-card Basecamp side-effects and reindexes.
+async function moveBatchToColumn(trayId, toCol) {
+  const tray = state.trays[trayId];
+  if (!tray) return;
+  const ids = (tray.ids || []).map(String);
+  tray.placed = true; // dropping on a column places the batch (renders as a group there)
+  persistTrays();
+  const cards = ids.map(cardById).filter(c => c && c.column !== toCol);
+  if (!cards.length) { render(); return; }
+  const snapshot = state.cards.map(c => ({ ...c }));
+  delete preSort[toCol];
+  let pos = state.cards.filter(c => c.column === toCol).length;
+  cards.forEach(c => { delete preSort[c.column]; c.column = toCol; c.position = pos++; });
+  render();
+  try {
+    for (const c of cards) {
+      await api.post("/nanban/api/move", {
+        todo_id: c.id, project_id: c.project_id, column: toCol, position: c.position
+      });
+    }
+  } catch (err) {
+    state.cards = snapshot;
+    render();
+    toast("Batch move failed: " + err.message);
+    load();
+  }
 }
 
 // ---- load ----
