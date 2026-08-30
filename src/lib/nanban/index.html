@@ -131,6 +131,14 @@
     border-radius: 4px; font: inherit; background: var(--bg); color: var(--text);
   }
   .modal textarea { resize: vertical; min-height: 70px; }
+  .assignee-box {
+    margin-bottom: 14px; padding: 8px; border: 1px solid var(--border); border-radius: 4px;
+    background: var(--bg); display: flex; flex-direction: column; gap: 6px;
+    max-height: 140px; overflow-y: auto;
+  }
+  .assignee-box label { display: flex; align-items: center; gap: 8px; margin: 0; font-size: 13px; color: var(--text); cursor: pointer; }
+  .assignee-box input { width: auto; margin: 0; padding: 0; border: none; background: none; }
+  .assignee-box .none { font-size: 12px; color: var(--muted); }
   .modal .actions { display: flex; justify-content: flex-end; gap: 8px; }
   #toasts { position: fixed; bottom: 20px; right: 20px; z-index: 200; display: flex; flex-direction: column; gap: 8px; }
   .toast {
@@ -385,8 +393,8 @@ function openEdit(card, detail, closeDetail) {
       <input name="title">
       <label>Due date</label>
       <input name="due" type="date">
-      <label>Assignee</label>
-      <select name="assignee"></select>
+      <label>Assignees</label>
+      <div class="assignee-box"></div>
       <label>Description</label>
       <textarea name="description"></textarea>
       <div class="actions">
@@ -398,10 +406,20 @@ function openEdit(card, detail, closeDetail) {
   form.title.value = card.title;
   form.due.value = card.due_on || "";
   form.description.value = descText;
-  fillAssignees(form.assignee, card.project_id, card.assignees);
-  // Only send assignee_ids when the user changes the select — the single-select
-  // can't represent multi-assignee cards, and an untouched "" must not unassign them.
-  const initialAssignee = form.assignee.value;
+  const asgBox = form.querySelector(".assignee-box");
+  fillAssigneeBox(asgBox, card.project_id, card.assignees);
+  // Assignees missing from the project's member list have no checkbox; rather
+  // than silently unassign them, only send assignee_ids if a box was changed.
+  const people = (state.people && state.people[String(card.project_id)]) || [];
+  const unrepresented = (card.assignees || []).filter(n => !people.some(p => p.name === n));
+  if (unrepresented.length) {
+    const note = document.createElement("div");
+    note.className = "none";
+    note.textContent = "⚠ Not in member list (kept unless boxes change): " + unrepresented.join(", ");
+    asgBox.appendChild(note);
+  }
+  const checkedNow = () => [...asgBox.querySelectorAll("input:checked")].map(cb => cb.value).join(",");
+  const initialChecked = checkedNow();
 
   const close = () => { backdrop.remove(); document.removeEventListener("keydown", esc); };
   const esc = e => { if (e.key === "Escape") close(); };
@@ -419,8 +437,8 @@ function openEdit(card, detail, closeDetail) {
       const res = await api.post("/nanban/api/update", {
         todo_id: card.id, project_id: card.project_id,
         title, description: form.description.value.trim(), due_on: form.due.value || null,
-        ...(form.assignee.value !== initialAssignee
-          ? { assignee_ids: form.assignee.value ? [Number(form.assignee.value)] : [] }
+        ...(!unrepresented.length || checkedNow() !== initialChecked
+          ? { assignee_ids: checkedAssigneeIds(asgBox) }
           : {}),
       });
       Object.assign(card, { title: res.title, due_on: res.due_on });
@@ -659,16 +677,31 @@ function sortColumn(colName) {
 }
 
 // ---- assignees ----
-function fillAssignees(sel, projectId, current) {
-  sel.innerHTML = "";
-  sel.add(new Option("Unassigned", ""));
+const DEFAULT_ASSIGNEE = "Nep Orshiso";
+
+function fillAssigneeBox(box, projectId, current = []) {
+  box.innerHTML = "";
   const people = (state.people && state.people[String(projectId)]) || [];
-  people.forEach(p => sel.add(new Option(p.name, p.id)));
-  if (current && current.length === 1) {
-    const match = people.find(p => p.name === current[0]);
-    if (match) sel.value = String(match.id);
+  if (!people.length) {
+    const d = document.createElement("div");
+    d.className = "none";
+    d.textContent = "No members known for this project";
+    box.appendChild(d);
+    return;
   }
+  people.forEach(p => {
+    const row = document.createElement("label");
+    const cb = document.createElement("input");
+    cb.type = "checkbox";
+    cb.value = p.id;
+    cb.checked = current.includes(p.name);
+    row.append(cb, document.createTextNode(p.name));
+    box.appendChild(row);
+  });
 }
+
+const checkedAssigneeIds = box =>
+  [...box.querySelectorAll("input:checked")].map(cb => Number(cb.value));
 
 // ---- trays ----
 function trayLabel(id) {
@@ -1103,8 +1136,8 @@ function openModal() {
       <select name="project"></select>
       <label>To-do list</label>
       <select name="todolist"></select>
-      <label>Assignee</label>
-      <select name="assignee"></select>
+      <label>Assignees</label>
+      <div class="assignee-box"></div>
       <label>Description</label>
       <textarea name="description"></textarea>
       <div class="actions">
@@ -1113,7 +1146,8 @@ function openModal() {
       </div>
     </form>`;
   const form = backdrop.querySelector("form");
-  const projSel = form.project, listSel = form.todolist, asgSel = form.assignee;
+  const projSel = form.project, listSel = form.todolist;
+  const asgBox = form.querySelector(".assignee-box");
 
   state.projects.forEach(p => projSel.add(new Option(p.name, p.id)));
   function fillLists() {
@@ -1121,9 +1155,10 @@ function openModal() {
     const p = state.projects.find(p => String(p.id) === projSel.value);
     (p ? p.todolists : []).forEach(t => listSel.add(new Option(t.title, t.id)));
   }
-  projSel.onchange = () => { fillLists(); fillAssignees(asgSel, projSel.value); };
+  const fillAsg = () => fillAssigneeBox(asgBox, projSel.value, [DEFAULT_ASSIGNEE]);
+  projSel.onchange = () => { fillLists(); fillAsg(); };
   fillLists();
-  fillAssignees(asgSel, projSel.value);
+  fillAsg();
 
   const close = () => backdrop.remove();
   backdrop.querySelector(".cancel").onclick = close;
@@ -1143,7 +1178,7 @@ function openModal() {
         todolist_id: listSel.value ? Number(listSel.value) || listSel.value : listSel.value,
         title,
         description: form.description.value.trim() || undefined,
-        assignee_ids: asgSel.value ? [Number(asgSel.value)] : [],
+        assignee_ids: checkedAssigneeIds(asgBox),
       });
       const card = res.card;
       if (card) {
