@@ -11,9 +11,21 @@ pnpm install            # install deps
 pnpm dev                # astro dev server (Keystatic CMS at /keystatic)
 pnpm build              # production build (output: dist/, deployed via Vercel adapter)
 pnpm preview            # preview the built site
-pnpm test               # vitest run (no tests exist yet — add under src/**/*.test.ts)
+pnpm test               # vitest run — one suite today, add more under src/**/*.test.ts
 pnpm test:watch         # vitest watch
 ```
+
+### Testing the Nanban UI
+
+`src/lib/nanban/nanban.test.ts` is currently the only test suite. Nanban's UI is a single inline
+`<script>` inside `src/lib/nanban/index.html`, which is served raw (`?raw` import) rather than
+bundled — so it is never typechecked and cannot be imported as a module. The suite reaches it by
+reading the HTML, extracting the script, and evaluating it under jsdom with a stubbed `fetch`,
+then asserting on captured request payloads.
+
+Assert on **behavior, not source text**. An earlier version of this suite asserted that certain
+strings appeared in the script; it passed while the behavior was broken and was rejected in
+review. Drive the DOM and check what gets sent.
 
 Conventional commits are enforced by a Husky `commit-msg` hook running `commitlint` (`@commitlint/config-conventional`). Non-conforming messages are rejected — do not bypass with `--no-verify`.
 
