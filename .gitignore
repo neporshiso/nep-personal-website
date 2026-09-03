@@ -19,6 +19,10 @@ pnpm-debug.log*
 # environment variables
 .env
 .env.*
+# ...except the committed template at the repo root, which holds names only,
+# never values. Anchored with a leading slash so a nested .env.example — which
+# nothing vets — stays ignored.
+!/.env.example
 .dev.vars
 
 # macOS-specific files
