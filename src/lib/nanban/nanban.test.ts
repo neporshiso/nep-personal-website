@@ -73,14 +73,32 @@ function shimFormNamedAccess() {
 
 type Posted = { url: string; body: any };
 const posts: Posted[] = [];
+let commentPostFails = false;
 
 const jsonRes = (data: unknown) => ({ ok: true, status: 200, json: async () => data });
 
 const fetchMock = vi.fn(async (url: string, opts?: any) => {
   const u = String(url);
   if (u.startsWith('/nanban/api/board')) return jsonRes(boardFixture());
+  if (u.startsWith('/nanban/api/card')) {
+    return jsonRes({
+      id: 501,
+      title: 'Known assignees',
+      description: '',
+      url: null,
+      comments: [{ author: 'Ava Stone', created_at: '2026-09-01T10:00:00Z', content: 'looks good' }],
+      completed: false,
+    });
+  }
   const body = opts && opts.body ? JSON.parse(opts.body) : null;
   if (body) posts.push({ url: u, body });
+  if (u === '/nanban/api/comment') {
+    if (commentPostFails) throw new Error('network down');
+    return jsonRes({
+      ok: true,
+      comment: { author: 'Nep Orshiso', created_at: '2026-09-03T12:00:00Z', content: 'ship it' },
+    });
+  }
   if (u === '/nanban/api/todo') {
     return jsonRes({
       card: {
@@ -132,7 +150,9 @@ beforeAll(async () => {
 
 beforeEach(async () => {
   document.querySelectorAll('.backdrop').forEach(el => el.remove());
+  document.querySelectorAll('.toast').forEach(el => el.remove());
   posts.length = 0;
+  commentPostFails = false;
   await nb().load(); // fresh state + fresh card objects per test
   posts.length = 0;
 });
@@ -309,6 +329,52 @@ describe('nanban board script', () => {
       cbFor(box, 'Nep Orshiso').click();
       await submitForm(form);
       expect(bodyFor('/nanban/api/update').assignee_ids).toEqual([]);
+    });
+  });
+
+  describe('detail modal comments', () => {
+    const openDetailFor501 = async () => {
+      const card = document.querySelector('.card[data-id="501"]')!;
+      card.dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
+      await flush();
+      return document.querySelector('.backdrop')!;
+    };
+
+    it('posts and renders a new comment, updates the count, and clears the textarea', async () => {
+      const modal = await openDetailFor501();
+      const ta = modal.querySelector('.comment-input') as HTMLTextAreaElement;
+      ta.value = 'ship it';
+      (modal.querySelector('.comment-btn') as HTMLButtonElement).click();
+      await flush();
+
+      expect(bodyFor('/nanban/api/comment')).toEqual({ project_id: 1, todo_id: 501, content: 'ship it' });
+      expect(modal.querySelectorAll('.comment')).toHaveLength(2);
+      expect(modal.querySelector('h3')!.textContent).toBe('Comments (2)');
+      // The body is re-rendered after posting, so re-query the (fresh) textarea.
+      expect((modal.querySelector('.comment-input') as HTMLTextAreaElement).value).toBe('');
+    });
+
+    it('does not post empty or whitespace-only text', async () => {
+      const modal = await openDetailFor501();
+      const ta = modal.querySelector('.comment-input') as HTMLTextAreaElement;
+      ta.value = '   \n  ';
+      (modal.querySelector('.comment-btn') as HTMLButtonElement).click();
+      await flush();
+
+      expect(posts.filter(p => p.url === '/nanban/api/comment')).toHaveLength(0);
+    });
+
+    it('toasts on failure and re-enables the button', async () => {
+      commentPostFails = true;
+      const modal = await openDetailFor501();
+      const ta = modal.querySelector('.comment-input') as HTMLTextAreaElement;
+      const button = modal.querySelector('.comment-btn') as HTMLButtonElement;
+      ta.value = 'ship it';
+      button.click();
+      await flush();
+
+      expect([...document.querySelectorAll('.toast')].at(-1)!.textContent).toContain('Comment failed');
+      expect(button.disabled).toBe(false);
     });
   });
 });

@@ -335,43 +335,73 @@ function openDetail(card) {
   document.body.appendChild(backdrop);
 
   let lastDetail = null;
+  const renderDetailBody = (body, d) => {
+    body.innerHTML = "";
+    if (d.description) {
+      const desc = document.createElement("div");
+      desc.className = "desc";
+      desc.innerHTML = d.description; // own Basecamp content; single-user local app
+      body.appendChild(desc);
+    }
+    if (d.url) {
+      const a = document.createElement("a");
+      a.href = d.url; a.target = "_blank"; a.rel = "noopener";
+      a.textContent = "Open in Basecamp ↗";
+      body.appendChild(a);
+    }
+    if (d.comments.length) {
+      const h = document.createElement("h3");
+      h.textContent = `Comments (${d.comments.length})`;
+      body.appendChild(h);
+      d.comments.forEach(c => {
+        const div = document.createElement("div");
+        div.className = "comment";
+        const who = document.createElement("div");
+        who.className = "who";
+        who.textContent = c.author + (c.created_at ? " · " + new Date(c.created_at).toLocaleString() : "");
+        const cb = document.createElement("div");
+        cb.className = "body";
+        cb.innerHTML = c.content;
+        div.append(who, cb);
+        body.appendChild(div);
+      });
+    }
+    if (!d.description && !d.comments.length && !d.url) {
+      const empty = document.createElement("div");
+      empty.textContent = "No details.";
+      body.appendChild(empty);
+    }
+
+    const ta = document.createElement("textarea");
+    ta.className = "comment-input";
+    ta.placeholder = "Add a comment…";
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "comment-btn";
+    button.textContent = "Add comment";
+    button.onclick = () => {
+      const text = ta.value.trim();
+      if (!text) return;
+      button.disabled = true;
+      api.post("/nanban/api/comment", {
+        project_id: card.project_id, todo_id: card.id, content: text
+      }).then(res => {
+        lastDetail.comments.push(res.comment);
+        renderDetailBody(body, lastDetail);
+      }).catch(err => {
+        button.disabled = false;
+        toast("Comment failed: " + err.message);
+      });
+    };
+    body.append(ta, button);
+  };
   fetch(`/nanban/api/card?project_id=${card.project_id}&todo_id=${card.id}`)
     .then(r => r.json())
     .then(d => {
       if (d.error) throw new Error(d.error);
       lastDetail = d;
       const body = modal.querySelector(".body");
-      body.innerHTML = "";
-      if (d.description) {
-        const desc = document.createElement("div");
-        desc.className = "desc";
-        desc.innerHTML = d.description; // own Basecamp content; single-user local app
-        body.appendChild(desc);
-      }
-      if (d.url) {
-        const a = document.createElement("a");
-        a.href = d.url; a.target = "_blank"; a.rel = "noopener";
-        a.textContent = "Open in Basecamp ↗";
-        body.appendChild(a);
-      }
-      if (d.comments.length) {
-        const h = document.createElement("h3");
-        h.textContent = `Comments (${d.comments.length})`;
-        body.appendChild(h);
-        d.comments.forEach(c => {
-          const div = document.createElement("div");
-          div.className = "comment";
-          const who = document.createElement("div");
-          who.className = "who";
-          who.textContent = c.author + (c.created_at ? " · " + new Date(c.created_at).toLocaleString() : "");
-          const cb = document.createElement("div");
-          cb.className = "body";
-          cb.innerHTML = c.content;
-          div.append(who, cb);
-          body.appendChild(div);
-        });
-      }
-      if (!d.description && !d.comments.length && !d.url) body.textContent = "No details.";
+      renderDetailBody(body, d);
     })
     .catch(err => { modal.querySelector(".body").textContent = "Failed to load details: " + err.message; });
 }
