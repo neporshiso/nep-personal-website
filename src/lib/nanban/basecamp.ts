@@ -189,16 +189,40 @@ async function fetchTodos(projectId: number, todolist: { id: number; title: stri
 export const completeUrl = (projectId: number | string, todoId: number | string) =>
   `${apiBase()}/buckets/${projectId}/todos/${todoId}/completion.json`;
 
+export const commentFrom = (c: any) => ({
+  author: c.creator?.name ?? '',
+  created_at: c.created_at,
+  content: c.content ?? '',
+});
+
+export function textToHtml(text: string): string {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/\r\n|\n/g, '<br>');
+}
+
+export async function createComment(
+  projectId: string | number,
+  todoId: string | number,
+  text: string,
+) {
+  const res = await bcRequest(
+    'POST',
+    `${apiBase()}/buckets/${projectId}/recordings/${todoId}/comments.json`,
+    { content: textToHtml(text) },
+  );
+  return commentFrom(await res.json());
+}
+
 export async function fetchCardDetail(projectId: string, todoId: string) {
   const t = await (await bcRequest('GET', `${apiBase()}/buckets/${projectId}/todos/${todoId}.json`)).json();
   let comments: { author: string; created_at: string; content: string }[] = [];
   if (t.comments_count) {
     const curl = `${apiBase()}/buckets/${projectId}/recordings/${todoId}/comments.json`;
-    comments = (await bcGetPaginated(curl)).map((c) => ({
-      author: c.creator?.name ?? '',
-      created_at: c.created_at,
-      content: c.content ?? '',
-    }));
+    comments = (await bcGetPaginated(curl)).map(commentFrom);
   }
   return {
     id: t.id,
