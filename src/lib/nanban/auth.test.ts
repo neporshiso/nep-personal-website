@@ -168,5 +168,10 @@ describe('nanban signed-cookie auth', () => {
       await expect(checkPassword(`${PASSWORD}-battery-staple`)).resolves.toBe(false);
       await expect(checkPassword('')).resolves.toBe(false);
     });
+
+    it('rejects (never resolves true) when NANBAN_PASSWORD is unset', async () => {
+      vi.stubEnv('NANBAN_PASSWORD', undefined);
+      await expect(checkPassword('')).rejects.toThrow(/NANBAN_PASSWORD/);
+    });
   });
 });

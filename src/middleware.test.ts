@@ -126,24 +126,19 @@ describe('/nanban auth gate (src/middleware.ts)', () => {
       expect(ctx.redirect).not.toHaveBeenCalled();
     });
 
-    // LATENT FLAW — DOCUMENTED, NOT ENDORSED.
-    //
-    // The bypass is `path.startsWith('/nanban/login')`: a prefix test, not a
-    // path-segment match. So any path merely *beginning* with '/nanban/login'
-    // skips the cookie check entirely — '/nanban/loginXYZ', '/nanban/login-admin',
-    // '/nanban/loginapi/board', and so on. Nothing routes to such paths today,
-    // so this is not currently exploitable, and fixing it is explicitly out of
-    // scope here. This test pins the CURRENT behaviour so that a future fix has
-    // to update a test deliberately rather than change the gate silently.
-    it('BOUNDARY: /nanban/loginXYZ bypasses the gate (prefix match, not segment match)', async () => {
+    // The login exemption is an exact match on '/nanban/login', not a prefix
+    // test, so a path that merely *begins* with '/nanban/login' is guarded
+    // like any other /nanban path rather than bypassing the gate.
+    it('BOUNDARY: /nanban/loginXYZ is guarded, not bypassed (exact match, not prefix)', async () => {
       const ctx = makeContext('/nanban/loginXYZ');
       const next = makeNext();
 
       const res = await run(ctx, next);
 
-      expect(res).toBe(DOWNSTREAM);
-      expect(next).toHaveBeenCalledTimes(1);
-      expect(ctx.cookies.get).not.toHaveBeenCalled();
+      expect(res.status).toBe(302);
+      expect(res.headers.get('location')).toBe('/nanban/login');
+      expect(ctx.redirect).toHaveBeenCalledWith('/nanban/login');
+      expect(next).not.toHaveBeenCalled();
     });
   });
 

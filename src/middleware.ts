@@ -3,7 +3,7 @@ import { COOKIE_NAME, verifyCookieValue } from './lib/nanban/auth';
 
 export const onRequest = defineMiddleware(async (context, next) => {
   const path = context.url.pathname;
-  if (!path.startsWith('/nanban') || path.startsWith('/nanban/login')) {
+  if (!path.startsWith('/nanban') || path === '/nanban/login') {
     return next();
   }
   if (await verifyCookieValue(context.cookies.get(COOKIE_NAME)?.value)) {
