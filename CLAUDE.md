@@ -33,7 +33,7 @@ Conventional commits are enforced by a Husky `commit-msg` hook running `commitli
 
 ### Astro + Keystatic, with content as the source of truth
 
-The site is Astro 5 (React 19 islands, Tailwind 4 via `@tailwindcss/vite`, Markdoc for prose, Vercel adapter). Pages live under `src/pages/` — `index.astro`, plus `portfolio/`, `thoughts/`, `books/`, `podcasts/`, each with an `index.astro` and (where applicable) a `[slug].astro` for detail pages.
+The site is Astro 7 (React 19 islands, Tailwind 4 via `@tailwindcss/vite`, Markdoc for prose, Vercel adapter). Pages live under `src/pages/` — `index.astro`, plus `portfolio/`, `thoughts/`, `books/`, `podcasts/`, each with an `index.astro` and (where applicable) a `[slug].astro` for detail pages.
 
 Content lives in `src/content/` as `.mdoc` and `.yaml` files inside collection directories (`projects`, `posts`, `podcasts`, `books`, `bio`, `social`). It is authored through the **Keystatic admin UI** at `/keystatic` (mounted via the `@keystatic/astro` integration). Storage is **local** in dev (`NODE_ENV === 'development'`) and **GitHub** in prod — Keystatic commits directly to `neporshiso/nep-personal-website` via the GitHub API. This is configured in `keystatic.config.ts`.
 
