@@ -42,10 +42,6 @@ jobs:
       - name: Test
         run: pnpm test
 
-      # --- Non-gating -----------------------------------------------------
-      # `astro check` reports 3 pre-existing errors as of HARDEN-003, so it
-      # reports without gating. Fixing them is a follow-up ticket; once the
-      # count is 0, delete `continue-on-error` to make this a gating step.
-      - name: Type check (non-gating)
+      # Gating since HARDEN-007 — astro check reports 0 errors.
+      - name: Type check
         run: pnpm exec astro check
-        continue-on-error: true

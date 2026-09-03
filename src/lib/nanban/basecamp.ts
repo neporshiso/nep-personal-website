@@ -28,10 +28,14 @@ export interface Card {
 }
 
 type Tray = { name?: string; ids: string[] };
-type OverlayEntry = { column?: string; position?: number; card?: Card };
+export type OverlayEntry = { column?: string; position?: number; card?: Card };
 type Overlay = {
   _meta?: { project_order?: string[]; trays?: Record<string, Tray> };
 } & Record<string, OverlayEntry>;
+
+/** Card entries of the overlay, i.e. everything except the `_meta` record. */
+export const cardEntries = (o: Overlay): [string, OverlayEntry][] =>
+  Object.entries(o).filter(([k]) => k !== '_meta') as [string, OverlayEntry][];
 type CardCache = {
   cards: Record<string, Card>;
   projNames: Record<string, string>;
@@ -226,9 +230,7 @@ export function cardFrom(t: any): Card {
 }
 
 export function reindex(overlay: Overlay, column: string) {
-  const entries = Object.entries(overlay).filter(
-    ([tid, e]) => tid !== '_meta' && (e as OverlayEntry).column === column,
-  ) as [string, OverlayEntry][];
+  const entries = cardEntries(overlay).filter(([, e]) => e.column === column);
   entries.sort((a, b) => (a[1].position ?? 0) - (b[1].position ?? 0));
   entries.forEach(([, e], i) => (e.position = i));
 }

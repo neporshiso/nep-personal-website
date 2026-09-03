@@ -1,6 +1,6 @@
 export const prerender = false;
 import type { APIRoute } from 'astro';
-import { apiBase, bcRequest, cardFrom, loadCardCache, loadOverlay, saveOverlay } from '../../../lib/nanban/basecamp';
+import { apiBase, bcRequest, cardEntries, cardFrom, loadCardCache, loadOverlay, saveOverlay } from '../../../lib/nanban/basecamp';
 import { badRequest, handle } from '../../../lib/nanban/api';
 
 export const POST: APIRoute = async ({ request }) => {
@@ -26,8 +26,8 @@ export const POST: APIRoute = async ({ request }) => {
 
     const tid = String(created.id);
     const [overlay, cache] = await Promise.all([loadOverlay(), loadCardCache()]);
-    const positions = Object.entries(overlay)
-      .filter(([k, e]) => k !== '_meta' && e.column === 'To Do')
+    const positions = cardEntries(overlay)
+      .filter(([, e]) => e.column === 'To Do')
       .map(([, e]) => e.position ?? 0);
     const pos = positions.length ? Math.max(...positions) + 1 : 0;
     const card = cardFrom({
