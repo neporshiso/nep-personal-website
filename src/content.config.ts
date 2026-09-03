@@ -1,7 +1,8 @@
 // src/content.config.ts
 // Schema must stay in sync with keystatic.config.ts / src/content.config.ts
 // Source: https://docs.astro.build/en/guides/content-collections/
-import { defineCollection, z } from 'astro:content';
+import { defineCollection } from 'astro:content';
+import { z } from 'astro/zod';
 import { glob } from 'astro/loaders';
 
 const projects = defineCollection({

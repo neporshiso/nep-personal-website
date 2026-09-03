@@ -10,6 +10,7 @@ import vercel from '@astrojs/vercel';
 
 export default defineConfig({
   site: 'https://neporshiso.com',
+  compressHTML: true,
   security: {
     allowedDomains: [{ hostname: 'neporshiso.com', protocol: 'https' }],
   },
