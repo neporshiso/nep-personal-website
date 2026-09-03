@@ -18,15 +18,15 @@ jobs:
 
     steps:
       - name: Check out
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       # No `version:` on purpose — action-setup reads the exact pinned pnpm
       # from the `packageManager` field in package.json.
       - name: Set up pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v6
 
       - name: Set up Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           # engines.node floor, and the runtime Vercel actually deploys to.
           node-version: '22.12.0'
