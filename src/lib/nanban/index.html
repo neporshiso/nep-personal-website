@@ -1152,6 +1152,7 @@ document.getElementById("refresh").onclick = load;
 
 // ---- add task modal ----
 document.getElementById("add").onclick = openModal;
+const DEFAULT_PROJECT = "Household Operations";
 
 function openModal() {
   if (!state.projects.length) { toast("No projects available"); return; }
@@ -1180,6 +1181,8 @@ function openModal() {
   const asgBox = form.querySelector(".assignee-box");
 
   state.projects.forEach(p => projSel.add(new Option(p.name, p.id)));
+  const defaultProj = state.projects.find(p => p.name === DEFAULT_PROJECT);
+  if (defaultProj) projSel.value = String(defaultProj.id);
   function fillLists() {
     listSel.innerHTML = "";
     const p = state.projects.find(p => String(p.id) === projSel.value);

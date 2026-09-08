@@ -249,6 +249,29 @@ describe('nanban board script', () => {
       await submitForm(form);
       expect(bodyFor('/nanban/api/todo').assignee_ids).toEqual([]);
     });
+
+    it('defaults the project select to Household Operations even when it is not first', async () => {
+      const originalFetch = globalThis.fetch;
+      (globalThis as any).fetch = vi.fn(async (url: string) =>
+        String(url).startsWith('/nanban/api/board')
+          ? jsonRes({
+              ...boardFixture(),
+              projects: [
+                { id: 1, name: 'Alpha', todolists: [{ id: 101, title: 'Backlog' }] },
+                { id: 2, name: 'Household Operations', todolists: [{ id: 201, title: 'Inbox' }] },
+              ],
+              project_order: ['1', '2'],
+            })
+          : jsonRes({}),
+      );
+      try {
+        await nb().load();
+        const { form } = openAdd();
+        expect((form.elements.namedItem('project') as HTMLSelectElement).value).toBe('2');
+      } finally {
+        (globalThis as any).fetch = originalFetch;
+      }
+    });
   });
 
   describe('edit modal — every assignee is in the member list', () => {
