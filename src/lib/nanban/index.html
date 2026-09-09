@@ -120,6 +120,16 @@
   .col-done .card .title { text-decoration: line-through; }
   .col-done .card { opacity: .65; }
   .drop-line { height: 2px; background: var(--accent); border-radius: 2px; margin: 0 0 8px; }
+  @media (pointer: coarse) {
+    /* iOS starts its own native drag on long-press for draggable elements, and
+       shows the selection callout. Both race our lift. */
+    .card { -webkit-user-drag: none; -webkit-touch-callout: none; user-select: none; }
+  }
+  .card.lifted { opacity: .4; }
+  .drag-ghost {
+    position: fixed; pointer-events: none; z-index: 300;
+    box-shadow: 0 8px 20px rgba(0,0,0,.35); transform: scale(1.03); opacity: .95;
+  }
   #status { padding: 40px; text-align: center; color: var(--muted); }
   #status button { margin-top: 12px; }
   /* modal */
@@ -1120,6 +1130,205 @@ async function moveBatchToColumn(trayId, toCol) {
     load();
   }
 }
+
+// ---- touch drag ----
+// HTML5 drag events never fire from a finger on Android and only via a fight with
+// scrolling on iOS, so touch gets its own pointer-based path. The mouse path above
+// is deliberately untouched; both converge on onDrop().
+const LONG_PRESS_MS = 250;   // hold before a card lifts
+const MOVE_CANCEL_PX = 10;   // movement before that = the user is scrolling
+const EDGE_ZONE_PX = 56;     // how close to a board edge auto-scroll kicks in
+const EDGE_MAX_PX = 18;      // px per frame at the very edge
+
+// Pure: which column and insertion index for a point?
+// lanes: [{ col, rect, cards: [{ id, rect }] }]. Kept free of DOM reads so it is
+// testable — jsdom has no layout and no elementFromPoint. A point in a gutter
+// snaps to the nearest lane, which matters on a phone where the gaps are a large
+// share of a narrow board.
+function dropTargetAt(point, lanes, draggedId) {
+  if (!lanes.length) return null;
+  let lane = null;
+  for (const l of lanes) {
+    if (point.x >= l.rect.left && point.x < l.rect.right) { lane = l; break; }
+  }
+  if (!lane) {
+    let best = null;
+    for (const l of lanes) {
+      const d = point.x < l.rect.left ? l.rect.left - point.x : point.x - l.rect.right;
+      if (!best || d < best.d) best = { l: l, d: d };
+    }
+    lane = best.l;
+  }
+  const cards = lane.cards.filter(c => String(c.id) !== String(draggedId));
+  let index = cards.length;
+  for (let i = 0; i < cards.length; i++) {
+    const r = cards[i].rect;
+    if (point.y < r.top + (r.bottom - r.top) / 2) { index = i; break; }
+  }
+  return { col: lane.col, index: index };
+}
+
+// Pure: px to scroll the board this frame, ramped by how close to the edge we are.
+function autoScrollDx(x, rect, zone, max) {
+  zone = zone || EDGE_ZONE_PX;
+  max = max || EDGE_MAX_PX;
+  const ramp = t => Math.ceil(max * Math.min(1, Math.max(0, t)));
+  if (x < rect.left + zone) return -ramp((rect.left + zone - x) / zone);
+  if (x > rect.right - zone) return ramp((x - (rect.right - zone)) / zone);
+  return 0;
+}
+
+// The only part that reads layout. Deliberately branch-free.
+function laneGeometry() {
+  return [...boardEl.querySelectorAll(".lane")].map(lane => ({
+    col: lane.dataset.col,
+    rect: lane.getBoundingClientRect(),
+    cards: [...lane.querySelectorAll(".card")].map(c => ({
+      id: c.dataset.id, rect: c.getBoundingClientRect(),
+    })),
+  }));
+}
+
+const rafFn = typeof requestAnimationFrame === "function" ? requestAnimationFrame : (fn => setTimeout(fn, 16));
+const cafFn = typeof cancelAnimationFrame === "function" ? cancelAnimationFrame : clearTimeout;
+
+let touchDrag = null;   // { id, el, ghost, pointerId, dx, dy, x, y, target, raf, moved }
+let pressTimer = null;
+let pressStart = null;
+
+function clearPress() {
+  if (pressTimer) clearTimeout(pressTimer);
+  pressTimer = null;
+  pressStart = null;
+}
+
+function drawTouchDropLine(target) {
+  clearDropLine();
+  if (!target) return;
+  const lane = [...boardEl.querySelectorAll(".lane")].find(l => l.dataset.col === target.col);
+  if (!lane) return;
+  const cards = [...lane.querySelectorAll(".card")].filter(c => c.dataset.id !== touchDrag.id);
+  const line = document.createElement("div");
+  line.className = "drop-line";
+  const ref = cards[target.index];
+  if (ref) {
+    // A card inside a batch group is not a lane child — anchor on its group.
+    lane.insertBefore(line, ref.parentElement !== lane ? ref.closest(".batch-group") : ref);
+  } else {
+    lane.appendChild(line);
+  }
+}
+
+function stepAutoScroll() {
+  if (!touchDrag) return;
+  const dx = autoScrollDx(touchDrag.x, boardEl.getBoundingClientRect());
+  if (dx) {
+    boardEl.scrollLeft += dx;
+    touchDrag.target = dropTargetAt({ x: touchDrag.x, y: touchDrag.y }, laneGeometry(), touchDrag.id);
+    drawTouchDropLine(touchDrag.target);
+  }
+  touchDrag.raf = rafFn(stepAutoScroll);
+}
+
+function beginTouchDrag(card, x, y, pointerId) {
+  const r = card.getBoundingClientRect();
+  const ghost = card.cloneNode(true);
+  ghost.classList.add("drag-ghost");
+  ghost.classList.remove("lifted");
+  ghost.style.width = r.width + "px";
+  document.body.appendChild(ghost);
+  card.classList.add("lifted");
+  touchDrag = {
+    id: card.dataset.id, el: card, ghost: ghost, pointerId: pointerId,
+    dx: x - r.left, dy: y - r.top, x: x, y: y, target: null, raf: 0, moved: false,
+  };
+  moveGhost(x, y);
+  // Capture so the drag survives the finger leaving the board.
+  try { if (boardEl.setPointerCapture) boardEl.setPointerCapture(pointerId); } catch (err) { /* not captured; drag still works */ }
+  touchDrag.raf = rafFn(stepAutoScroll);
+}
+
+function moveGhost(x, y) {
+  touchDrag.ghost.style.left = (x - touchDrag.dx) + "px";
+  touchDrag.ghost.style.top = (y - touchDrag.dy) + "px";
+}
+
+function endTouchDrag(commit) {
+  const d = touchDrag;
+  touchDrag = null;
+  if (d.raf) cafFn(d.raf);
+  d.ghost.remove();
+  d.el.classList.remove("lifted");
+  clearDropLine();
+  try { if (boardEl.releasePointerCapture) boardEl.releasePointerCapture(d.pointerId); } catch (err) { /* nothing to release */ }
+  suppressNextClick();
+  // A lift with no movement is an accident, not a move.
+  if (commit && d.moved && d.target) onDrop(d.id, d.target.col, d.target.index);
+}
+
+// Releasing a finger fires a click; without this, every drag would also open the
+// card's detail modal. A flag rather than a temporary listener: if no click
+// follows the drag, a lingering listener would swallow the next unrelated tap,
+// so any new pointerdown clears it instead.
+let swallowClick = false;
+function suppressNextClick() { swallowClick = true; }
+boardEl.addEventListener("click", e => {
+  if (!swallowClick) return;
+  swallowClick = false;
+  e.stopPropagation();
+  e.preventDefault();
+}, true);
+
+boardEl.addEventListener("pointerdown", e => {
+  swallowClick = false;                    // a new gesture; never swallow a later tap
+  if (e.pointerType === "mouse") return;   // desktop keeps the HTML5 drag path
+  const card = e.target.closest && e.target.closest(".card");
+  if (!card) return;
+  clearPress();
+  pressStart = { x: e.clientX, y: e.clientY, card: card, pointerId: e.pointerId };
+  pressTimer = setTimeout(() => {
+    pressTimer = null;
+    const p = pressStart;
+    pressStart = null;
+    if (p) beginTouchDrag(p.card, p.x, p.y, p.pointerId);
+  }, LONG_PRESS_MS);
+});
+
+boardEl.addEventListener("pointermove", e => {
+  if (e.pointerType === "mouse") return;
+  if (pressStart) {
+    // Moving before the lift means the user is scrolling — let the browser have it.
+    if (Math.abs(e.clientX - pressStart.x) > MOVE_CANCEL_PX ||
+        Math.abs(e.clientY - pressStart.y) > MOVE_CANCEL_PX) clearPress();
+    return;
+  }
+  if (!touchDrag) return;
+  touchDrag.x = e.clientX;
+  touchDrag.y = e.clientY;
+  touchDrag.moved = true;
+  moveGhost(e.clientX, e.clientY);
+  touchDrag.target = dropTargetAt({ x: e.clientX, y: e.clientY }, laneGeometry(), touchDrag.id);
+  drawTouchDropLine(touchDrag.target);
+});
+
+boardEl.addEventListener("pointerup", e => {
+  if (e.pointerType === "mouse") return;
+  if (pressStart || pressTimer) { clearPress(); return; }   // a tap: the click handler opens the modal
+  if (touchDrag) endTouchDrag(true);
+});
+
+boardEl.addEventListener("pointercancel", e => {
+  if (e.pointerType === "mouse") return;
+  if (pressStart || pressTimer) { clearPress(); return; }
+  if (touchDrag) endTouchDrag(false);
+});
+
+// touch-action is fixed at touchstart and cannot be flipped when the card lifts,
+// so this non-passive listener is the only thing stopping the board scrolling
+// out from under a lifted card. Listeners default to passive, hence the flag.
+boardEl.addEventListener("touchmove", e => {
+  if (touchDrag) e.preventDefault();
+}, { passive: false });
 
 // ---- load ----
 async function load() {
