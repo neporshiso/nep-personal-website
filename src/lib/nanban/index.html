@@ -1170,8 +1170,9 @@ function dropTargetAt(point, lanes, draggedId) {
 
 // Pure: px to scroll the board this frame, ramped by how close to the edge we are.
 function autoScrollDx(x, rect, zone, max) {
-  zone = zone || EDGE_ZONE_PX;
-  max = max || EDGE_MAX_PX;
+  zone = zone === undefined ? EDGE_ZONE_PX : zone;
+  max = max === undefined ? EDGE_MAX_PX : max;
+  if (zone <= 0) return 0;
   const ramp = t => Math.ceil(max * Math.min(1, Math.max(0, t)));
   if (x < rect.left + zone) return -ramp((rect.left + zone - x) / zone);
   if (x > rect.right - zone) return ramp((x - (rect.right - zone)) / zone);
@@ -1282,6 +1283,9 @@ boardEl.addEventListener("click", e => {
 boardEl.addEventListener("pointerdown", e => {
   swallowClick = false;                    // a new gesture; never swallow a later tap
   if (e.pointerType === "mouse") return;   // desktop keeps the HTML5 drag path
+  // A second finger mid-drag would overwrite touchDrag and strand the first
+  // ghost in the DOM with its card left faded.
+  if (touchDrag) return;
   const card = e.target.closest && e.target.closest(".card");
   if (!card) return;
   clearPress();
@@ -1296,6 +1300,7 @@ boardEl.addEventListener("pointerdown", e => {
 
 boardEl.addEventListener("pointermove", e => {
   if (e.pointerType === "mouse") return;
+  if (touchDrag && e.pointerId !== touchDrag.pointerId) return;
   if (pressStart) {
     // Moving before the lift means the user is scrolling — let the browser have it.
     if (Math.abs(e.clientX - pressStart.x) > MOVE_CANCEL_PX ||
@@ -1313,12 +1318,14 @@ boardEl.addEventListener("pointermove", e => {
 
 boardEl.addEventListener("pointerup", e => {
   if (e.pointerType === "mouse") return;
+  if (touchDrag && e.pointerId !== touchDrag.pointerId) return;
   if (pressStart || pressTimer) { clearPress(); return; }   // a tap: the click handler opens the modal
   if (touchDrag) endTouchDrag(true);
 });
 
 boardEl.addEventListener("pointercancel", e => {
   if (e.pointerType === "mouse") return;
+  if (touchDrag && e.pointerId !== touchDrag.pointerId) return;
   if (pressStart || pressTimer) { clearPress(); return; }
   if (touchDrag) endTouchDrag(false);
 });

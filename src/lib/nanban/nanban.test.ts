@@ -449,6 +449,10 @@ describe('nanban board script', () => {
       expect(near).toBeGreaterThan(far);
     });
 
+    it('treats an explicit zone of 0 as no auto-scroll', () => {
+      expect(nb().autoScrollDx(0, board, 0, 18)).toBe(0);
+    });
+
     it('clamps at max, even past the edge', () => {
       expect(nb().autoScrollDx(0, board, 56, 18)).toBe(-18);
       expect(nb().autoScrollDx(-200, board, 56, 18)).toBe(-18);
@@ -564,6 +568,21 @@ describe('nanban board script', () => {
       expect(document.querySelector('.drag-ghost')).toBeNull();
       expect(document.querySelector('.card.lifted')).toBeNull();
       expect(document.querySelector('.drop-line')).toBeNull();
+    });
+
+    it('ignores a second finger, leaving no orphaned ghost', async () => {
+      stubRects();
+      await lift('501', 50, 60);
+      // A second finger lands on another card mid-drag. It must not start a rival
+      // drag: the first ghost would be orphaned in the DOM and its card left faded.
+      pointer('pointerdown', cardFor('502'), 50, 100, 'touch');
+      await sleep(nb().LONG_PRESS_MS + 40);
+      expect(document.querySelectorAll('.drag-ghost')).toHaveLength(1);
+
+      pointer('pointerup', board(), 50, 100);
+      await flush();
+      expect(document.querySelectorAll('.drag-ghost')).toHaveLength(0);
+      expect(document.querySelectorAll('.card.lifted')).toHaveLength(0);
     });
 
     it('never starts a touch drag from a mouse pointer', async () => {
