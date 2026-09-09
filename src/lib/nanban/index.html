@@ -1259,10 +1259,13 @@ function endTouchDrag(commit) {
   touchDrag = null;
   if (d.raf) cafFn(d.raf);
   d.ghost.remove();
-  d.el.classList.remove("lifted");
+  // By query, not via d.el: a render() mid-drag replaces the card element.
+  boardEl.querySelectorAll(".card.lifted").forEach(el => el.classList.remove("lifted"));
   clearDropLine();
   try { if (boardEl.releasePointerCapture) boardEl.releasePointerCapture(d.pointerId); } catch (err) { /* nothing to release */ }
-  suppressNextClick();
+  // Only a drag that actually moved should eat the release. Suppressing
+  // unconditionally made a slow tap do nothing at all.
+  if (d.moved) suppressNextClick();
   // A lift with no movement is an accident, not a move.
   if (commit && d.moved && d.target) onDrop(d.id, d.target.col, d.target.index);
 }
@@ -1286,9 +1289,12 @@ boardEl.addEventListener("pointerdown", e => {
   // A second finger mid-drag would overwrite touchDrag and strand the first
   // ghost in the DOM with its card left faded.
   if (touchDrag) return;
+  if (pressStart) return;                  // another finger already has a press pending
   const card = e.target.closest && e.target.closest(".card");
   if (!card) return;
-  clearPress();
+  // The delete and open-in-Basecamp controls are taps, not drag handles: holding
+  // one a beat too long must not lift the card out from under it.
+  if (e.target.closest("button, a")) return;
   pressStart = { x: e.clientX, y: e.clientY, card: card, pointerId: e.pointerId };
   pressTimer = setTimeout(() => {
     pressTimer = null;
@@ -1301,6 +1307,7 @@ boardEl.addEventListener("pointerdown", e => {
 boardEl.addEventListener("pointermove", e => {
   if (e.pointerType === "mouse") return;
   if (touchDrag && e.pointerId !== touchDrag.pointerId) return;
+  if (pressStart && e.pointerId !== pressStart.pointerId) return;
   if (pressStart) {
     // Moving before the lift means the user is scrolling — let the browser have it.
     if (Math.abs(e.clientX - pressStart.x) > MOVE_CANCEL_PX ||
@@ -1319,6 +1326,7 @@ boardEl.addEventListener("pointermove", e => {
 boardEl.addEventListener("pointerup", e => {
   if (e.pointerType === "mouse") return;
   if (touchDrag && e.pointerId !== touchDrag.pointerId) return;
+  if (pressStart && e.pointerId !== pressStart.pointerId) return;
   if (pressStart || pressTimer) { clearPress(); return; }   // a tap: the click handler opens the modal
   if (touchDrag) endTouchDrag(true);
 });
@@ -1326,6 +1334,7 @@ boardEl.addEventListener("pointerup", e => {
 boardEl.addEventListener("pointercancel", e => {
   if (e.pointerType === "mouse") return;
   if (touchDrag && e.pointerId !== touchDrag.pointerId) return;
+  if (pressStart && e.pointerId !== pressStart.pointerId) return;
   if (pressStart || pressTimer) { clearPress(); return; }
   if (touchDrag) endTouchDrag(false);
 });

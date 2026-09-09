@@ -570,6 +570,63 @@ describe('nanban board script', () => {
       expect(document.querySelector('.drop-line')).toBeNull();
     });
 
+    it('still opens the detail modal when a press is held past the lift but never moved', async () => {
+      stubRects();
+      // Precision-tapping a small target on glass easily takes longer than 250ms.
+      // Holding then releasing without moving is a tap, not a drag.
+      await lift('501', 50, 60);
+      pointer('pointerup', board(), 50, 60);
+      cardFor('501').dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
+      await flush();
+
+      expect(moves()).toHaveLength(0);
+      expect(document.querySelector('.backdrop')).not.toBeNull();
+    });
+
+    it('does not lift the card when the press starts on a control inside it', async () => {
+      stubRects();
+      const del = cardFor('501').querySelector('.del')!;
+      pointer('pointerdown', del, 50, 60);
+      await sleep(nb().LONG_PRESS_MS + 40);
+
+      expect(document.querySelector('.drag-ghost')).toBeNull();
+      expect(document.querySelector('.card.lifted')).toBeNull();
+    });
+
+    it('keeps a pending press alive when another finger touches down and lifts off', async () => {
+      stubRects();
+      pointer('pointerdown', cardFor('501'), 50, 60);
+      // A resting palm or a grip adjustment: a second pointer id arrives and goes
+      // before the long press fires. It must not cancel the real one.
+      const stray: any = new window.Event('pointerdown', { bubbles: true, cancelable: true });
+      stray.clientX = 300; stray.clientY = 400; stray.pointerId = 2; stray.pointerType = 'touch';
+      board().dispatchEvent(stray);
+      const strayUp: any = new window.Event('pointerup', { bubbles: true, cancelable: true });
+      strayUp.clientX = 300; strayUp.clientY = 400; strayUp.pointerId = 2; strayUp.pointerType = 'touch';
+      board().dispatchEvent(strayUp);
+
+      await sleep(nb().LONG_PRESS_MS + 40);
+      expect(document.querySelector('.drag-ghost')).not.toBeNull();
+
+      pointer('pointerup', board(), 50, 60);
+      await flush();
+    });
+
+    it('does not let a second finger hijack a pending press onto its own card', async () => {
+      stubRects();
+      pointer('pointerdown', cardFor('501'), 50, 60);
+      const stray: any = new window.Event('pointerdown', { bubbles: true, cancelable: true });
+      stray.clientX = 50; stray.clientY = 100; stray.pointerId = 2; stray.pointerType = 'touch';
+      cardFor('502').dispatchEvent(stray);
+      await sleep(nb().LONG_PRESS_MS + 40);
+
+      // The lift belongs to the finger that started it, on card 501.
+      expect(document.querySelectorAll('.drag-ghost')).toHaveLength(1);
+      expect(document.querySelector('.card.lifted')!.getAttribute('data-id')).toBe('501');
+      pointer('pointerup', board(), 50, 60);
+      await flush();
+    });
+
     it('ignores a second finger, leaving no orphaned ghost', async () => {
       stubRects();
       await lift('501', 50, 60);
