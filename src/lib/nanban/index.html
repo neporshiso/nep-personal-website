@@ -33,6 +33,10 @@
   button:hover { background: var(--panel); }
   button.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
   button.primary:hover { opacity: .9; }
+  /* Links had no rule at all, so they fell back to the UA's #0000EE — 1.36:1 on
+     the dark card. --accent is already theme-aware: 4.67:1 dark, 6.82:1 light. */
+  a { color: var(--accent); }
+  ::placeholder { color: var(--muted); opacity: 1; } /* Firefox dims placeholders */
   #board { display: flex; gap: 12px; padding: 16px; align-items: flex-start; overflow-x: auto; height: 60vh; min-height: 260px; }
   /* shelf (trays) */
   #shelf { display: flex; gap: 12px; padding: 16px; align-items: flex-start; overflow-x: auto; border-top: 2px dashed var(--border); }
