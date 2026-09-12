@@ -11,13 +11,14 @@ pnpm install            # install deps
 pnpm dev                # astro dev server (Keystatic CMS at /keystatic)
 pnpm build              # production build (output: dist/, deployed via Vercel adapter)
 pnpm preview            # preview the built site
-pnpm test               # vitest run — one suite today, add more under src/**/*.test.ts
+pnpm test               # vitest run — 6 suites, 87 tests; add more under src/**/*.test.ts
+                        # (but never under src/pages/ — see below)
 pnpm test:watch         # vitest watch
 ```
 
 ### Testing the Nanban UI
 
-`src/lib/nanban/nanban.test.ts` is currently the only test suite. Nanban's UI is a single inline
+`src/lib/nanban/nanban.test.ts` is the largest of the six suites. Nanban's UI is a single inline
 `<script>` inside `src/lib/nanban/index.html`, which is served raw (`?raw` import) rather than
 bundled — so it is never typechecked and cannot be imported as a module. The suite reaches it by
 reading the HTML, extracting the script, and evaluating it under jsdom with a stubbed `fetch`,
@@ -26,6 +27,12 @@ then asserting on captured request payloads.
 Assert on **behavior, not source text**. An earlier version of this suite asserted that certain
 strings appeared in the script; it passed while the behavior was broken and was rejected in
 review. Drive the DOM and check what gets sent.
+
+**Never put a test file under `src/pages/`.** Astro's file-based routing claims every file in that
+directory, so a `*.test.ts` there becomes a route and `pnpm build` fails trying to prerender it
+(`TypeError: Cannot read properties of undefined (reading 'config')`, thrown from `@vitest/runner`
+as `describe`/`it` run outside a test runner). Tests for a page or route live elsewhere and import
+the route module — see `src/lib/nanban/route-shell.test.ts`, which tests `src/pages/nanban/index.ts`.
 
 Conventional commits are enforced by a Husky `commit-msg` hook running `commitlint` (`@commitlint/config-conventional`). Non-conforming messages are rejected — do not bypass with `--no-verify`.
 
