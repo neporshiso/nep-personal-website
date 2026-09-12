@@ -3,14 +3,18 @@
 <title>Nanban</title>
 <style>
   :root {
+    color-scheme: light dark; /* without this, UA chrome (placeholders, scrollbars,
+                                 control internals) stays light-rendered in dark mode */
     --bg: #f4f5f7; --panel: #ebecf0; --card: #fff; --text: #172b4d;
     --muted: #6b778c; --border: #dfe1e6; --accent: #0052cc; --danger: #de350b;
+    --link: #0747a6; --on-accent: #fff;
     --shadow: 0 1px 2px rgba(9,30,66,.25);
   }
   @media (prefers-color-scheme: dark) {
     :root {
       --bg: #1d2125; --panel: #22272b; --card: #2c333a; --text: #b6c2cf;
       --muted: #8c9bab; --border: #38414a; --accent: #579dff; --danger: #ff6b5c;
+      --link: #9ec5ff; --on-accent: #0b1b34;
       --shadow: 0 1px 2px rgba(0,0,0,.4);
     }
   }
@@ -31,11 +35,15 @@
     background: var(--card); color: var(--text); padding: 6px 12px; border-radius: 4px;
   }
   button:hover { background: var(--panel); }
-  button.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+  /* #fff on the dark --accent was 2.74:1 — below AA. --on-accent is 6.29:1 dark,
+     and stays #fff (6.82:1) in light mode. */
+  button.primary { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
   button.primary:hover { opacity: .9; }
-  /* Links had no rule at all, so they fell back to the UA's #0000EE — 1.36:1 on
-     the dark card. --accent is already theme-aware: 4.67:1 dark, 6.82:1 light. */
-  a { color: var(--accent); }
+  /* Links get their own token rather than --accent: --accent is load-bearing for a
+     dozen chips/borders/drop-lines and is button.primary's background, so it cannot be
+     lightened for text alone. --link is 8.53:1 light, 7.24:1 dark (both AAA). */
+  a { color: var(--link); }
+  a:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; border-radius: 2px; }
   ::placeholder { color: var(--muted); opacity: 1; } /* Firefox dims placeholders */
   #board { display: flex; gap: 12px; padding: 16px; align-items: flex-start; overflow-x: auto; height: 60vh; min-height: 260px; }
   /* shelf (trays) */
