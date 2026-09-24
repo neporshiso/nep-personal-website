@@ -728,4 +728,40 @@ describe('nanban board script', () => {
       expect(button.disabled).toBe(false);
     });
   });
+
+  describe('fixed trays', () => {
+    const trayNames = () => [...document.querySelectorAll('#shelf .tray-name')].map(t => t.textContent);
+    const trayFor = (id: string) => document.querySelector(`#shelf .tray[data-tray="${id}"]`)!;
+    const dragEv = (type: string) => new window.Event(type, { bubbles: true, cancelable: true });
+
+    it('loads a saved Wife Discussion tray between Handoff and batches, hiding or chipping its card', async () => {
+      fetchMock.mockImplementationOnce(async () =>
+        jsonRes({ ...boardFixture(), trays: { 'batch-1': { ids: ['502'] }, wife: { ids: ['501'] } } }),
+      );
+      await nb().load();
+
+      expect(trayNames()).toEqual(['☀ Upcoming Weekend', '⏪ Work Handoff', '💬 Wife Discussion', 'Ghost assignee']);
+      expect(document.querySelector('#shelf')!.lastElementChild!.textContent).toBe('+ New batch');
+      expect(trayFor('wife').querySelector('.tray-title')!.textContent).toBe('Known assignees');
+      expect(document.querySelector('.card[data-id="501"]')).toBeNull(); // hide-trayed is on by default
+
+      const toggle = document.getElementById('traytoggle')!;
+      toggle.click();
+      try {
+        const chips = [...document.querySelectorAll('.card[data-id="501"] .tray-chip')].map(c => c.textContent);
+        expect(chips).toEqual(['💬 Wife']);
+      } finally {
+        toggle.click();
+      }
+    });
+
+    it('drops a card into Wife Discussion and persists it under `wife`', async () => {
+      document.querySelector('.card[data-id="501"]')!.dispatchEvent(dragEv('dragstart'));
+      trayFor('wife').dispatchEvent(dragEv('drop'));
+      await flush();
+
+      expect(bodyFor('/nanban/api/trays').trays.wife.ids).toEqual(['501']);
+      expect(trayFor('wife').querySelector('.tray-title')!.textContent).toBe('Known assignees');
+    });
+  });
 });
