@@ -6,6 +6,7 @@ import { badRequest, handle } from '../../../lib/nanban/api';
 export const POST: APIRoute = async ({ request }) => {
   let projectId: number, todolistId: number, title: string, description: string;
   let assigneeIds: number[] | undefined;
+  let dueOn: string | undefined;
   try {
     const b = await request.json();
     projectId = b.project_id;
@@ -13,6 +14,7 @@ export const POST: APIRoute = async ({ request }) => {
     title = b.title;
     description = b.description ?? '';
     if (Array.isArray(b.assignee_ids)) assigneeIds = b.assignee_ids;
+    if (b.due_on) dueOn = b.due_on;
     if (projectId == null || todolistId == null || title == null) return badRequest();
   } catch {
     return badRequest();
@@ -22,6 +24,7 @@ export const POST: APIRoute = async ({ request }) => {
     const url = `${apiBase()}/buckets/${projectId}/todolists/${todolistId}/todos.json`;
     const payload: Record<string, unknown> = { content: title, description };
     if (assigneeIds) payload.assignee_ids = assigneeIds;
+    if (dueOn) payload.due_on = dueOn;
     const created = await (await bcRequest('POST', url, payload)).json();
 
     const tid = String(created.id);

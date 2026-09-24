@@ -265,6 +265,21 @@ describe('nanban board script', () => {
       expect(bodyFor('/nanban/api/todo').assignee_ids).toEqual([]);
     });
 
+    it('posts the chosen due date on submit', async () => {
+      const { form } = openAdd();
+      (form.elements.namedItem('title') as HTMLInputElement).value = 'Due-dated task';
+      (form.elements.namedItem('due') as HTMLInputElement).value = '2026-10-01';
+      await submitForm(form);
+      expect(bodyFor('/nanban/api/todo').due_on).toBe('2026-10-01');
+    });
+
+    it('omits due_on when no date is chosen', async () => {
+      const { form } = openAdd();
+      (form.elements.namedItem('title') as HTMLInputElement).value = 'No due date';
+      await submitForm(form);
+      expect(bodyFor('/nanban/api/todo').due_on).toBeUndefined();
+    });
+
     it('defaults the project select to Household Operations even when it is not first', async () => {
       const originalFetch = globalThis.fetch;
       (globalThis as any).fetch = vi.fn(async (url: string) =>

@@ -1400,6 +1400,8 @@ function openModal() {
       <h2>Add task</h2>
       <label>Title *</label>
       <input name="title" required autofocus>
+      <label>Due date</label>
+      <input name="due" type="date">
       <label>Project</label>
       <select name="project"></select>
       <label>To-do list</label>
@@ -1448,6 +1450,7 @@ function openModal() {
         todolist_id: listSel.value ? Number(listSel.value) || listSel.value : listSel.value,
         title,
         description: form.description.value.trim() || undefined,
+        due_on: form.due.value || undefined,
         assignee_ids: checkedAssigneeIds(asgBox),
       });
       const card = res.card;
