@@ -772,99 +772,92 @@ describe('nanban board script', () => {
       todolist_id: id, todolist_name: list, column: 'To Do', position: id,
       due_on: null, assignees: [], ...over,
     });
-    // No `effort` key at all: what every board looked like before this feature.
+    // No `effort` key at all: what every board looked like before NANBAN-010.
     const loadCards = async (cards: unknown[], extra: Record<string, unknown> = {}) => {
       fetchMock.mockImplementationOnce(async () => jsonRes({ ...boardFixture(), cards, ...extra }));
       await nb().load();
     };
-    const faceEffort = (id: number) =>
-      document.querySelector(`.card[data-id="${id}"] .effort`)!.textContent;
-    const openEditFor = async (id: number) => {
-      tap(document.querySelector(`.card[data-id="${id}"]`)!);
+    // The mark as a reader gets it: its accessible label and its filled-dot count.
+    const markIn = (root: Element | null) => {
+      const el = root!.querySelector('.effort');
+      return el
+        ? `${el.getAttribute('role')} ${el.getAttribute('aria-label')} ${el.querySelectorAll('i.on').length}/${el.querySelectorAll('i').length}`
+        : null;
+    };
+    const face = (id: number) => document.querySelector(`.card[data-id="${id}"]`);
+    const openDetail = async (id: number) => {
+      document.querySelectorAll('.backdrop').forEach(el => el.remove());
+      tap(face(id)!);
       await flush();
+      return document.querySelector('.backdrop .sub');
+    };
+    const openEditFor = async (id: number) => {
+      await openDetail(id);
       (document.querySelector('.backdrop .edit-btn') as HTMLButtonElement).click();
       return document.querySelector('.backdrop form') as HTMLFormElement;
     };
-    const checkedEffort = (form: HTMLFormElement) =>
-      (form.querySelector('input[name="effort"]:checked') as HTMLInputElement).value;
+    const checked = (form: HTMLFormElement) =>
+      (form.querySelector('input[name="effort"]:checked') as HTMLInputElement | null)?.value ?? null;
 
-    it('shows the list default on cards that have no effort of their own', async () => {
-      await loadCards([
-        card(1, 'Clear It — Low impact + blocking someone or something'),
-        card(2, 'Do Now — High impact + blocking someone or something'),
-        card(3, 'Deep Work — High impact + not blocking anything'),
-        card(4, 'Home'),
-      ]);
-      expect([1, 2, 3, 4].map(faceEffort)).toEqual(['Effort 1', 'Effort 2', 'Effort 3', 'Effort 2']);
+    it('shows no mark on a card without an effort, whatever its list', async () => {
+      const lists = ['Clear It — x', 'Do Now — x', 'Deep Work — x', 'Home'];
+      await loadCards(lists.map((l, i) => card(i + 1, l)));
+      for (const id of [1, 2, 3, 4]) {
+        expect(markIn(face(id))).toBeNull();
+        expect(face(id)!.textContent).not.toContain('Effort');
+        expect(markIn(await openDetail(id))).toBeNull();
+      }
     });
 
-    it("shows a card's own effort over its list default", async () => {
-      await loadCards([card(1, 'Clear It — x')], { effort: { '1': 3 } });
-      expect(faceEffort(1)).toBe('Effort 3');
+    it('shows N of 3 dots filled on the card and in the detail view', async () => {
+      await loadCards([card(1, 'Home'), card(2, 'Home'), card(3, 'Home')], { effort: { '1': 1, '2': 2, '3': 3 } });
+      const expected = ['img Effort 1 1/3', 'img Effort 2 2/3', 'img Effort 3 3/3'];
+      expect([1, 2, 3].map(id => markIn(face(id)))).toEqual(expected);
+      for (const id of [1, 2, 3]) {
+        const sub = await openDetail(id);
+        expect(markIn(sub)).toBe(expected[id - 1]);
+        expect(sub!.textContent).not.toContain('Effort');
+      }
     });
 
-    it('shows effort in the detail view, stored or default', async () => {
-      await loadCards([card(1, 'Clear It — x'), card(2, 'Home')], { effort: { '2': 3 } });
-      tap(document.querySelector('.card[data-id="1"]')!);
-      await flush();
-      expect(document.querySelector('.backdrop .sub')!.textContent).toContain('Effort 1');
-      document.querySelectorAll('.backdrop').forEach(el => el.remove());
-      tap(document.querySelector('.card[data-id="2"]')!);
-      await flush();
-      expect(document.querySelector('.backdrop .sub')!.textContent).toContain('Effort 3');
-    });
-
-    it('offers exactly 1, 2 and 3, preset to the effective effort', async () => {
-      await loadCards([card(3, 'Deep Work — x')]);
-      const form = await openEditFor(3);
+    it('opens the edit modal with nothing selected, offering exactly 1, 2 and 3', async () => {
+      await loadCards([card(4, 'Deep Work — x')]);
+      const form = await openEditFor(4);
       const values = [...form.querySelectorAll<HTMLInputElement>('input[name="effort"]')].map(i => i.value);
       expect(values).toEqual(['1', '2', '3']);
-      expect(checkedEffort(form)).toBe('3');
+      expect(checked(form)).toBeNull();
     });
 
-    it('records an effort changed without a click (keyboard arrows fire only change)', async () => {
-      await loadCards([card(4, 'Home')]);
-      const form = await openEditFor(4);
-      const three = form.querySelector('input[name="effort"][value="3"]') as HTMLInputElement;
-      three.checked = true;
-      three.dispatchEvent(new window.Event('change', { bubbles: true }));
-      await submitForm(form);
-      expect(bodyFor('/nanban/api/update').effort).toBe(3);
-    });
-
-    it('does not send effort when saving an untouched card that has none of its own', async () => {
+    it('sends no effort when saving an unscored card without picking one', async () => {
       await loadCards([card(4, 'Home')]);
       await submitForm(await openEditFor(4));
       expect(bodyFor('/nanban/api/update')).not.toHaveProperty('effort');
-      expect(faceEffort(4)).toBe('Effort 2');
+      expect(markIn(face(4))).toBeNull();
     });
 
-    it('sets effort on an existing card and shows it on the card and in the detail view', async () => {
+    it('sets effort on an unscored card and shows the dots without a reload', async () => {
       await loadCards([card(4, 'Home')]);
       const form = await openEditFor(4);
       (form.querySelector('input[name="effort"][value="3"]') as HTMLInputElement).click();
       await submitForm(form);
 
       expect(bodyFor('/nanban/api/update').effort).toBe(3);
-      expect(faceEffort(4)).toBe('Effort 3');
-      tap(document.querySelector('.card[data-id="4"]')!);
-      await flush();
-      expect(document.querySelector('.backdrop .sub')!.textContent).toContain('Effort 3');
+      expect(markIn(face(4))).toBe('img Effort 3 3/3');
+      expect(markIn(await openDetail(4))).toBe('img Effort 3 3/3');
     });
 
-    it("changes an existing effort, and re-sends a card's own effort on an untouched save", async () => {
+    it('preselects a stored effort, re-sends it untouched, and changes it', async () => {
       await loadCards([card(4, 'Home')], { effort: { '4': 1 } });
       let form = await openEditFor(4);
-      expect(checkedEffort(form)).toBe('1');
+      expect(checked(form)).toBe('1');
       await submitForm(form);
       expect(bodyFor('/nanban/api/update').effort).toBe(1);
 
-      document.querySelectorAll('.backdrop').forEach(el => el.remove());
       form = await openEditFor(4);
       (form.querySelector('input[name="effort"][value="2"]') as HTMLInputElement).click();
       await submitForm(form);
       expect(bodyFor('/nanban/api/update').effort).toBe(2);
-      expect(faceEffort(4)).toBe('Effort 2');
+      expect(markIn(face(4))).toBe('img Effort 2 2/3');
     });
   });
 
@@ -875,13 +868,18 @@ describe('nanban board script', () => {
       [...document.querySelectorAll('.col[data-col="To Do"] .card')].map(c => (c as HTMLElement).dataset.id);
     const past = '2020-01-01';
     const future = '2099-01-01';
-    // Saved order A..E. Effort: A 3, B 2 (due later), C 1, D 2 (overdue), E 2 (undated).
+    // Saved order 1..6. Stored effort: 1→3, 2→2 (due later), 3→1, 4→2 (overdue),
+    // 5→2 (undated); 6 and 7 have none. 7 is overdue, so only the unscored rule puts
+    // it after the scored cards, and only the due-date tie-break puts it before 6.
+    const effort = { '1': 3, '2': 2, '3': 1, '4': 2, '5': 2 };
     const cards = [
       { id: 1, list: 'Deep Work — x', due: null },
       { id: 2, list: 'Home', due: future },
       { id: 3, list: 'Clear It — x', due: null },
       { id: 4, list: 'Home', due: past },
       { id: 5, list: 'Home', due: null },
+      { id: 6, list: 'Home', due: null },
+      { id: 7, list: 'Clear It — x', due: past },
     ].map((c, i) => ({
       id: c.id, title: `Card ${c.id}`, project_id: 1, project_name: 'Alpha',
       todolist_id: c.id, todolist_name: c.list, column: 'To Do', position: i,
@@ -889,7 +887,7 @@ describe('nanban board script', () => {
     }));
 
     beforeEach(async () => {
-      fetchMock.mockImplementationOnce(async () => jsonRes({ ...boardFixture(), cards }));
+      fetchMock.mockImplementationOnce(async () => jsonRes({ ...boardFixture(), cards, effort }));
       await nb().load();
       posts.length = 0;
     });
@@ -898,30 +896,30 @@ describe('nanban board script', () => {
       if (deep().getAttribute('aria-pressed') === 'true') deep().click();
     };
 
-    it('Quick ranks effort 1 -> 3, then overdue/soonest due, undated last, then saved order', () => {
+    it('Quick ranks effort 1 -> 3, unscored last, then overdue/soonest due, undated last, then saved order', () => {
       try {
         quick().click();
-        expect(order()).toEqual(['3', '4', '2', '5', '1']);
+        expect(order()).toEqual(['3', '4', '2', '5', '1', '7', '6']);
       } finally { modesOff(); }
     });
 
-    it('Deep ranks effort 3 -> 1 with the same tie-breaks', () => {
+    it('Deep ranks effort 3 -> 1, unscored still last, with the same tie-breaks', () => {
       try {
         deep().click();
-        expect(order()).toEqual(['1', '4', '2', '5', '3']);
+        expect(order()).toEqual(['1', '4', '2', '5', '3', '7', '6']);
       } finally { modesOff(); }
     });
 
     it('switches between modes, turns off on a second click, restores the saved order, and sends nothing', () => {
       try {
-        expect(order()).toEqual(['1', '2', '3', '4', '5']);
+        expect(order()).toEqual(['1', '2', '3', '4', '5', '6', '7']);
         quick().click();
         deep().click();
         expect(quick().getAttribute('aria-pressed')).toBe('false');
         expect(deep().getAttribute('aria-pressed')).toBe('true');
         deep().click();
         expect(deep().getAttribute('aria-pressed')).toBe('false');
-        expect(order()).toEqual(['1', '2', '3', '4', '5']);
+        expect(order()).toEqual(['1', '2', '3', '4', '5', '6', '7']);
         expect(posts).toHaveLength(0);
       } finally { modesOff(); }
     });
@@ -946,7 +944,7 @@ describe('nanban board script', () => {
 
     it('makes a placed batch group undraggable while on', async () => {
       fetchMock.mockImplementationOnce(async () =>
-        jsonRes({ ...boardFixture(), cards, trays: { 'batch-1': { ids: ['2', '4'], placed: true } } }),
+        jsonRes({ ...boardFixture(), cards, effort, trays: { 'batch-1': { ids: ['2', '4'], placed: true } } }),
       );
       await nb().load();
       const head = () => document.querySelector<HTMLElement>('.batch-head')!;
