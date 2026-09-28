@@ -741,7 +741,7 @@ describe('nanban board script', () => {
       );
       await nb().load();
 
-      expect(trayNames()).toEqual(['☀ Upcoming Weekend', '⏪ Work Handoff', '💬 Wife Discussion', 'Ghost assignee']);
+      expect(trayNames()).toEqual(['☀ Upcoming Weekend', '⏪ Work Handoff', '💬 Wife Discussion', '🛒 Errands', 'Ghost assignee']);
       expect(document.querySelector('#shelf')!.lastElementChild!.textContent).toBe('+ New batch');
       expect(trayFor('wife').querySelector('.tray-title')!.textContent).toBe('Known assignees');
       expect(document.querySelector('.card[data-id="501"]')).toBeNull(); // hide-trayed is on by default
@@ -763,6 +763,32 @@ describe('nanban board script', () => {
 
       expect(bodyFor('/nanban/api/trays').trays.wife.ids).toEqual(['501']);
       expect(trayFor('wife').querySelector('.tray-title')!.textContent).toBe('Known assignees');
+    });
+
+    it('loads a saved Errands tray, hiding its card or chipping it when trayed cards show', async () => {
+      fetchMock.mockImplementationOnce(async () => jsonRes({ ...boardFixture(), trays: { errands: { ids: ['502'] } } }));
+      await nb().load();
+
+      expect(trayFor('errands').querySelector('.tray-title')!.textContent).toBe('Ghost assignee');
+      expect(document.querySelector('.card[data-id="502"]')).toBeNull(); // hide-trayed is on by default
+
+      const toggle = document.getElementById('traytoggle')!;
+      toggle.click();
+      try {
+        const chips = [...document.querySelectorAll('.card[data-id="502"] .tray-chip')].map(c => c.textContent);
+        expect(chips).toEqual(['🛒 Errands']);
+      } finally {
+        toggle.click();
+      }
+    });
+
+    it('drops a card into Errands and persists it under `errands`', async () => {
+      document.querySelector('.card[data-id="501"]')!.dispatchEvent(dragEv('dragstart'));
+      trayFor('errands').dispatchEvent(dragEv('drop'));
+      await flush();
+
+      expect(bodyFor('/nanban/api/trays').trays.errands.ids).toEqual(['501']);
+      expect(trayFor('errands').querySelector('.tray-title')!.textContent).toBe('Known assignees');
     });
   });
 
