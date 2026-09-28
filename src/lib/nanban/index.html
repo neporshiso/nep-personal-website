@@ -25,7 +25,7 @@
     font-size: 14px;
   }
   header {
-    display: flex; align-items: center; gap: 12px;
+    display: flex; flex-wrap: wrap; align-items: center; gap: 12px;
     padding: 12px 20px; border-bottom: 1px solid var(--border); background: var(--panel);
   }
   header h1 { font-size: 20px; margin: 0; flex: 0 0 auto; }
@@ -125,6 +125,7 @@
   .due { font-size: 11px; color: var(--muted); }
   .due.overdue { color: var(--danger); font-weight: 600; }
   .assignees { font-size: 11px; color: var(--muted); }
+  .effort { font-size: 11px; color: var(--muted); }
   .col-done .card .title { text-decoration: line-through; }
   .col-done .card { opacity: .65; }
   .drop-line { height: 2px; background: var(--accent); border-radius: 2px; margin: 0 0 8px; }
@@ -152,6 +153,9 @@
     width: 100%; padding: 8px; margin-bottom: 14px; border: 1px solid var(--border);
     border-radius: 4px; font: inherit; background: var(--bg); color: var(--text);
   }
+  .modal .effort-pick { display: flex; gap: 16px; margin-bottom: 12px; }
+  .modal .effort-pick label { display: flex; align-items: center; gap: 4px; margin: 0; font-size: 14px; color: var(--text); }
+  .modal .effort-pick input { width: auto; margin: 0; }
   .modal textarea { resize: vertical; min-height: 70px; }
   .assignee-box {
     margin-bottom: 14px; padding: 8px; border: 1px solid var(--border); border-radius: 4px;
@@ -184,6 +188,8 @@
 <header>
   <h1>Nanban</h1>
   <div class="spacer"></div>
+  <button id="mode-quick" aria-pressed="false">Quick</button>
+  <button id="mode-deep" aria-pressed="false">Deep</button>
   <button id="traytoggle"></button>
   <button id="refresh">Refresh</button>
   <button id="add" class="primary">+ Add task</button>
@@ -208,7 +214,7 @@ const api = {
   }),
 };
 
-let state = { columns: [], projects: [], cards: [], project_order: [], people: {}, trays: {} };
+let state = { columns: [], projects: [], cards: [], project_order: [], people: {}, trays: {}, effort: {} };
 const activeProjects = new Set(); // empty = show all
 const activeLists = new Set();    // todolist_id filter within active projects; empty = all
 const boardEl = document.getElementById("board");
@@ -259,10 +265,45 @@ function fmtDate(due) {
   return isNaN(d) ? due : d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
 }
 
+// Default effort by todolist-name prefix; any other list is 2. A card's own
+// effort (state.effort, set from the edit modal) overrides it.
+const LIST_EFFORT = [["Clear It", 1], ["Do Now", 2], ["Deep Work", 3]];
+function effortOf(card) {
+  const own = state.effort[String(card.id)];
+  if (own) return own;
+  const list = card.todolist_name || (state.projects.flatMap(p => p.todolists)
+    .find(t => String(t.id) === String(card.todolist_id)) || {}).title || "";
+  const hit = LIST_EFFORT.find(([prefix]) => list.startsWith(prefix));
+  return hit ? hit[1] : 2;
+}
+
+// View-only ranking; never saved, and dragging is off while one is on.
+let mode = null; // null | "quick" (effort 1 -> 3) | "deep" (effort 3 -> 1)
+const dueKey = c => {
+  const t = c.due_on ? new Date(c.due_on).getTime() : NaN;
+  return isNaN(t) ? Infinity : t; // undated last
+};
+function rankCmp(a, b) {
+  const dir = mode === "deep" ? -1 : 1;
+  // Infinity - Infinity is NaN (falsy), so two undated cards fall through to position.
+  return dir * (effortOf(a) - effortOf(b)) || dueKey(a) - dueKey(b) || a.position - b.position;
+}
+const modeBtns = { quick: document.getElementById("mode-quick"), deep: document.getElementById("mode-deep") };
+function setMode(m) {
+  mode = mode === m ? null : m;
+  for (const [k, b] of Object.entries(modeBtns)) {
+    b.classList.toggle("primary", mode === k);
+    b.setAttribute("aria-pressed", String(mode === k));
+  }
+  render();
+}
+modeBtns.quick.onclick = () => setMode("quick");
+modeBtns.deep.onclick = () => setMode("deep");
+
 function cardEl(card) {
   const el = document.createElement("div");
   el.className = "card";
-  el.draggable = true;
+  el.draggable = !mode;
   el.dataset.id = card.id;
 
   const title = document.createElement("div");
@@ -292,6 +333,9 @@ function cardEl(card) {
     d.textContent = "📅 " + fmtDate(card.due_on);
     meta.appendChild(d);
   }
+  const ef = document.createElement("span");
+  ef.className = "effort"; ef.textContent = "Effort " + effortOf(card);
+  meta.appendChild(ef);
   if (card.assignees && card.assignees.length) {
     const as = document.createElement("span");
     as.className = "assignees";
@@ -343,6 +387,7 @@ function openDetail(card) {
   modal.querySelector("h2").textContent = card.title;
   const subBits = [card.project_name, card.todolist_name,
     card.due_on ? "due " + fmtDate(card.due_on) : "",
+    "Effort " + effortOf(card),
     card.assignees && card.assignees.length ? "👤 " + card.assignees.join(", ") : ""
   ].filter(Boolean);
   modal.querySelector(".sub").textContent = subBits.join("  ·  ");
@@ -446,6 +491,12 @@ function openEdit(card, detail, closeDetail) {
       <input name="title">
       <label>Due date</label>
       <input name="due" type="date">
+      <label>Effort</label>
+      <div class="effort-pick">
+        <label><input type="radio" name="effort" value="1">1</label>
+        <label><input type="radio" name="effort" value="2">2</label>
+        <label><input type="radio" name="effort" value="3">3</label>
+      </div>
       <label>Assignees</label>
       <div class="assignee-box"></div>
       <label>Description</label>
@@ -459,6 +510,14 @@ function openEdit(card, detail, closeDetail) {
   form.title.value = card.title;
   form.due.value = card.due_on || "";
   form.description.value = descText;
+  // Preset to the card's effective effort, but only send it if the card already
+  // has its own or the user picked one — otherwise a save of an untouched card
+  // would freeze its list default onto it.
+  const pick = form.querySelector(".effort-pick");
+  pick.querySelector(`input[value="${effortOf(card)}"]`).checked = true;
+  const hadEffort = String(card.id) in state.effort;
+  let effortTouched = false;
+  pick.addEventListener("change", () => { effortTouched = true; }); // mouse and keyboard
   const asgBox = form.querySelector(".assignee-box");
   fillAssigneeBox(asgBox, card.project_id, card.assignees);
   // Assignees missing from the project's member list have no checkbox; rather
@@ -493,8 +552,12 @@ function openEdit(card, detail, closeDetail) {
         ...(!unrepresented.length || checkedNow() !== initialChecked
           ? { assignee_ids: checkedAssigneeIds(asgBox) }
           : {}),
+        ...(hadEffort || effortTouched
+          ? { effort: Number(pick.querySelector("input:checked").value) }
+          : {}),
       });
       Object.assign(card, { title: res.title, due_on: res.due_on });
+      if (res.effort) state.effort[String(card.id)] = res.effort;
       if (res.assignees) card.assignees = res.assignees;
       render();
       close();
@@ -616,15 +679,16 @@ function render() {
 
     const cards = visible
       .filter(c => c.column === colName)
-      .sort((a, b) => a.position - b.position);
+      .sort(mode ? rankCmp : (a, b) => a.position - b.position);
+    const rank = new Map(cards.map((c, i) => [c.id, i]));
 
     const head = document.createElement("div");
     head.className = "col-head";
     const sorted = !!preSort[colName];
     head.innerHTML = `<span>${colName}</span><span class="right">` +
-      `<button class="sort${sorted ? " on" : ""}" title="${sorted ? "Revert to previous order" : "Sort by project"}">⇅</button>` +
+      (mode ? "" : `<button class="sort${sorted ? " on" : ""}" title="${sorted ? "Revert to previous order" : "Sort by project"}">⇅</button>`) +
       `<span class="count">${cards.length}</span></span>`;
-    head.querySelector(".sort").onclick = () => sortColumn(colName);
+    if (!mode) head.querySelector(".sort").onclick = () => sortColumn(colName);
     col.appendChild(head);
 
     const lane = document.createElement("div");
@@ -640,9 +704,10 @@ function render() {
       if (b) { if (!buckets.has(b)) buckets.set(b, []); buckets.get(b).push(c); }
       else loose.push(c);
     });
-    const items = loose.map(c => ({ pos: c.position, make: () => cardEl(c) }));
+    // Order by index in `cards` (position order, or the mode's ranking).
+    const items = loose.map(c => ({ pos: rank.get(c.id), make: () => cardEl(c) }));
     buckets.forEach((members, b) => {
-      items.push({ pos: Math.min(...members.map(m => m.position)), make: () => batchGroupEl(b, members) });
+      items.push({ pos: Math.min(...members.map(m => rank.get(m.id))), make: () => batchGroupEl(b, members) });
     });
     items.sort((a, b) => a.pos - b.pos).forEach(it => lane.appendChild(it.make()));
     setupLane(lane);
@@ -667,7 +732,7 @@ function batchGroupEl(trayId, members) {
   back.className = "batch-back"; back.textContent = "↩"; back.title = "Return batch to tray";
   back.addEventListener("click", e => { e.stopPropagation(); unplaceBatch(trayId); });
   head.append(chain, nm, cnt, back);
-  head.draggable = true;
+  head.draggable = !mode;
   head.title = "Drag to another column, or onto the shelf to return to tray";
   head.addEventListener("dragstart", e => {
     e.stopPropagation();
@@ -1016,7 +1081,10 @@ let dragRowTray = null; // tray id the dragged row belongs to
 let dragTrayId = null; // set while dragging a whole batch tray
 
 function setupLane(lane) {
+  // No drops while a mode is on: a drop saves positions from on-screen order,
+  // which would turn the mode's ranking into the saved order.
   lane.addEventListener("dragover", e => {
+    if (mode) return;
     if (dragTrayId !== null) { e.preventDefault(); lane.classList.add("dragover"); return; }
     if (dragId === null) return; // ignore chip drags
     e.preventDefault();
@@ -1034,6 +1102,7 @@ function setupLane(lane) {
     if (!lane.contains(e.relatedTarget)) { lane.classList.remove("dragover"); clearDropLine(); }
   });
   lane.addEventListener("drop", e => {
+    if (mode) return;
     e.preventDefault();
     lane.classList.remove("dragover");
     if (dragTrayId !== null) { clearDropLine(); moveBatchToColumn(dragTrayId, lane.dataset.col); return; }
@@ -1295,6 +1364,7 @@ boardEl.addEventListener("click", e => {
 boardEl.addEventListener("pointerdown", e => {
   swallowClick = false;                    // a new gesture; never swallow a later tap
   if (e.pointerType === "mouse") return;   // desktop keeps the HTML5 drag path
+  if (mode) return;                        // no dragging while a mode ranks the board
   // A second finger mid-drag would overwrite touchDrag and strand the first
   // ghost in the DOM with its card left faded.
   if (touchDrag) return;
@@ -1365,6 +1435,7 @@ async function load() {
     state.project_order = (state.project_order || []).map(String);
     state.people = state.people || {};
     state.trays = state.trays || {};
+    state.effort = state.effort || {};
     for (const k of [...activeProjects])  // drop filters for projects no longer present
       if (!state.projects.some(p => String(p.id) === k)) activeProjects.delete(k);
     const liveLists = new Set(state.projects.flatMap(p => p.todolists.map(t => String(t.id))));

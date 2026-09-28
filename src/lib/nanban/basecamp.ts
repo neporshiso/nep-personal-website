@@ -28,9 +28,16 @@ export interface Card {
 }
 
 type Tray = { name?: string; ids: string[] };
+export type Effort = 1 | 2 | 3;
 export type OverlayEntry = { column?: string; position?: number; card?: Card };
 type Overlay = {
-  _meta?: { project_order?: string[]; trays?: Record<string, Tray> };
+  _meta?: {
+    project_order?: string[];
+    trays?: Record<string, Tray>;
+    // Per-card effort overrides. Kept in _meta, not the card entry: an entry
+    // without a column would change how buildBoard places the card.
+    effort?: Record<string, Effort>;
+  };
 } & Record<string, OverlayEntry>;
 
 /** Card entries of the overlay, i.e. everything except the `_meta` record. */
@@ -42,6 +49,28 @@ type CardCache = {
   listNames: Record<string, string>;
   people?: Record<string, { id: number; name: string }[]>;
 };
+
+export const isEffort = (v: unknown): v is Effort => v === 1 || v === 2 || v === 3;
+
+export function setEffort(overlay: Overlay, todoId: string, effort: Effort) {
+  overlay._meta ??= {};
+  overlay._meta.effort ??= {};
+  overlay._meta.effort[todoId] = effort;
+}
+
+/** Drop overrides for cards no longer on the board. Returns true if any went. */
+export function pruneEffort(overlay: Overlay, boardIds: Set<string>): boolean {
+  const effort = overlay._meta?.effort;
+  if (!effort) return false;
+  let changed = false;
+  for (const id of Object.keys(effort)) {
+    if (!boardIds.has(id)) {
+      delete effort[id];
+      changed = true;
+    }
+  }
+  return changed;
+}
 
 export const loadOverlay = async (): Promise<Overlay> =>
   (await kvGet<Overlay>('nanban:board')) ?? {};
@@ -327,18 +356,15 @@ export async function buildBoard() {
 
   // Prune tray ids whose card is no longer on the board (final card set).
   const boardIds = new Set(cards.map((c) => String(c.id)));
-  const trays = overlay._meta?.trays;
-  if (trays) {
-    let changed = false;
-    for (const tray of Object.values(trays)) {
-      const kept = tray.ids.filter((id) => boardIds.has(id));
-      if (kept.length !== tray.ids.length) {
-        tray.ids = kept;
-        changed = true;
-      }
+  let changed = pruneEffort(overlay, boardIds);
+  for (const tray of Object.values(overlay._meta?.trays ?? {})) {
+    const kept = tray.ids.filter((id) => boardIds.has(id));
+    if (kept.length !== tray.ids.length) {
+      tray.ids = kept;
+      changed = true;
     }
-    if (changed) await saveOverlay(overlay);
   }
+  if (changed) await saveOverlay(overlay);
 
   const people = Object.fromEntries(
     projects.map((p) => [String(p.id), peopleByProj.get(p.id) ?? []]),
@@ -364,5 +390,6 @@ export async function buildBoard() {
     project_order: overlay._meta?.project_order ?? [],
     people,
     trays: overlay._meta?.trays ?? {},
+    effort: overlay._meta?.effort ?? {},
   };
 }

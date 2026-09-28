@@ -1,6 +1,13 @@
 export const prerender = false;
 import type { APIRoute } from 'astro';
-import { apiBase, bcRequest, loadOverlay, saveOverlay } from '../../../lib/nanban/basecamp';
+import {
+  apiBase,
+  bcRequest,
+  isEffort,
+  loadOverlay,
+  saveOverlay,
+  setEffort,
+} from '../../../lib/nanban/basecamp';
 import { badRequest, handle, json } from '../../../lib/nanban/api';
 
 export const POST: APIRoute = async ({ request }) => {
@@ -11,6 +18,8 @@ export const POST: APIRoute = async ({ request }) => {
     projectId = body.project_id;
     title = String(body.title ?? '').trim();
     if (body.todo_id == null || projectId == null) return badRequest();
+    // Effort is 1, 2 or 3 only; absent leaves it unchanged. There is no clear.
+    if ('effort' in body && !isEffort(body.effort)) return badRequest();
   } catch {
     return badRequest();
   }
@@ -36,14 +45,16 @@ export const POST: APIRoute = async ({ request }) => {
       entry.card.description = updated.description ?? String(payload.description);
       entry.card.due_on = updated.due_on ?? null;
       if (Array.isArray(body.assignee_ids)) entry.card.assignees = assignees;
-      await saveOverlay(overlay);
     }
+    if (isEffort(body.effort)) setEffort(overlay, todoId, body.effort);
+    if (entry?.card || isEffort(body.effort)) await saveOverlay(overlay);
     return {
       ok: true,
       title: updated.title || title,
       description: updated.description ?? payload.description,
       due_on: updated.due_on ?? null,
       assignees,
+      effort: overlay._meta?.effort?.[todoId] ?? null,
     };
   });
 };

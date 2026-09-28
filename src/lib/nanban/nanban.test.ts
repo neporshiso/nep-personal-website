@@ -111,7 +111,8 @@ const fetchMock = vi.fn(async (url: string, opts?: any) => {
   }
   if (u === '/nanban/api/update') {
     // No `assignees` key back, so the local card keeps its fixture assignees.
-    return jsonRes({ title: body.title, due_on: body.due_on });
+    // Like the server: echo the card's stored effort, or null when it has none.
+    return jsonRes({ title: body.title, due_on: body.due_on, effort: body.effort ?? null });
   }
   return jsonRes({});
 });
@@ -762,6 +763,199 @@ describe('nanban board script', () => {
 
       expect(bodyFor('/nanban/api/trays').trays.wife.ids).toEqual(['501']);
       expect(trayFor('wife').querySelector('.tray-title')!.textContent).toBe('Known assignees');
+    });
+  });
+
+  describe('effort', () => {
+    const card = (id: number, list: string, over: Record<string, unknown> = {}) => ({
+      id, title: `Card ${id}`, project_id: 1, project_name: 'Alpha',
+      todolist_id: id, todolist_name: list, column: 'To Do', position: id,
+      due_on: null, assignees: [], ...over,
+    });
+    // No `effort` key at all: what every board looked like before this feature.
+    const loadCards = async (cards: unknown[], extra: Record<string, unknown> = {}) => {
+      fetchMock.mockImplementationOnce(async () => jsonRes({ ...boardFixture(), cards, ...extra }));
+      await nb().load();
+    };
+    const faceEffort = (id: number) =>
+      document.querySelector(`.card[data-id="${id}"] .effort`)!.textContent;
+    const openEditFor = async (id: number) => {
+      tap(document.querySelector(`.card[data-id="${id}"]`)!);
+      await flush();
+      (document.querySelector('.backdrop .edit-btn') as HTMLButtonElement).click();
+      return document.querySelector('.backdrop form') as HTMLFormElement;
+    };
+    const checkedEffort = (form: HTMLFormElement) =>
+      (form.querySelector('input[name="effort"]:checked') as HTMLInputElement).value;
+
+    it('shows the list default on cards that have no effort of their own', async () => {
+      await loadCards([
+        card(1, 'Clear It — Low impact + blocking someone or something'),
+        card(2, 'Do Now — High impact + blocking someone or something'),
+        card(3, 'Deep Work — High impact + not blocking anything'),
+        card(4, 'Home'),
+      ]);
+      expect([1, 2, 3, 4].map(faceEffort)).toEqual(['Effort 1', 'Effort 2', 'Effort 3', 'Effort 2']);
+    });
+
+    it("shows a card's own effort over its list default", async () => {
+      await loadCards([card(1, 'Clear It — x')], { effort: { '1': 3 } });
+      expect(faceEffort(1)).toBe('Effort 3');
+    });
+
+    it('shows effort in the detail view, stored or default', async () => {
+      await loadCards([card(1, 'Clear It — x'), card(2, 'Home')], { effort: { '2': 3 } });
+      tap(document.querySelector('.card[data-id="1"]')!);
+      await flush();
+      expect(document.querySelector('.backdrop .sub')!.textContent).toContain('Effort 1');
+      document.querySelectorAll('.backdrop').forEach(el => el.remove());
+      tap(document.querySelector('.card[data-id="2"]')!);
+      await flush();
+      expect(document.querySelector('.backdrop .sub')!.textContent).toContain('Effort 3');
+    });
+
+    it('offers exactly 1, 2 and 3, preset to the effective effort', async () => {
+      await loadCards([card(3, 'Deep Work — x')]);
+      const form = await openEditFor(3);
+      const values = [...form.querySelectorAll<HTMLInputElement>('input[name="effort"]')].map(i => i.value);
+      expect(values).toEqual(['1', '2', '3']);
+      expect(checkedEffort(form)).toBe('3');
+    });
+
+    it('records an effort changed without a click (keyboard arrows fire only change)', async () => {
+      await loadCards([card(4, 'Home')]);
+      const form = await openEditFor(4);
+      const three = form.querySelector('input[name="effort"][value="3"]') as HTMLInputElement;
+      three.checked = true;
+      three.dispatchEvent(new window.Event('change', { bubbles: true }));
+      await submitForm(form);
+      expect(bodyFor('/nanban/api/update').effort).toBe(3);
+    });
+
+    it('does not send effort when saving an untouched card that has none of its own', async () => {
+      await loadCards([card(4, 'Home')]);
+      await submitForm(await openEditFor(4));
+      expect(bodyFor('/nanban/api/update')).not.toHaveProperty('effort');
+      expect(faceEffort(4)).toBe('Effort 2');
+    });
+
+    it('sets effort on an existing card and shows it on the card and in the detail view', async () => {
+      await loadCards([card(4, 'Home')]);
+      const form = await openEditFor(4);
+      (form.querySelector('input[name="effort"][value="3"]') as HTMLInputElement).click();
+      await submitForm(form);
+
+      expect(bodyFor('/nanban/api/update').effort).toBe(3);
+      expect(faceEffort(4)).toBe('Effort 3');
+      tap(document.querySelector('.card[data-id="4"]')!);
+      await flush();
+      expect(document.querySelector('.backdrop .sub')!.textContent).toContain('Effort 3');
+    });
+
+    it("changes an existing effort, and re-sends a card's own effort on an untouched save", async () => {
+      await loadCards([card(4, 'Home')], { effort: { '4': 1 } });
+      let form = await openEditFor(4);
+      expect(checkedEffort(form)).toBe('1');
+      await submitForm(form);
+      expect(bodyFor('/nanban/api/update').effort).toBe(1);
+
+      document.querySelectorAll('.backdrop').forEach(el => el.remove());
+      form = await openEditFor(4);
+      (form.querySelector('input[name="effort"][value="2"]') as HTMLInputElement).click();
+      await submitForm(form);
+      expect(bodyFor('/nanban/api/update').effort).toBe(2);
+      expect(faceEffort(4)).toBe('Effort 2');
+    });
+  });
+
+  describe('Quick and Deep modes', () => {
+    const quick = () => document.getElementById('mode-quick') as HTMLButtonElement;
+    const deep = () => document.getElementById('mode-deep') as HTMLButtonElement;
+    const order = () =>
+      [...document.querySelectorAll('.col[data-col="To Do"] .card')].map(c => (c as HTMLElement).dataset.id);
+    const past = '2020-01-01';
+    const future = '2099-01-01';
+    // Saved order A..E. Effort: A 3, B 2 (due later), C 1, D 2 (overdue), E 2 (undated).
+    const cards = [
+      { id: 1, list: 'Deep Work — x', due: null },
+      { id: 2, list: 'Home', due: future },
+      { id: 3, list: 'Clear It — x', due: null },
+      { id: 4, list: 'Home', due: past },
+      { id: 5, list: 'Home', due: null },
+    ].map((c, i) => ({
+      id: c.id, title: `Card ${c.id}`, project_id: 1, project_name: 'Alpha',
+      todolist_id: c.id, todolist_name: c.list, column: 'To Do', position: i,
+      due_on: c.due, assignees: [],
+    }));
+
+    beforeEach(async () => {
+      fetchMock.mockImplementationOnce(async () => jsonRes({ ...boardFixture(), cards }));
+      await nb().load();
+      posts.length = 0;
+    });
+    const modesOff = () => {
+      if (quick().getAttribute('aria-pressed') === 'true') quick().click();
+      if (deep().getAttribute('aria-pressed') === 'true') deep().click();
+    };
+
+    it('Quick ranks effort 1 -> 3, then overdue/soonest due, undated last, then saved order', () => {
+      try {
+        quick().click();
+        expect(order()).toEqual(['3', '4', '2', '5', '1']);
+      } finally { modesOff(); }
+    });
+
+    it('Deep ranks effort 3 -> 1 with the same tie-breaks', () => {
+      try {
+        deep().click();
+        expect(order()).toEqual(['1', '4', '2', '5', '3']);
+      } finally { modesOff(); }
+    });
+
+    it('switches between modes, turns off on a second click, restores the saved order, and sends nothing', () => {
+      try {
+        expect(order()).toEqual(['1', '2', '3', '4', '5']);
+        quick().click();
+        deep().click();
+        expect(quick().getAttribute('aria-pressed')).toBe('false');
+        expect(deep().getAttribute('aria-pressed')).toBe('true');
+        deep().click();
+        expect(deep().getAttribute('aria-pressed')).toBe('false');
+        expect(order()).toEqual(['1', '2', '3', '4', '5']);
+        expect(posts).toHaveLength(0);
+      } finally { modesOff(); }
+    });
+
+    it('turns off dragging, dropping and column sort while on, and back on after', async () => {
+      const dragEv = (type: string) => new window.Event(type, { bubbles: true, cancelable: true });
+      try {
+        quick().click();
+        const cardEls = [...document.querySelectorAll<HTMLElement>('.col[data-col="To Do"] .card')];
+        expect(cardEls.every(c => !c.draggable)).toBe(true);
+        expect(document.querySelector('.col-head .sort')).toBeNull();
+
+        cardEls[0].dispatchEvent(dragEv('dragstart'));
+        document.querySelector('.lane[data-col="Doing"]')!.dispatchEvent(dragEv('drop'));
+        await flush();
+        expect(posts.filter(p => p.url === '/nanban/api/move')).toHaveLength(0);
+        cardEls[0].dispatchEvent(dragEv('dragend'));
+      } finally { modesOff(); }
+      expect(document.querySelector<HTMLElement>('.card')!.draggable).toBe(true);
+      expect(document.querySelector('.col-head .sort')).not.toBeNull();
+    });
+
+    it('makes a placed batch group undraggable while on', async () => {
+      fetchMock.mockImplementationOnce(async () =>
+        jsonRes({ ...boardFixture(), cards, trays: { 'batch-1': { ids: ['2', '4'], placed: true } } }),
+      );
+      await nb().load();
+      const head = () => document.querySelector<HTMLElement>('.batch-head')!;
+      expect(head().draggable).toBe(true);
+      try {
+        quick().click();
+        expect(head().draggable).toBe(false);
+      } finally { modesOff(); }
+      expect(head().draggable).toBe(true);
     });
   });
 });
