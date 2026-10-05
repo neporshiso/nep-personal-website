@@ -219,6 +219,9 @@ const api = {
 let state = { columns: [], projects: [], cards: [], project_order: [], people: {}, trays: {}, effort: {} };
 const activeProjects = new Set(); // empty = show all
 const activeLists = new Set();    // todolist_id filter within active projects; empty = all
+const activeAssignees = new Set(); // assignee names; empty = all. Mirrored to localStorage.
+const ASSIGNEES_KEY = "nanban_assignees";
+const saveAssignees = () => localStorage.setItem(ASSIGNEES_KEY, JSON.stringify([...activeAssignees]));
 const boardEl = document.getElementById("board");
 const shelfEl = document.getElementById("shelf");
 const statusEl = document.getElementById("status");
@@ -563,6 +566,7 @@ function openEdit(card, detail, closeDetail) {
       Object.assign(card, { title: res.title, due_on: res.due_on });
       if (res.effort) state.effort[String(card.id)] = res.effort;
       if (res.assignees) card.assignees = res.assignees;
+      renderFilters(); // assignee chips follow the names on the cards
       render();
       close();
     } catch (err) {
@@ -640,6 +644,33 @@ function renderFilters() {
     filtersEl.appendChild(clear);
   }
 
+  // Assignee row: one chip per person on a card, plus any still-selected name an edit
+  // just took off its last card, so it stays clickable. A card shows when any of its
+  // assignees is on.
+  const names = [...new Set([...state.cards.flatMap(c => c.assignees || []), ...activeAssignees])]
+    .sort((a, b) => a.localeCompare(b));
+  if (names.length) {
+    const row = document.createElement("div");
+    row.className = "list-row assignee-row";
+    const lbl = document.createElement("span");
+    lbl.className = "flabel"; lbl.textContent = "Assignee:";
+    row.appendChild(lbl);
+    names.forEach(n => {
+      const on = activeAssignees.has(n);
+      const chip = document.createElement("button");
+      chip.className = "chip" + (on ? " on" : "");
+      if (on) chip.style.background = "var(--accent)";
+      chip.textContent = n;
+      chip.onclick = () => {
+        on ? activeAssignees.delete(n) : activeAssignees.add(n);
+        saveAssignees();
+        renderFilters(); render();
+      };
+      row.appendChild(chip);
+    });
+    filtersEl.appendChild(row);
+  }
+
   // Secondary row: todolists of the active projects.
   const lists = sorted
     .filter(p => activeProjects.has(String(p.id)))
@@ -673,6 +704,7 @@ function render() {
   const visible = state.cards.filter(c =>
     (activeProjects.size === 0 || activeProjects.has(String(c.project_id))) &&
     (activeLists.size === 0 || activeLists.has(String(c.todolist_id))) &&
+    (activeAssignees.size === 0 || (c.assignees || []).some(n => activeAssignees.has(n))) &&
     (!hideTrayed || !trayed.has(String(c.id)))
   );
   trayToggleEl.textContent = hideTrayed ? "Show trayed" : "Hide trayed";
@@ -1444,6 +1476,14 @@ async function load() {
       if (!state.projects.some(p => String(p.id) === k)) activeProjects.delete(k);
     const liveLists = new Set(state.projects.flatMap(p => p.todolists.map(t => String(t.id))));
     for (const k of [...activeLists]) if (!liveLists.has(k)) activeLists.delete(k);
+    // Restore the saved assignee filter, dropping names no card carries any more.
+    const liveNames = new Set(state.cards.flatMap(c => c.assignees || []));
+    activeAssignees.clear();
+    try {
+      JSON.parse(localStorage.getItem(ASSIGNEES_KEY) || "[]")
+        .filter(n => liveNames.has(n)).forEach(n => activeAssignees.add(n));
+    } catch {}
+    saveAssignees();
     statusEl.style.display = "none";
     boardEl.style.display = "";
     shelfEl.style.display = "";
@@ -1537,6 +1577,7 @@ function openModal() {
           .reduce((m, c) => Math.max(m, c.position), -1);
         if (card.position == null) card.position = maxPos + 1;
         state.cards.push(card);
+        renderFilters();
         render();
       }
       close();

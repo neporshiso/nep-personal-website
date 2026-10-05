@@ -8,7 +8,7 @@ import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import vm from 'node:vm';
-import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
 // jsdom replaces the global URL, which node:fs won't accept — resolve by path.
 const html = readFileSync(join(dirname(fileURLToPath(import.meta.url)), 'index.html'), 'utf8');
@@ -980,6 +980,127 @@ describe('nanban board script', () => {
         expect(head().draggable).toBe(false);
       } finally { modesOff(); }
       expect(head().draggable).toBe(true);
+    });
+  });
+
+  describe('assignee filter', () => {
+    const KEY = 'nanban_assignees';
+    const card = (id: number, project_id: number, assignees: string[]) => ({
+      id, title: `Card ${id}`, project_id, project_name: project_id === 1 ? 'Alpha' : 'Beta',
+      todolist_id: project_id === 1 ? 101 : 201, todolist_name: 'x', column: 'To Do', position: id,
+      due_on: null, assignees,
+    });
+    const cards = [
+      card(1, 1, ['Nep Orshiso']),
+      card(2, 1, ['Lega Dolicho']),
+      card(3, 2, ['Lega Dolicho', 'Nep Orshiso']),
+      card(4, 2, []),
+    ];
+    const loadWith = async () => {
+      fetchMock.mockImplementationOnce(async () => jsonRes({ ...boardFixture(), cards: structuredClone(cards) }));
+      await nb().load();
+    };
+    const row = () => document.querySelector('#filters .assignee-row')!;
+    const chips = () => [...row().querySelectorAll<HTMLElement>('.chip')];
+    const chip = (name: string) => chips().find(c => c.textContent === name)!;
+    const projectChip = (name: string) =>
+      [...document.querySelectorAll<HTMLElement>('#filters > .chip')].find(c => c.textContent === name)!;
+    const shown = () =>
+      [...document.querySelectorAll<HTMLElement>('.col[data-col="To Do"] .card')].map(c => c.dataset.id);
+    const count = () => document.querySelector('.col[data-col="To Do"] .count')!.textContent;
+    const saved = () => JSON.parse(localStorage.getItem(KEY) ?? 'null');
+
+    beforeEach(async () => {
+      localStorage.removeItem(KEY);
+      await loadWith();
+    });
+    afterEach(async () => {
+      localStorage.removeItem(KEY);
+      document.querySelectorAll<HTMLElement>('#filters > .chip').forEach(c => {
+        if (c.textContent === 'Clear') c.click();
+      });
+      await nb().load();
+    });
+
+    it('renders one chip per assignee on the cards, sorted, none on, showing every card', () => {
+      expect(row().querySelector('.flabel')!.textContent).toBe('Assignee:');
+      expect(chips().map(c => c.textContent)).toEqual(['Lega Dolicho', 'Nep Orshiso']);
+      expect(chips().some(c => c.classList.contains('on'))).toBe(false);
+      expect(shown()).toEqual(['1', '2', '3', '4']);
+    });
+
+    it('shows a person\'s own and shared cards, both people together, and everything with none on', () => {
+      chip('Nep Orshiso').click();
+      expect(shown()).toEqual(['1', '3']);
+      expect(count()).toBe('2');
+      expect(chip('Nep Orshiso').classList.contains('on')).toBe(true);
+
+      chip('Lega Dolicho').click();
+      expect(shown()).toEqual(['1', '2', '3']);
+
+      chip('Nep Orshiso').click();
+      expect(shown()).toEqual(['2', '3']);
+
+      chip('Lega Dolicho').click();
+      expect(shown()).toEqual(['1', '2', '3', '4']);
+      expect(count()).toBe('4');
+    });
+
+    it('saves the selection and restores it on load, dropping names no card has', async () => {
+      chip('Nep Orshiso').click();
+      expect(saved()).toEqual(['Nep Orshiso']);
+
+      localStorage.setItem(KEY, JSON.stringify(['Lega Dolicho', 'Gone Person']));
+      await loadWith();
+      expect(chip('Lega Dolicho').classList.contains('on')).toBe(true);
+      expect(chip('Nep Orshiso').classList.contains('on')).toBe(false);
+      expect(shown()).toEqual(['2', '3']);
+      expect(saved()).toEqual(['Lega Dolicho']);
+
+      localStorage.setItem(KEY, JSON.stringify(['Gone Person']));
+      await loadWith();
+      expect(shown()).toEqual(['1', '2', '3', '4']);
+      expect(saved()).toEqual([]);
+    });
+
+    it('adds a chip for a person newly assigned in the edit modal, without a reload', async () => {
+      const c1 = nb().state.cards.find((c: any) => c.id === 1);
+      nb().openEdit(c1, null, null);
+      const form = document.querySelector('.backdrop form') as HTMLFormElement;
+      cbFor(form.querySelector('.assignee-box')!, 'Ava Stone').click();
+      fetchMock.mockImplementationOnce(async (url: string, opts?: any) => {
+        posts.push({ url: String(url), body: JSON.parse(opts.body) });
+        return jsonRes({ title: 'Card 1', due_on: null, effort: null, assignees: ['Ava Stone', 'Nep Orshiso'] });
+      });
+      await submitForm(form);
+      expect(chips().map(c => c.textContent)).toEqual(['Ava Stone', 'Lega Dolicho', 'Nep Orshiso']);
+      chip('Ava Stone').click();
+      expect(shown()).toEqual(['1']);
+    });
+
+    it('keeps an active chip that no card carries any more, so it can still be turned off', async () => {
+      const editReturning = async (id: number, assignees: string[]) => {
+        nb().openEdit(nb().state.cards.find((c: any) => c.id === id), null, null);
+        fetchMock.mockImplementationOnce(async () => jsonRes({ title: `Card ${id}`, due_on: null, effort: null, assignees }));
+        await submitForm(document.querySelector('.backdrop form') as HTMLFormElement);
+      };
+      chip('Lega Dolicho').click();
+      await editReturning(2, ['Nep Orshiso']);
+      await editReturning(3, ['Nep Orshiso']);
+      expect(chip('Lega Dolicho').classList.contains('on')).toBe(true);
+      expect(shown()).toEqual([]);
+      chip('Lega Dolicho').click();
+      expect(shown()).toEqual(['1', '2', '3', '4']);
+    });
+
+    it('combines with the project filter, and the project Clear leaves it on', () => {
+      chip('Nep Orshiso').click();
+      projectChip('Beta').click();
+      expect(shown()).toEqual(['3']);
+
+      projectChip('Clear').click();
+      expect(shown()).toEqual(['1', '3']);
+      expect(chip('Nep Orshiso').classList.contains('on')).toBe(true);
     });
   });
 });
