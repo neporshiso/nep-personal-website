@@ -7,7 +7,6 @@ import { env } from './env';
 import { kvGet, kvSet } from './redis';
 
 export const COLUMNS = ['Backlog', 'To Do', 'In Progress', 'Blocked', 'Done'];
-const DONE_CAP = 30;
 const USER_AGENT = 'Nanban (nep@joinforma.com)';
 
 export const apiBase = () => `https://3.basecampapi.com/${env('BASECAMP_ACCOUNT_ID')}`;
@@ -25,11 +24,13 @@ export interface Card {
   column: string;
   position: number;
   url: string | null;
+  done_at?: string;
 }
 
 type Tray = { name?: string; ids: string[] };
 export type Effort = 1 | 2 | 3;
-export type OverlayEntry = { column?: string; position?: number; card?: Card };
+// done_at: ISO time the card last moved into Done; orders the Done column.
+export type OverlayEntry = { column?: string; position?: number; card?: Card; done_at?: string };
 type Overlay = {
   _meta?: {
     project_order?: string[];
@@ -307,7 +308,7 @@ export async function buildBoard() {
   const todoResults = await Promise.all(pairs.map((pr) => fetchTodos(pr.projectId, pr.tl)));
 
   const projName = new Map(projects.map((p) => [p.id, p.name]));
-  let cards: any[] = todoResults.flat().map((t) => ({
+  const cards: any[] = todoResults.flat().map((t) => ({
     ...t,
     project_name: projName.get(t.project_id) ?? '',
   }));
@@ -334,6 +335,7 @@ export async function buildBoard() {
     if (entry) {
       c.column = entry.column ?? 'Backlog';
       c.position = entry.position ?? 0;
+      if (entry.column === 'Done' && entry.done_at) c.done_at = entry.done_at;
     } else {
       c.column = 'Backlog';
       c.position = null;
@@ -348,11 +350,6 @@ export async function buildBoard() {
     let n = Math.max(-1, ...group.filter((c) => c.position !== null).map((c) => c.position)) + 1;
     for (const c of group) if (c.position === null) c.position = n++;
   }
-
-  // Cap Done at the 30 most recent (highest position).
-  const done = [...(byCol.get('Done') ?? [])].sort((a, b) => b.position - a.position);
-  const keepDone = new Set(done.slice(0, DONE_CAP));
-  cards = cards.filter((c) => c.column !== 'Done' || keepDone.has(c));
 
   // Prune tray ids whose card is no longer on the board (final card set).
   const boardIds = new Set(cards.map((c) => String(c.id)));

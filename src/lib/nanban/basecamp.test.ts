@@ -1,6 +1,7 @@
 // Unit tests for cardEntries, the single place where the overlay's `_meta`/card
 // distinction is made.
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { POST as movePOST } from '../../pages/nanban/api/move';
 import { POST as updatePOST } from '../../pages/nanban/api/update';
 import {
   buildBoard,
@@ -183,7 +184,7 @@ describe('POST /nanban/api/update — effort', () => {
   });
 });
 
-describe('buildBoard — effort', () => {
+describe('buildBoard', () => {
   beforeEach(() => {
     for (const k of Object.keys(redisStore)) delete redisStore[k];
     vi.stubEnv('BASECAMP_ACCOUNT_ID', '42');
@@ -220,5 +221,71 @@ describe('buildBoard — effort', () => {
   it('returns an empty effort map when Redis never stored one', async () => {
     const board = await buildBoard();
     expect(board.effort).toEqual({});
+  });
+
+  it('returns every Done snapshot, however many there are, with done_at when stored', async () => {
+    const overlay: Record<string, unknown> = {};
+    for (let i = 0; i < 31; i++) {
+      const id = 100 + i;
+      overlay[String(id)] = {
+        column: 'Done',
+        position: i,
+        card: { id, title: `Done ${i}`, project_id: 9, todolist_id: 7 },
+        ...(i === 0 ? { done_at: '2026-10-11T12:00:00.000Z' } : {}),
+      };
+    }
+    redisStore['nanban:board'] = overlay;
+    const done = (await buildBoard()).cards.filter((c) => c.column === 'Done');
+    expect(done).toHaveLength(31);
+    expect(done.find((c) => c.id === 100).done_at).toBe('2026-10-11T12:00:00.000Z');
+    expect(done.find((c) => c.id === 101).done_at).toBeUndefined();
+  });
+});
+
+describe('POST /nanban/api/move — done_at', () => {
+  beforeEach(() => {
+    for (const k of Object.keys(redisStore)) delete redisStore[k];
+    vi.stubEnv('BASECAMP_ACCOUNT_ID', '42');
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => ({ ok: true, status: 204, headers: new Headers(), json: async () => ({}) })),
+    );
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date('2026-10-11T15:30:00.000Z'));
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+    vi.unstubAllGlobals();
+    vi.unstubAllEnvs();
+  });
+
+  const move = (column: string, position = 0) =>
+    (movePOST as unknown as (ctx: { request: Request }) => Promise<Response>)({
+      request: new Request('http://x/nanban/api/move', {
+        method: 'POST',
+        body: JSON.stringify({ todo_id: 7, project_id: 9, column, position }),
+      }),
+    });
+  const entry = () => (redisStore['nanban:board'] as any)['7'];
+
+  it('stamps done_at on a move into Done', async () => {
+    redisStore['nanban:board'] = { '7': { column: 'To Do', position: 0 } };
+    expect((await move('Done')).status).toBe(200);
+    expect(entry().done_at).toBe('2026-10-11T15:30:00.000Z');
+  });
+
+  it('keeps the original done_at on a reorder inside Done', async () => {
+    redisStore['nanban:board'] = {
+      '7': { column: 'Done', position: 0, done_at: '2026-10-01T09:00:00.000Z' },
+      '8': { column: 'Done', position: 1 },
+    };
+    await move('Done', 2);
+    expect(entry().done_at).toBe('2026-10-01T09:00:00.000Z');
+  });
+
+  it('clears done_at on a move out of Done', async () => {
+    redisStore['nanban:board'] = { '7': { column: 'Done', position: 0, done_at: '2026-10-01T09:00:00.000Z' } };
+    await move('To Do');
+    expect(entry()).not.toHaveProperty('done_at');
   });
 });

@@ -43,8 +43,10 @@ export const POST: APIRoute = async ({ request }) => {
       // Snapshot the card so it survives dropping out of the open-todos fetch.
       const snap = (await loadCardCache()).cards[todoId];
       if (snap) entry.card = { ...snap, column: 'Done' };
+      if (oldCol !== 'Done') entry.done_at = new Date().toISOString();
     } else {
       delete entry.card;
+      delete entry.done_at;
     }
     overlay[todoId] = entry;
     reindex(overlay, column);

@@ -1103,4 +1103,89 @@ describe('nanban board script', () => {
       expect(chip('Nep Orshiso').classList.contains('on')).toBe(true);
     });
   });
+
+  describe('Done column', () => {
+    const order = (col: string) =>
+      [...document.querySelectorAll(`.col[data-col="${col}"] .card`)].map(c => (c as HTMLElement).dataset.id);
+    const head = (col: string) => document.querySelector(`.col[data-col="${col}"] .col-head`)!;
+    const ev = (type: string) => {
+      const e: any = new window.Event(type, { bubbles: true, cancelable: true });
+      e.dataTransfer = { setData() {} };
+      return e;
+    };
+    // HTML5 drop with no drop line: lands at the end of the lane.
+    const drag = async (id: string, toCol: string) => {
+      document.querySelector(`.card[data-id="${id}"]`)!.dispatchEvent(ev('dragstart'));
+      document.querySelector(`.lane[data-col="${toCol}"]`)!.dispatchEvent(ev('drop'));
+      await flush();
+    };
+    const card = (id: number, column: string, position: number, done_at?: string) => ({
+      id, title: `Card ${id}`, project_id: 1, project_name: 'Alpha', todolist_id: 101,
+      todolist_name: 'Backlog', column, position, due_on: null, assignees: [],
+      ...(done_at ? { done_at } : {}),
+    });
+    // 601 and 602 were finished before done_at existed. A function, because the
+    // board script mutates the card objects it loads.
+    const cards = () => [
+      card(501, 'To Do', 0),
+      card(502, 'To Do', 1),
+      card(601, 'Done', 0),
+      card(602, 'Done', 1),
+      card(603, 'Done', 2, '2026-10-01T09:00:00.000Z'),
+      card(604, 'Done', 3, '2026-10-05T09:00:00.000Z'),
+    ];
+    const effort = { '601': 1, '604': 3 };
+
+    beforeEach(async () => {
+      fetchMock.mockImplementationOnce(async () => jsonRes({ ...boardFixture(), cards: cards(), effort }));
+      await nb().load();
+      posts.length = 0;
+    });
+
+    it('lists newest finish first, then undated cards in saved order, in every mode', () => {
+      expect(order('Done')).toEqual(['604', '603', '601', '602']);
+      for (const m of ['mode-quick', 'mode-deep']) {
+        const btn = document.getElementById(m)!;
+        btn.click();
+        try {
+          expect(order('Done')).toEqual(['604', '603', '601', '602']);
+        } finally { btn.click(); }
+      }
+    });
+
+    it('puts a card dropped at the bottom of Done at the top', async () => {
+      await drag('501', 'Done');
+      expect(bodyFor('/nanban/api/move')).toMatchObject({ todo_id: 501, column: 'Done' });
+      expect(order('Done')).toEqual(['501', '604', '603', '601', '602']);
+    });
+
+    it('puts a card moved out of Done and back in at the top', async () => {
+      await drag('602', 'To Do');
+      await drag('602', 'Done');
+      expect(order('Done')).toEqual(['602', '604', '603', '601']);
+    });
+
+    it('ignores a reorder inside Done', async () => {
+      await drag('604', 'Done');
+      expect(posts.filter(p => p.url === '/nanban/api/move')).toHaveLength(0);
+      expect(order('Done')).toEqual(['604', '603', '601', '602']);
+    });
+
+    it('puts a batch moved into Done at the top', async () => {
+      fetchMock.mockImplementationOnce(async () =>
+        jsonRes({ ...boardFixture(), cards: cards(), effort, trays: { 'batch-1': { ids: ['502'] } } }),
+      );
+      await nb().load();
+      document.querySelector('#shelf .tray[data-tray="batch-1"] .tray-head')!.dispatchEvent(ev('dragstart'));
+      document.querySelector('.lane[data-col="Done"]')!.dispatchEvent(ev('drop'));
+      await flush();
+      expect(bodyFor('/nanban/api/move')).toMatchObject({ todo_id: 502, column: 'Done' });
+      expect(order('Done')[0]).toBe('502');
+    });
+
+    it('has no sort button, while the other columns keep theirs', () => {
+      expect(head('Done').querySelector('.sort')).toBeNull();
+      expect(head('To Do').querySelector('.sort')).not.toBeNull();
+    });
+  });
 });

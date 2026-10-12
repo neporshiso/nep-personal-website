@@ -301,6 +301,14 @@ function rankCmp(a, b) {
   // Infinity - Infinity is NaN (falsy), so two undated cards fall through to position.
   return dir * ((ea || 0) - (eb || 0)) || dueKey(a) - dueKey(b) || a.position - b.position;
 }
+// Done is a history, not a queue: newest finish first in every mode, never
+// hand-ordered. Cards finished before done_at existed follow in saved order.
+const doneCmp = (a, b) => (b.done_at || "").localeCompare(a.done_at || "") || a.position - b.position;
+// Mirrors move.ts: entering Done stamps the finish time, leaving clears it.
+function stampDone(card, toCol) {
+  if (toCol !== "Done") delete card.done_at;
+  else if (card.column !== "Done") card.done_at = new Date().toISOString();
+}
 const modeBtns = { quick: document.getElementById("mode-quick"), deep: document.getElementById("mode-deep") };
 function setMode(m) {
   mode = mode === m ? null : m;
@@ -715,16 +723,17 @@ function render() {
 
     const cards = visible
       .filter(c => c.column === colName)
-      .sort(mode ? rankCmp : (a, b) => a.position - b.position);
+      .sort(colName === "Done" ? doneCmp : mode ? rankCmp : (a, b) => a.position - b.position);
     const rank = new Map(cards.map((c, i) => [c.id, i]));
 
     const head = document.createElement("div");
     head.className = "col-head";
     const sorted = !!preSort[colName];
+    const sortable = !mode && colName !== "Done";
     head.innerHTML = `<span>${colName}</span><span class="right">` +
-      (mode ? "" : `<button class="sort${sorted ? " on" : ""}" title="${sorted ? "Revert to previous order" : "Sort by project"}">⇅</button>`) +
+      (!sortable ? "" : `<button class="sort${sorted ? " on" : ""}" title="${sorted ? "Revert to previous order" : "Sort by project"}">⇅</button>`) +
       `<span class="count">${cards.length}</span></span>`;
-    if (!mode) head.querySelector(".sort").onclick = () => sortColumn(colName);
+    if (sortable) head.querySelector(".sort").onclick = () => sortColumn(colName);
     col.appendChild(head);
 
     const lane = document.createElement("div");
@@ -1182,6 +1191,7 @@ boardEl.addEventListener("dragend", e => {
 function onDrop(id, toCol, index) {
   const card = state.cards.find(c => String(c.id) === String(id));
   if (!card) return;
+  if (card.column === "Done" && toCol === "Done") return; // Done's order is its finish times
   // Dragging a card out of its column sheds placed-batch membership.
   if (card.column !== toCol) {
     let shed = false;
@@ -1197,6 +1207,7 @@ function onDrop(id, toCol, index) {
   delete preSort[card.column]; // manual move invalidates the revert stash
   delete preSort[toCol];
   const snapshot = state.cards.map(c => ({ ...c }));
+  stampDone(card, toCol);
 
   // optimistic reorder
   const others = state.cards
@@ -1229,7 +1240,7 @@ async function moveBatchToColumn(trayId, toCol) {
   const snapshot = state.cards.map(c => ({ ...c }));
   delete preSort[toCol];
   let pos = state.cards.filter(c => c.column === toCol).length;
-  cards.forEach(c => { delete preSort[c.column]; c.column = toCol; c.position = pos++; });
+  cards.forEach(c => { delete preSort[c.column]; stampDone(c, toCol); c.column = toCol; c.position = pos++; });
   render();
   try {
     for (const c of cards) {
