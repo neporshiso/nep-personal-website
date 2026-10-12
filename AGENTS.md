@@ -9,14 +9,14 @@ pnpm install            # install deps
 pnpm dev                # astro dev server (Keystatic CMS at /keystatic)
 pnpm build              # production build (output: dist/, deployed via Vercel adapter)
 pnpm preview            # preview the built site
-pnpm test               # vitest run — 6 suites, 87 tests; add more under src/**/*.test.ts
+pnpm test               # vitest run; add more under src/**/*.test.ts
                         # (but never under src/pages/ — see below)
 pnpm test:watch         # vitest watch
 ```
 
 ### Testing the Nanban UI
 
-`src/lib/nanban/nanban.test.ts` is the largest of the six suites. Nanban's UI is a single inline
+`src/lib/nanban/nanban.test.ts` is the largest suite. Nanban's UI is a single inline
 `<script>` inside `src/lib/nanban/index.html`, which is served raw (`?raw` import) rather than
 bundled — so it is never typechecked and cannot be imported as a module. The suite reaches it by
 reading the HTML, extracting the script, and evaluating it under jsdom with a stubbed `fetch`,
