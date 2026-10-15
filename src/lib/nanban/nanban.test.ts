@@ -730,6 +730,63 @@ describe('nanban board script', () => {
     });
   });
 
+  // Click-only column changes, for drivers that can't drag. No drag events here.
+  describe('detail modal column', () => {
+    const order = (col: string) =>
+      [...document.querySelectorAll(`.col[data-col="${col}"] .card`)].map(c => (c as HTMLElement).dataset.id);
+    const openSelect = async (id: string) => {
+      tap(document.querySelector(`.card[data-id="${id}"]`)!);
+      await flush();
+      return document.querySelector('.backdrop .column-select') as HTMLSelectElement;
+    };
+    const pick = async (select: HTMLSelectElement, col: string) => {
+      select.value = col;
+      select.dispatchEvent(new window.Event('change', { bubbles: true }));
+      await flush();
+    };
+
+    it('lists every board column with the current one selected', async () => {
+      const select = await openSelect('501');
+      expect([...select.options].map(o => o.value)).toEqual(['To Do', 'Doing', 'Done']);
+      expect(select.value).toBe('To Do');
+      expect(select.getAttribute('aria-label')).toBe('Column');
+    });
+
+    it('moves a card to Done through the same move call a drag makes, and closes', async () => {
+      await pick(await openSelect('501'), 'Done');
+      expect(bodyFor('/nanban/api/move')).toEqual({ todo_id: 501, project_id: 1, column: 'Done', position: 0 });
+      expect(order('Done')).toEqual(['501']);
+      expect(order('To Do')).toEqual(['502']);
+      expect(document.querySelector('.backdrop')).toBeNull();
+    });
+
+    it('puts a card at the bottom of a column that is not Done', async () => {
+      await pick(await openSelect('501'), 'Doing');
+      await pick(await openSelect('502'), 'Doing');
+      expect(bodyFor('/nanban/api/move')).toMatchObject({ todo_id: 502, column: 'Doing', position: 1 });
+      expect(order('Doing')).toEqual(['501', '502']);
+    });
+
+    it('still moves the card while Quick mode has dragging off', async () => {
+      const quick = document.getElementById('mode-quick')!;
+      quick.click();
+      try {
+        expect((document.querySelector('.card[data-id="501"]') as HTMLElement).draggable).toBe(false);
+        await pick(await openSelect('501'), 'Done');
+        expect(bodyFor('/nanban/api/move')).toMatchObject({ todo_id: 501, column: 'Done' });
+        expect(order('Done')).toEqual(['501']);
+      } finally { quick.click(); }
+    });
+
+    it('puts the card back and toasts when the move fails', async () => {
+      movePostFails = true;
+      await pick(await openSelect('501'), 'Done');
+      expect(order('To Do')).toEqual(['501', '502']);
+      expect(order('Done')).toEqual([]);
+      expect([...document.querySelectorAll('.toast')].at(-1)!.textContent).toContain('Move failed');
+    });
+  });
+
   describe('fixed trays', () => {
     const trayNames = () => [...document.querySelectorAll('#shelf .tray-name')].map(t => t.textContent);
     const trayFor = (id: string) => document.querySelector(`#shelf .tray[data-tray="${id}"]`)!;
