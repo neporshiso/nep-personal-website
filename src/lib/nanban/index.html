@@ -119,6 +119,7 @@
   .comment .who { font-size: 12px; color: var(--muted); margin-bottom: 4px; }
   .comment .body img { max-width: 100%; }
   .detail .actions { margin-top: 16px; justify-content: space-between; }
+  .detail .actions select { width: auto; margin: 0; padding: 6px 8px; }
   button.danger { color: var(--danger); border-color: var(--danger); background: none; }
   .card .meta { margin-top: 6px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
   .badge { font-size: 11px; padding: 2px 6px; border-radius: 3px; color: #fff; white-space: nowrap; }
@@ -400,6 +401,7 @@ function openDetail(card) {
     <div class="actions">
       <button type="button" class="danger">Delete</button>
       <span class="spacer" style="flex:1"></span>
+      <select class="column-select" aria-label="Column"></select>
       <button type="button" class="edit-btn">Edit</button>
       <button type="button" class="close-btn">Close</button>
     </div>`;
@@ -420,6 +422,15 @@ function openDetail(card) {
   modal.querySelector(".close-btn").onclick = close;
   modal.querySelector(".danger").onclick = () => { close(); deleteCard(card); };
   modal.querySelector(".edit-btn").onclick = () => openEdit(card, lastDetail, close);
+  // A click-only way to change column, for anything that can't drag (a remote
+  // browser driver). Same path as a drop at the bottom of the target lane.
+  const colSelect = modal.querySelector(".column-select");
+  state.columns.forEach(c => colSelect.add(new Option(c, c, false, c === card.column)));
+  colSelect.onchange = () => {
+    const toCol = colSelect.value;
+    close();
+    onDrop(card.id, toCol, state.cards.filter(c => c.column === toCol && c.id !== card.id).length);
+  };
   document.body.appendChild(backdrop);
 
   let lastDetail = null;
