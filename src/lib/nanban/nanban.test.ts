@@ -849,6 +849,64 @@ describe('nanban board script', () => {
     });
   });
 
+  describe('due dates are calendar days', () => {
+    // "YYYY-MM-DD" from Basecamp names a day, not an instant, so it must read the
+    // same on either side of UTC. Node re-reads process.env.TZ on assignment.
+    const ZONES = ['America/New_York', 'Asia/Tokyo'];
+    const savedTZ = process.env.TZ;
+    afterEach(() => {
+      // Assigning undefined stores the string "undefined", which Node reads as UTC.
+      if (savedTZ === undefined) delete process.env.TZ;
+      else process.env.TZ = savedTZ;
+      vi.useRealTimers();
+    });
+    const loadDue = async (due_on: string) => {
+      fetchMock.mockImplementationOnce(async () => jsonRes({
+        ...boardFixture(),
+        cards: [{
+          id: 7, title: 'Card 7', project_id: 1, project_name: 'Alpha', todolist_id: 101,
+          todolist_name: 'Backlog', column: 'To Do', position: 0, due_on, assignees: [],
+        }],
+      }));
+      await nb().load();
+      posts.length = 0;
+    };
+    const badge = () => document.querySelector<HTMLElement>('.card[data-id="7"] .due')!;
+    const openDetail = async () => {
+      tap(document.querySelector('.card[data-id="7"]')!);
+      await flush();
+      return document.querySelector('.backdrop .sub')!;
+    };
+
+    for (const tz of ZONES) {
+      it(`shows the stored day on the card, in the detail view and in Edit (${tz})`, async () => {
+        process.env.TZ = tz;
+        await loadDue('2026-10-16');
+        expect(badge().textContent).toContain('Oct 16');
+        expect((await openDetail()).textContent).toContain('due Oct 16');
+
+        (document.querySelector('.backdrop .edit-btn') as HTMLButtonElement).click();
+        const form = document.querySelector('.backdrop form') as HTMLFormElement;
+        expect(form.due.value).toBe('2026-10-16');
+        await submitForm(form);
+        expect(bodyFor('/nanban/api/update').due_on).toBe('2026-10-16');
+        expect(badge().textContent).toContain('Oct 16');
+      });
+
+      it(`is overdue only from the day after it is due (${tz})`, async () => {
+        process.env.TZ = tz;
+        vi.useFakeTimers({ toFake: ['Date'] });
+        vi.setSystemTime(new Date(2026, 9, 16, 12, 0));
+        await loadDue('2026-10-16');
+        expect(badge().classList.contains('overdue')).toBe(false);
+
+        vi.setSystemTime(new Date(2026, 9, 17, 0, 1));
+        await loadDue('2026-10-16');
+        expect(badge().classList.contains('overdue')).toBe(true);
+      });
+    }
+  });
+
   describe('effort', () => {
     const card = (id: number, list: string, over: Record<string, unknown> = {}) => ({
       id, title: `Card ${id}`, project_id: 1, project_name: 'Alpha',
